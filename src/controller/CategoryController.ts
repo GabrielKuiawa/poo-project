@@ -16,4 +16,8 @@ export default class CategoryController {
     public saveNewCategory(category:Category): void {
         this.categoryRepository.save(category)
     }
+
+    public listAllCategory(category:Category): void {
+        this.categoryRepository.findAll()
+    }
 }
