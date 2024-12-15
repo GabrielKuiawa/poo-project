@@ -1,18 +1,33 @@
 import { Application } from 'express';
 import express = require('express');
 import { globalErrorHandler, notFoundHandler } from './middlewares/errorHandler';
-import Route from './route/route';
+import Route from './route/Route';
 
+export default class App {
+    private app: Application;
 
+    constructor() {
+        this.app = express();
+        this.initMiddlewares();
+        this.initRoutes();
+        this.initErrorHandling();
+    }
 
-const app: Application = express();
-const route = new Route();
+    private initMiddlewares(): void {
+        this.app.use(express.json());
+    }
 
-app.use(express.json());
-app.use('/', route.getRouter()); 
+    private initRoutes(): void {
+        const route = new Route();
+        this.app.use('/', route.getRouter());
+    }
 
-app.use(notFoundHandler);
+    private initErrorHandling(): void {
+        this.app.use(notFoundHandler);
+        this.app.use(globalErrorHandler);
+    }
 
-app.use(globalErrorHandler);
-
-export default app;
+    public getApp(): Application {
+        return this.app;
+    }
+}

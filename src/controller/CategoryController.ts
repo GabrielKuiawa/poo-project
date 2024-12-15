@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import Category from "../models/Category";
 import CategoryRepository from '../repository/CategoryRepository';
 
@@ -8,16 +9,14 @@ export default class CategoryController {
     constructor(categoryRepository: CategoryRepository) {
         this.categoryRepository = categoryRepository;
     }
-
-    public getNewCategory(): Category {
-        return new Category();
-    }
     
-    public saveNewCategory(category:Category): void {
-        this.categoryRepository.save(category)
+    public saveCategory(req: Request, res: Response): void {
+        const category = req.body;
+        this.categoryRepository.save(category);
+        res.status(201).send('Category created');
     }
-
-    public listAllCategory(category:Category): void {
-        this.categoryRepository.findAll()
+    public getCategories(req: Request, res: Response): void {
+        const categories = this.categoryRepository.findAll();
+        res.json(categories);
     }
 }

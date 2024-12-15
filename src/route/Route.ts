@@ -1,17 +1,19 @@
 import { Router, Request, Response } from 'express';
-import userRoute from './userRoute';
-import categoryRoute from './categoryRoute';
+import CategoryRoute from './CategoryRoute';
+
+
 
 export default class Route {
-    private router : Router = Router();
+    private router: Router = Router();
 
     constructor() {
         this.initRoute();
     }
 
     private initRoute() {
-        this.router.use('/user', userRoute);
-        this.router.use('/category', categoryRoute);
+        const categoryRoute = new CategoryRoute();  
+        this.router.use('/api', categoryRoute.getRouter());
+
         this.router.get('/', (req: Request, res: Response) => {
             res.send('Welcome to the API!');
         });
@@ -21,5 +23,3 @@ export default class Route {
         return this.router;
     }
 }
-
-

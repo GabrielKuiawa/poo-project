@@ -1,13 +1,17 @@
 import { Router, Request, Response } from 'express';
 
-const router = Router();
+export default class UserRoute {
+    constructor(private mainRouter: Router) {
+        this.initRoutes();
+    }
 
-router.get('/', (req: Request, res: Response) => {
-    res.send('List of users');
-});
+    private initRoutes(): void {
+        this.mainRouter.get('/user', (req: Request, res: Response) => {
+            res.send('List of users');
+        });
 
-router.post('/', (req: Request, res: Response) => {
-    res.send('Create a new user');
-});
-
-export default router;
+        this.mainRouter.post('/user', (req: Request, res: Response) => {
+            res.send('Create a new user');
+        });
+    }
+}

@@ -1,13 +1,23 @@
 import { Router, Request, Response } from 'express';
+import CategoryController from '../controller/CategoryController';
+import CategoryRepository from '../repository/CategoryRepository';
 
-const router = Router();
+export default class CategoryRoute {
+    private router: Router = Router();
+    private categoryController: CategoryController;
 
-router.get('/', (req: Request, res: Response) => {
-    res.send('List of category');
-});
+    constructor() {
+        const categoryRepository = new CategoryRepository(); 
+        this.categoryController = new CategoryController(categoryRepository);   
+        this.initRoutes();
+    }
 
-router.post('/', (req: Request, res: Response) => {
-    res.send('Create a new category');
-});
+    private initRoutes(): void {
+        this.router.get('/category', (req: Request, res: Response) => this.categoryController.getCategories(req, res));
+        this.router.post('/category', (req: Request, res: Response) => this.categoryController.saveCategory(req, res));
+    }
 
-export default router;
+    public getRouter(): Router {
+        return this.router;
+    }
+}
