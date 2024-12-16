@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import CategoryRoute from './CategoryRoute';
+import ImageRoute from './Image';
+import UserRoute from './UserRoute';
 
 
 
@@ -12,11 +14,11 @@ export default class Route {
 
     private initRoute() {
         const categoryRoute = new CategoryRoute();  
-        this.router.use('/api', categoryRoute.getRouter());
-
-        this.router.get('/', (req: Request, res: Response) => {
-            res.send('Welcome to the API!');
-        });
+        const imageRoute = new ImageRoute();  
+        const userRoute = new UserRoute();  
+        this.router.use('/api/category', categoryRoute.getRouter());
+        this.router.use('/api/image', imageRoute.getRouter());
+        this.router.use('/api/user', userRoute.getRouter());
     }
 
     public getRouter(): Router {

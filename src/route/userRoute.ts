@@ -1,17 +1,26 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from "express";
+import { UserController } from "../controller/UserController";
+import UserRepository from "../repository/UserRepository";
 
 export default class UserRoute {
-    constructor(private mainRouter: Router) {
+    private router: Router = Router();
+    private userController: UserController;
+
+    constructor() {
+        const userRepository = new UserRepository(); 
+        this.userController = new UserController(userRepository);
         this.initRoutes();
     }
 
     private initRoutes(): void {
-        this.mainRouter.get('/user', (req: Request, res: Response) => {
-            res.send('List of users');
-        });
+        this.router.get('/', (req: Request, res: Response) => this.userController.getUsers(req, res));
+        this.router.post('/', (req: Request, res: Response) => this.userController.saveUser(req, res));
+        this.router.get('/:id', (req: Request, res: Response) => this.userController.getUserById(req, res));
+        this.router.put('/:id', (req: Request, res: Response) => this.userController.updateUser(req, res));
+        this.router.delete('/:id', (req: Request, res: Response) => this.userController.deleteUser(req, res));
+    }
 
-        this.mainRouter.post('/user', (req: Request, res: Response) => {
-            res.send('Create a new user');
-        });
+    public getRouter(): Router {
+        return this.router;
     }
 }
