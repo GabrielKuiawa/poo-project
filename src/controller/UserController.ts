@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import UserRepository from '../repository/UserRepository';
-
+import * as bcrypt from 'bcryptjs'; 
+import * as jwt from 'jsonwebtoken';
 import HttpException from '../exception/HttpException';
 import { User } from '../models/User';
 
@@ -25,7 +26,8 @@ export class UserController {
             const newUser = new User();
             newUser.setName(name);
             newUser.setEmail(email);
-            newUser.setPassword(password);
+            const hashedPassword = await bcrypt.hash(password, 10);
+            newUser.setPassword(hashedPassword);
             newUser.setAdmin(admin);
             newUser.setPathImageUser(pathImageUser);
 
@@ -132,6 +134,43 @@ export class UserController {
             }
         } catch (error) {
             res.status(500).json({ message: "Erro ao excluir o usuário", error: error.message });
+        }
+    }
+
+    public async login(req: Request, res: Response): Promise<void> {
+        try {
+            const { email, password } = req.body;
+
+            if (!email || !password) {
+                throw new HttpException(400, 'Email e senha são obrigatórios');
+            }
+
+            const user = await this.userRepository.findOneByEmail(email);
+            if (!user) {
+                throw new HttpException(404, 'Usuário não encontrado');
+            }
+
+            const isPasswordValid = await bcrypt.compare(password, user.getPassword());
+            if (!isPasswordValid) {
+                throw new HttpException(401, 'Senha incorreta');
+            }
+
+            const secret = process.env.JWT_SECRET || 'default_secret'; 
+
+            const token = jwt.sign(
+                { userId: user.getId() },
+                secret, 
+                { expiresIn: '1h' }
+            );
+
+            res.json({ message: 'Login bem-sucedido', token });
+
+        } catch (error) {
+            if (error instanceof HttpException) {
+                res.status(error.status).json({ message: error.message });
+            } else {
+                res.status(500).json({ message: 'Erro ao realizar login', error: error.message });
+            }
         }
     }
 }

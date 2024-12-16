@@ -13,6 +13,7 @@ export default class UserRoute {
     }
 
     private initRoutes(): void {
+        this.router.post('/login', (req: Request, res: Response) => this.userController.login(req, res));
         this.router.get('/', (req: Request, res: Response) => this.userController.getUsers(req, res));
         this.router.post('/', (req: Request, res: Response) => this.userController.saveUser(req, res));
         this.router.get('/:id', (req: Request, res: Response) => this.userController.getUserById(req, res));

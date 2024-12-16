@@ -11,8 +11,10 @@
       "typescript": "^4.5.2"
    },
    "dependencies": {
+      "bcryptjs": "^2.4.3",
       "express": "^4.21.2",
       "Image": "file:",
+      "jsonwebtoken": "^9.0.2",
       "mysql": "^2.14.1",
       "reflect-metadata": "^0.1.13",
       "typeorm": "0.3.20"

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 
 import CategoryRepository from '../repository/CategoryRepository';
 import { CategoryController } from '../controller/CategoryController';
+import { authMiddleware } from '../middlewares/authMiddleware';
 
 export default class CategoryRoute {
     private router: Router = Router();
@@ -14,7 +15,7 @@ export default class CategoryRoute {
     }
 
     private initRoutes(): void {
-        this.router.get('/', (req: Request, res: Response) => this.categoryController.getCategories(req, res));
+        this.router.get('/',authMiddleware,(req: Request, res: Response) => this.categoryController.getCategories(req, res));
         this.router.post('/', (req: Request, res: Response) => this.categoryController.saveCategory(req, res));
         this.router.get('/:id', (req: Request, res: Response) => this.categoryController.getCategoryById(req, res));
         this.router.put('/:id', (req: Request, res: Response) => this.categoryController.updateCategory(req, res));
