@@ -1,26 +1,35 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-
+import { Entity, PrimaryGeneratedColumn, Column, Unique, ManyToMany, ManyToOne } from 'typeorm';
+import { validateTextField } from '../utils/validation'; 
+import Image from './Image'; 
+import { User } from './User';
 
 @Entity()
+@Unique(['name']) 
 export default class Category {
-    
-    @PrimaryGeneratedColumn()
-    private id!: string; 
-    
-    @Column()
-    private name: string;
 
-    public getId() : string {
+    @PrimaryGeneratedColumn('uuid')
+    private id!: string;
+
+    @Column({ nullable: false, length: 100 })
+    private name!: string;
+
+
+    @ManyToMany(() => Image, (image) => image.categories)
+    public images!: Image[];
+
+    @ManyToOne(() => User, (user) => user.categories)
+    public user!: User;
+
+    public getId(): string {
         return this.id;
     }
-    
 
-    public getName() : string {
-        return this.name
+    public getName(): string {
+        return this.name;
     }
-    
-    
-    public setName(name : string) {
+
+    public setName(name: string): void {
+        validateTextField(name, 'Name', 100); 
         this.name = name;
     }
 }

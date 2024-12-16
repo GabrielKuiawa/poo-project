@@ -8,18 +8,29 @@ export class RepositoryService<T> {
     constructor(entity: EntityTarget<T>) {
         this.repository = AppDataSource.getRepository<T>(entity);
     }
- 
-    async findAll(): Promise<T[]> {
+
+    public async findOne(id: string): Promise<T | null> { 
+        return this.repository.findOneBy({ id } as any);
+    }
+
+    public async findAll(): Promise<T[]> {
         return this.repository.find();
     }
 
-    async save(entityData: DeepPartial<T>): Promise<T> {
+    public async save(entityData: DeepPartial<T>): Promise<T> {
         const entity = this.repository.create(entityData);
-        return this.repository.save(entity);
+        return await this.repository.save(entity);
     }
 
-  
-    async delete(id: number): Promise<void> {
+    public async update(id: string, data: DeepPartial<T>): Promise<T | null> { 
+        const entity = await this.repository.findOneBy({ id } as any);
+        if (!entity) return null;
+
+        const updatedEntity = this.repository.merge(entity, data);
+        return this.repository.save(updatedEntity);
+    }
+
+    public async delete(id: string): Promise<void> {  
         await this.repository.delete(id);
     }
 }

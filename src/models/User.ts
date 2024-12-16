@@ -1,25 +1,33 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import Category from './Category';  // Importar a classe Category
+import Image from './Image';        // Importar a classe Image
 
 @Entity()
 export class User {
 
-    @PrimaryGeneratedColumn()
-    private id:string;
+    @PrimaryGeneratedColumn('uuid') // Pode ser UUID para mais segurança, ou apenas número incremental
+    private id!: string;
+
+    @Column({ length: 100 })
+    private name!: string;
 
     @Column()
-    private name:string;
+    private pathImageUser!: string;
+
+    @Column({ unique: true })
+    private email!: string;
 
     @Column()
-    private pathImageUser:string;
+    private password!: string;
 
     @Column()
-    private email:string;
+    private admin!: string;
 
-    @Column()
-    private password:string;
+    @OneToMany(() => Category, (category) => category.user)
+    public categories!: Category[];
 
-    @Column()
-    private admin:string;
+    @OneToMany(() => Image, (image) => image.user)
+    public images!: Image[];
 
     public getId(): string {
         return this.id;
@@ -63,6 +71,19 @@ export class User {
 
     public setAdmin(admin: string): void {
         this.admin = admin;
-    }       
+    }
 
+    public addCategory(category: Category): void {
+        if (!this.categories) {
+            this.categories = [];
+        }
+        this.categories.push(category);
+    }
+    
+    public addImage(image: Image): void {
+        if (!this.images) {
+            this.images = [];
+        }
+        this.images.push(image);
+    }
 }

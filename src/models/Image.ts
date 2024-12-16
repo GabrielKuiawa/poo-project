@@ -1,9 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
+import { validateTextField } from '../utils/validation'; 
+import Category from './Category'; 
+import { User } from './User';
 @Entity()
 export default class Image {
 
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     private id!: string;
 
     @Column()
@@ -11,36 +13,48 @@ export default class Image {
 
     @Column()
     private description!: string;
-    
-    @Column()
-    private categoryId!: string;
 
-    public getId() : string {
+
+    @ManyToMany(() => Category, (category) => category.images)
+    @JoinTable() 
+    public categories!: Category[];
+
+    public getId(): string {
         return this.id;
     }
 
-    public setPathImage(setPathImage:string) {
-        this.pathImage = setPathImage;
+    @ManyToOne(() => User, (user) => user.images)
+    public user!: User;
+
+    public setPathImage(pathImage: string): void {
+        validateTextField(pathImage, 'Path Image', 255); 
+        this.pathImage = pathImage;
     }
 
-    public getPathImage() : string {
+    public getPathImage(): string {
         return this.pathImage;
     }
-    
-    public setDescription(description:string) {
+
+    public setDescription(description: string): void {
+        validateTextField(description, 'Description', 500); 
         this.description = description;
     }
 
-    public getDescription() : string {
+    public getDescription(): string {
         return this.description;
     }
 
-    public setCategoryId(categoryId:string) {
-        this.categoryId = categoryId;
+    public addCategory(category: Category): void {
+        if (!this.categories) {
+            this.categories = [];
+        }
+        if (!this.categories.includes(category)) {
+            this.categories.push(category); 
+        }
     }
 
-    public getCategoryId() : string {
-        return this.categoryId;
+
+    public getCategories(): Category[] {
+        return this.categories;
     }
-    
 }
