@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import Category from './Category';  // Importar a classe Category
-import Image from './Image';        // Importar a classe Image
+import Category from './Category';  
+import Image from './Image';  
 
 @Entity()
 export class User {
 
-    @PrimaryGeneratedColumn('uuid') // Pode ser UUID para mais segurança, ou apenas número incremental
+    @PrimaryGeneratedColumn('uuid') 
     private id!: string;
 
     @Column({ length: 100 })
@@ -79,7 +79,7 @@ export class User {
         }
         this.categories.push(category);
     }
-    
+
     public addImage(image: Image): void {
         if (!this.images) {
             this.images = [];

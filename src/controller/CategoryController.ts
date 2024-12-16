@@ -1,33 +1,36 @@
 import { Request, Response } from 'express';
 import CategoryRepository from '../repository/CategoryRepository';
 import Category from '../models/Category';
+import { CategoryService } from '../service/CategoryService';
+import HttpException from '../exception/HttpException';
 
 
 export class CategoryController {
-    private categoryRepository: CategoryRepository;
+    private categoryService: CategoryService;
+    private categoryRepository : CategoryRepository;
 
     constructor(categoryRepository: CategoryRepository) {
         this.categoryRepository = categoryRepository;
+        this.categoryService = new CategoryService(this.categoryRepository);
     }
 
     public async saveCategory(req: Request, res: Response): Promise<void> {
         try {
-            const categoryData = req.body;
-            const newCategory = new Category();
-            newCategory.setName(categoryData.name);  
-
-
-            const savedCategory: Category = await this.categoryRepository.save(newCategory);
+            const { name, userId } = req.body; 
+            const savedCategory = await this.categoryService.saveCategory(name, userId);
 
             res.status(201).json({
                 message: "Category created",
                 data: {
-                    id: savedCategory.getId(),  
-                    name: savedCategory.getName(), 
-                }
+                    id: savedCategory.getId(),
+                    name: savedCategory.getName(),
+                },
             });
         } catch (error) {
-            res.status(500).json({ message: "Error creating category", error: error.message });
+            if (error instanceof HttpException) 
+                res.status(error.status).json({ message: error.message });
+            else
+                res.status(500).json({ message: "Error creating category", error: error.message });
         }
     }
 
