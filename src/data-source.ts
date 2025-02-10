@@ -6,7 +6,7 @@ import Category from "./models/Category"
 
 export const AppDataSource = new DataSource({
     type: "mysql",
-    host: "localhost",
+    host: "mysql-container",
     port: 3306,
     username: "user",
     password: "root",
