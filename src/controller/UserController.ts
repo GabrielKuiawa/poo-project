@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import UserRepository from '../repository/UserRepository';
 import * as bcrypt from 'bcryptjs'; 
 import * as jwt from 'jsonwebtoken';
-import HttpException from '../exception/HttpException';
 import { User } from '../models/User';
+import { UserNotFoundException } from '../exception/UserNotFoundException';
+import NotFoundException from '../exception/NotFoundException';
+import { UserRole } from '../enum/UserRole';
 
 export class UserController {
     private userRepository: UserRepository;
@@ -14,25 +16,30 @@ export class UserController {
 
     public async saveUser(req: Request, res: Response): Promise<void> {
         try {
-            const { name, email, password, admin, pathImageUser } = req.body; 
-            
-
+            const { name, email, password, admin, pathImageUser } = req.body;
+    
+            if (!Object.values(UserRole).includes(admin)) {
+                res.status(400).json({
+                    message: "Valor de 'admin' inválido. Deve ser 'user' ou 'admin'."
+                });
+                return; 
+            }
+    
             const existingUser = await this.userRepository.findOneByEmail(email);
             if (existingUser) {
-                throw new HttpException(400, 'Email já está em uso');
+                throw new UserNotFoundException('Email já está em uso');
             }
-
-
+    
             const newUser = new User();
             newUser.setName(name);
             newUser.setEmail(email);
             const hashedPassword = await bcrypt.hash(password, 10);
             newUser.setPassword(hashedPassword);
-            newUser.setAdmin(admin);
+            newUser.setAdmin(admin as UserRole);  
             newUser.setPathImageUser(pathImageUser);
-
+    
             const savedUser = await this.userRepository.save(newUser);
-
+    
             res.status(201).json({
                 message: "Usuário criado com sucesso",
                 data: {
@@ -43,7 +50,7 @@ export class UserController {
                 }
             });
         } catch (error) {
-            if (error instanceof HttpException) {
+            if (error instanceof UserNotFoundException) {
                 res.status(error.status).json({ message: error.message });
             } else {
                 res.status(500).json({ message: "Erro ao criar o usuário", error: error.message });
@@ -142,17 +149,17 @@ export class UserController {
             const { email, password } = req.body;
 
             if (!email || !password) {
-                throw new HttpException(400, 'Email e senha são obrigatórios');
+                throw new UserNotFoundException('Email e senha são obrigatórios');
             }
 
             const user = await this.userRepository.findOneByEmail(email);
             if (!user) {
-                throw new HttpException(404, 'Usuário não encontrado');
+                throw new UserNotFoundException('Usuário ou senha incorretos');
             }
 
             const isPasswordValid = await bcrypt.compare(password, user.getPassword());
             if (!isPasswordValid) {
-                throw new HttpException(401, 'Senha incorreta');
+                throw new UserNotFoundException('Usuário ou senha incorretos');
             }
 
             const secret = process.env.JWT_SECRET || 'default_secret'; 
@@ -166,7 +173,7 @@ export class UserController {
             res.json({ message: 'Login bem-sucedido', token });
 
         } catch (error) {
-            if (error instanceof HttpException) {
+            if (error instanceof NotFoundException) {
                 res.status(error.status).json({ message: error.message });
             } else {
                 res.status(500).json({ message: 'Erro ao realizar login', error: error.message });

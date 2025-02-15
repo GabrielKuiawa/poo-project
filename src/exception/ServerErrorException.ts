@@ -1,20 +1,19 @@
 import Logger from "../utils/Logger";
 import HttpException from "./HttpException";
 
-export default class NotFoundException extends Error implements HttpException {
+export default class ServerErrorException extends Error implements HttpException {
     public status: number;
     public message: string;
 
-    constructor(message = 'Recurso não encontrado') {
+    constructor(message = 'Erro no servidor') {
         super(message);
-        this.name = 'NotFoundException';
-        this.status = 404;
+        this.status = 500;
         this.message = message;
-        Object.setPrototypeOf(this, NotFoundException.prototype);
+        Object.setPrototypeOf(this, ServerErrorException.prototype);
     }
 
     public logErrorToFile(): string {
-        const logger = new Logger('notfound-error.log',);
+        const logger = new Logger('server-error.log');
         logger.logError(this.message, this.status);
         return this.message;
     }

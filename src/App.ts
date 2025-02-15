@@ -1,8 +1,9 @@
 import { Application } from 'express';
 import express = require('express');
-import { globalErrorHandler, notFoundHandler } from './middlewares/errorHandler';
+import { globalErrorHandler, notFoundHandler} from './middlewares/errorHandler';
 import Route from './route/Route';
 import { AppDataSource } from './data-source'; 
+import ServerErrorException from './exception/ServerErrorException';
 
 export default class App {
     private app: Application;
@@ -18,7 +19,7 @@ export default class App {
             await AppDataSource.initialize();
             this.initRoutes();
         } catch (error) {
-            console.error('Erro ao conectar ao banco de dados:', error);
+            throw new ServerErrorException().logErrorToFile();
         }
     }
 
@@ -29,14 +30,17 @@ export default class App {
     private initRoutes(): void {
         const route = new Route();
         this.app.use('/', route.getRouter());
+        this.initErrorHandling();
     }
 
     private initErrorHandling(): void {
-        this.app.use(notFoundHandler);
-        this.app.use(globalErrorHandler);
+        this.app.use(notFoundHandler)
+        this.app.use(globalErrorHandler)
     }
 
     public getApp(): Application {
         return this.app;
     }
+    
+      
 }

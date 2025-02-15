@@ -1,4 +1,5 @@
 import HttpException from "../exception/HttpException";
+import NotFoundException from "../exception/NotFoundException";
 import Image from "../models/Image";
 import CategoryRepository from "../repository/CategoryRepository";
 import ImageRepository from "../repository/ImageRepository";
@@ -19,12 +20,12 @@ export class ImageService {
 
         const user = await this.userRepository.findOne(userId);
         if (!user) 
-            throw new HttpException(404, 'Usuário não encontrado');
+            throw new NotFoundException('Usuário não encontrado');
 
         const categories = await this.categoryRepository.findByIds(categoryIds);
 
         if (categories.length !== categoryIds.length) 
-            throw new HttpException(404, 'Uma ou mais categorias não foram encontradas');
+            throw new NotFoundException('Uma ou mais categorias não foram encontradas');
         
         const image = new Image();
         image.setPathImage(pathImage);

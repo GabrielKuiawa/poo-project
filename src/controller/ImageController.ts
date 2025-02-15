@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import ImageRepository from '../repository/ImageRepository';
 import Image from '../models/Image';
-
-import HttpException from '../exception/HttpException';
 import { ImageService } from '../service/ImageService';
+import NotFoundException from '../exception/NotFoundException';
 
 export class ImageController {
     private imageService: ImageService;
@@ -29,7 +28,7 @@ export class ImageController {
                 }
             });
         } catch (error) {
-            if (error instanceof HttpException) {
+            if (error instanceof NotFoundException) {
                 res.status(error.status).json({ message: error.message });
             } else {
                 res.status(500).json({ message: "Erro ao criar a imagem", error: error.message });

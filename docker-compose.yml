@@ -33,7 +33,7 @@ services:
         condition: service_healthy 
     networks:
       - app-network
-
+    command: ["npm", "start"] 
 networks:
   app-network:
     driver: bridge

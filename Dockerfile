@@ -2,9 +2,11 @@ FROM node:latest
 
 WORKDIR /app
 
-COPY . .
+COPY package*.json ./
 
-RUN npm install
+RUN npm install -g ts-node @types/node && npm install
+
+COPY . .
 
 EXPOSE 3000
 

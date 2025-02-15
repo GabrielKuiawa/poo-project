@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import Category from './Category';  
 import Image from './Image';  
-
+import { UserRole } from '../enum/UserRole';
 @Entity()
 export class User {
 
@@ -20,8 +20,8 @@ export class User {
     @Column()
     private password!: string;
 
-    @Column()
-    private admin!: string;
+    @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+    private admin!: UserRole;
 
     @OneToMany(() => Category, (category) => category.user)
     public categories!: Category[];
@@ -65,11 +65,11 @@ export class User {
         this.password = password;
     }
 
-    public getAdmin(): string {
+    public getAdmin(): UserRole {
         return this.admin;
     }
 
-    public setAdmin(admin: string): void {
+    public setAdmin(admin: UserRole): void {
         this.admin = admin;
     }
 

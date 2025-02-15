@@ -8,7 +8,7 @@ export class RepositoryService<T>  {
         this.repository = AppDataSource.getRepository<T>(entity);
     }
 
-    public async findOne(id: string): Promise<T | null> {
+    public async findOne(id: string): Promise<T> {
         return this.repository.findOneBy({ id } as any); 
     }
 
@@ -21,7 +21,7 @@ export class RepositoryService<T>  {
         return this.repository.save(entity);
     }
 
-    public async update(id: string, data: DeepPartial<T>): Promise<T | null> {
+    public async update(id: string, data: DeepPartial<T>): Promise<T> {
         const entity = await this.findOne(id);
         if (!entity) return null;
 

@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import CategoryRepository from '../repository/CategoryRepository';
 import Category from '../models/Category';
 import { CategoryService } from '../service/CategoryService';
-import HttpException from '../exception/HttpException';
+import NotFoundException from '../exception/NotFoundException';
 
 export class CategoryController {
     private categoryService: CategoryService;
@@ -13,11 +13,11 @@ export class CategoryController {
         this.categoryService = new CategoryService(this.categoryRepository);
     }
 
-    public async saveCategory(req: Request, res: Response): Promise<void> {
+    public async saveCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { name, userId } = req.body;
             const savedCategory = await this.categoryService.saveCategory(name, userId);
-
+    
             res.status(201).json({
                 message: "Categoria criada",
                 data: {
@@ -25,13 +25,11 @@ export class CategoryController {
                     name: savedCategory.getName(),
                 },
             });
-        } catch (error) {
-            if (error instanceof HttpException) 
-                res.status(error.status).json({ message: error.message });
-            else
-                res.status(500).json({ message: "Erro ao criar categoria", error: error.message });
+        } catch (error: any) {
+            next(error);
         }
     }
+    
 
     public async getCategories(req: Request, res: Response): Promise<void> {
         try {
