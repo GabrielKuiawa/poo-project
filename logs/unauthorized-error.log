@@ -1,4 +1,56 @@
 Status: 401
-Message: Você precisa inserir um usuário válido.
-Time: 2025-02-15T01:30:36.793Z
+Message: Acesso não autorizado
+Time: 2025-02-17T02:15:08.089Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:30:21.710Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:43:27.250Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:44:21.810Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:44:26.012Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:44:26.651Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:46:59.374Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:47:51.085Z
+
+Status: 4034
+Message: Acesso não autorizado
+Time: 2025-02-17T08:48:46.725Z
+
+Status: 4034
+Message: Acesso não autorizado
+Time: 2025-02-17T08:48:48.698Z
+
+Status: 4034
+Message: Acesso não autorizado
+Time: 2025-02-17T08:48:54.383Z
+
+Status: 404
+Message: Acesso não autorizado
+Time: 2025-02-17T08:49:09.335Z
+
+Status: 404
+Message: Acesso não autorizado
+Time: 2025-02-17T08:49:09.852Z
+
+Status: 401
+Message: Acesso não autorizado
+Time: 2025-02-17T08:51:10.593Z
 

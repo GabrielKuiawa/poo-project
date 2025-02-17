@@ -15,10 +15,10 @@ export default class CategoryRoute extends BaseRoute {
 
     protected initRoutes(): void {
         // this.router.get('/', authMiddleware, (req: Request, res: Response) => this.categoryController.getCategories(req, res));
-        this.router.get('/', (req: Request, res: Response) => this.categoryController.getCategories(req, res));
+        this.router.get('/', (req: Request, res: Response, next:NextFunction) => this.categoryController.getCategories(req, res, next));
         this.router.post('/', (req: Request, res: Response, next:NextFunction) => this.categoryController.saveCategory(req, res, next));
-        this.router.get('/:id', (req: Request, res: Response) => this.categoryController.getCategoryById(req, res));
-        this.router.put('/:id', (req: Request, res: Response) => this.categoryController.updateCategory(req, res));
-        this.router.delete('/:id', (req: Request, res: Response) => this.categoryController.deleteCategory(req, res));
+        this.router.get('/:id', (req: Request, res: Response, next:NextFunction) => this.categoryController.getCategoryById(req, res, next));
+        this.router.put('/:id', (req: Request, res: Response, next:NextFunction) => this.categoryController.updateCategory(req, res, next));
+        this.router.delete('/:id', (req: Request, res: Response, next:NextFunction) => this.categoryController.deleteCategory(req, res, next));
     }
 }

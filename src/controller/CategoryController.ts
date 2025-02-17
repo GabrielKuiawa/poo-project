@@ -31,7 +31,7 @@ export class CategoryController {
     }
     
 
-    public async getCategories(req: Request, res: Response): Promise<void> {
+    public async getCategories(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const categories: Category[] = await this.categoryRepository.findAll();
 
@@ -42,17 +42,17 @@ export class CategoryController {
 
             res.json(categoryData);
         } catch (error) {
-            res.status(500).json({ message: "Erro ao buscar categorias", error: error.message });
+            next(error);
         }
     }
 
-    public async getCategoryById(req: Request, res: Response): Promise<void> {
+    public async getCategoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id: string = req.params.id;
             const category: Category | null = await this.categoryRepository.findOne(id);
 
             if (!category) {
-                res.status(404).json({ message: "Categoria não encontrada" });
+                throw new NotFoundException("Categoria não encontrada");
             } else {
                 res.json({
                     id: category.getId(),
@@ -60,19 +60,18 @@ export class CategoryController {
                 });
             }
         } catch (error) {
-            res.status(500).json({ message: "Erro ao buscar categoria", error: error.message });
+            next(error);
         }
     }
 
-    public async updateCategory(req: Request, res: Response): Promise<void> {
+    public async updateCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id: string = req.params.id;
             const categoryData = req.body;
 
             const categoryToUpdate: Category | null = await this.categoryRepository.findOne(id);
             if (!categoryToUpdate) {
-                res.status(404).json({ message: "Categoria não encontrada" });
-                return;
+                throw new NotFoundException("Categoria não encontrada");
             }
 
             categoryToUpdate.setName(categoryData.name);
@@ -87,23 +86,23 @@ export class CategoryController {
                 }
             });
         } catch (error) {
-            res.status(500).json({ message: "Erro ao atualizar categoria", error: error.message });
+            next(error);
         }
     }
 
-    public async deleteCategory(req: Request, res: Response): Promise<void> {
+    public async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id: string = req.params.id;
             const categoryToDelete: Category | null = await this.categoryRepository.findOne(id);
 
             if (!categoryToDelete) {
-                res.status(404).json({ message: "Categoria não encontrada" });
+                throw new NotFoundException("Categoria não encontrada");
             } else {
                 await this.categoryRepository.delete(id);
                 res.json({ message: "Categoria deletada" });
             }
         } catch (error) {
-            res.status(500).json({ message: "Erro ao deletar categoria", error: error.message });
+            next(error);
         }
     }
 }
