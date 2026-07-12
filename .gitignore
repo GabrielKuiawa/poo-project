@@ -5,3 +5,7 @@ build/
 tmp/
 temp/
 logs/
+
+.env
+.env.*
+!.env.example

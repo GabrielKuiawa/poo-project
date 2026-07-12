@@ -15,8 +15,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
 
         return;
     }
-    const secretKey = 'default_secret';
-
+    
+    const secretKey = process.env.JWT_SECRET!;
 
     jwt.verify(token, secretKey, (err, decoded) => {
         if (err) {
