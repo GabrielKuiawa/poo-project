@@ -6,6 +6,8 @@ O backend REST existente representa a primeira etapa dessa visão. O objetivo n�
 
 Ao mesmo tempo, o projeto funciona como um ambiente prático para aprender programação orientada a objetos, arquitetura backend, bancos de dados, testes automatizados, containers, CI/CD e práticas de implantação.
 
+O projeto nasceu como um trabalho da disciplina de Programação Orientada a Objetos da faculdade. Depois da entrega acadêmica, decidi continuar seu desenvolvimento e utilizá-lo para estudar práticas que vão além do conteúdo original da matéria, aproximando-o gradualmente de um produto real e preparado para produção.
+
 > **Status:** projeto de aprendizado em desenvolvimento ativo. A API principal e o ambiente Docker já estão disponíveis. O fortalecimento da autenticação, os testes automatizados, o CI/CD e o frontend fazem parte do roadmap.
 
 ## Visão do produto
@@ -350,6 +352,10 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 
 ## Por que este projeto existe
 
-Este repositório documenta o processo de transformar a base de uma aplicação orientada a objetos em uma plataforma de inspiração visual sustentável e preparada para produção. Decisões de produto e arquitetura, erros, refatorações, testes, automações e deploys fazem parte intencionalmente da jornada de aprendizado.
+Este projeto começou como uma atividade acadêmica da disciplina de Programação Orientada a Objetos. A primeira versão tinha como foco aplicar conceitos como classes, encapsulamento, relacionamentos e separação de responsabilidades em uma API.
+
+Após a disciplina, o projeto passou a ser utilizado como um laboratório pessoal de engenharia de software. A proposta agora é transformar aquela base acadêmica em uma plataforma de inspiração visual sustentável e preparada para produção.
+
+Decisões de produto e arquitetura, erros, refatorações, testes, containers, automações e deploys fazem parte intencionalmente dessa jornada. O histórico do repositório também registra a evolução do meu conhecimento: de um projeto focado em POO para uma aplicação completa, testada, automatizada e implantada.
 
 O projeto continuará evoluindo à medida que novas práticas de engenharia forem estudadas e aplicadas.
