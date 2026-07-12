@@ -1,13 +1,31 @@
-FROM node:latest
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
+RUN npm ci
 
-RUN npm install -g ts-node @types/node && npm install
+COPY tsconfig.json ./
+COPY src ./src
 
-COPY . .
+RUN npm run build
+
+
+FROM node:22-alpine AS runtime
+
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/build ./build
+
+RUN mkdir -p /app/logs && chown node:node /app/logs
+
+USER node
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "build/server.js"]

@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: mysql:8.4
+    image: mysql:8.0
     container_name: mysql-container
     ports:
       - "3306:3306"
@@ -9,35 +9,36 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-   
     volumes:
       - mysql-data:/var/lib/mysql
-
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test:  [
+        "CMD-SHELL",
+        "mysqladmin ping -h 127.0.0.1 -P 3306 -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"
+      ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
 
-volumes:
-  mysql-data:
+  node-app:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "${PORT}:3000"
+    environment:
+      PORT: ${PORT}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mysql:
+       condition: service_healthy
+    restart: unless-stopped
 
-  # node-app:
-  #   build:
-  #     context: .  
-  #   container_name: node-app
-  #   volumes:
-  #     - .:/app  
-  #   working_dir: /app
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy 
-  #   networks:
-  #     - app-network
-  #   command: ["npm", "start"] 
-# networks:
-#   app-network:
-#     driver: bridge
+volumes:
+  mysql-data: {}
