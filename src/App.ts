@@ -3,7 +3,6 @@ import express = require('express');
 import { globalErrorHandler, notFoundHandler} from './middlewares/errorHandler';
 import Route from './route/Route';
 import { AppDataSource } from './data-source'; 
-import ServerErrorException from './exception/ServerErrorException';
 
 export default class App {
     private app: Application;
@@ -11,16 +10,15 @@ export default class App {
     constructor() {
         this.app = express();
         this.initMiddlewares(); 
-        this.initDatabase(); 
+    }
+
+    public async initialize(): Promise<void> {
+        await this.initDatabase();
+        this.initRoutes();
     }
 
     private async initDatabase(): Promise<void> {
-        try {
-            await AppDataSource.initialize();
-            this.initRoutes();
-        } catch (error) {
-            throw new ServerErrorException().logErrorToFile();
-        }
+        await AppDataSource.initialize();
     }
 
     private initMiddlewares(): void {

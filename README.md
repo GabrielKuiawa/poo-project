@@ -332,7 +332,7 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 - [x] Adicionar configuração por variáveis de ambiente
 - [x] Executar o MySQL em container com armazenamento persistente
 - [x] Adicionar um build Docker multi-stage para a API
-- [ ] Melhorar a inicialização e o tratamento de falhas do banco
+- [x] Melhorar a inicialização e o tratamento de falhas do banco
 - [ ] Fortalecer a autenticação e a autorização das rotas
 - [ ] Adicionar validação de requisições e erros HTTP consistentes
 - [ ] Adicionar testes unitários e de integração
