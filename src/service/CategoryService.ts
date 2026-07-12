@@ -16,7 +16,7 @@ export class CategoryService {
     public async saveCategory(name: string, userId: string): Promise<Category> {
         const user = await this.userRepository.findOne(userId);
         if (!user) 
-            throw new UserNotFoundException("Você precisa inserir um usuário válido.");
+            throw new UserNotFoundException();
         const newCategory = new Category();
         newCategory.setName(name);
         newCategory.setUser(user);

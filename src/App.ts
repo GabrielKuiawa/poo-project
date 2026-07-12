@@ -19,6 +19,7 @@ export default class App {
 
     private async initDatabase(): Promise<void> {
         await AppDataSource.initialize();
+        await AppDataSource.runMigrations();
     }
 
     private initMiddlewares(): void {

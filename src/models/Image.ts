@@ -8,10 +8,10 @@ export default class Image {
     @PrimaryGeneratedColumn('uuid')
     private id!: string;
 
-    @Column()
+    @Column({ length: 255 })
     private pathImage!: string;
 
-    @Column()
+    @Column({ length: 500 })
     private description!: string;
 
 
@@ -23,12 +23,11 @@ export default class Image {
         return this.id;
     }
 
-    @ManyToOne(() => User, (user) => user.images)
+    @ManyToOne(() => User, (user) => user.images, { nullable: false, onDelete: 'CASCADE' })
     public user!: User;
 
     public setPathImage(pathImage: string): void {
-        validateTextField(pathImage, 'Path Image', 255); 
-        this.pathImage = pathImage;
+        this.pathImage = validateTextField(pathImage, 'Caminho da imagem', 255);
     }
 
     public getPathImage(): string {
@@ -36,8 +35,7 @@ export default class Image {
     }
 
     public setDescription(description: string): void {
-        validateTextField(description, 'Description', 500); 
-        this.description = description;
+        this.description = validateTextField(description, 'Descrição', 500);
     }
 
     public getDescription(): string {
@@ -55,6 +53,14 @@ export default class Image {
 
 
     public getCategories(): Category[] {
-        return this.categories;
+        return this.categories ?? [];
+    }
+
+    public setCategories(categories: Category[]): void {
+        this.categories = categories;
+    }
+
+    public getUser(): User {
+        return this.user;
     }
 }

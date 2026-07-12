@@ -1,50 +1,40 @@
 import { NextFunction, Request, Response } from 'express';
-import UserRepository from '../repository/UserRepository';
-import * as bcrypt from 'bcryptjs'; 
+import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import UserRepository from '../repository/UserRepository';
 import { User } from '../models/User';
 import { UserNotFoundException } from '../exception/UserNotFoundException';
 import { UserRole } from '../enum/UserRole';
 import BadRequestException from '../exception/BadRequestException';
+import ConflictException from '../exception/ConflictException';
+import UnauthorizedException from '../exception/UnauthorizedException';
+import { config } from '../config';
+import { assertOwnerOrAdmin } from '../utils/authorization';
+import { validateEmail, validateId, validateTextField } from '../utils/validation';
 
 export class UserController {
-    private userRepository: UserRepository;
-
-    constructor(userRepository: UserRepository) {
-        this.userRepository = userRepository;
-    }
+    constructor(private readonly userRepository: UserRepository) {}
 
     public async saveUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { name, email, password, admin, pathImageUser } = req.body;
-    
-            if (!Object.values(UserRole).includes(admin)) {
-                throw new BadRequestException("Valor de 'admin' inválido. Deve ser 'user' ou 'admin'.");
-            }
-    
-            const existingUser = await this.userRepository.findOneByEmail(email);
-            if (existingUser) {
-                throw new UserNotFoundException('Email já está em uso');
+            const name = validateTextField(req.body.name, 'Nome', 100);
+            const email = validateEmail(req.body.email);
+            const password = validateTextField(req.body.password, 'Senha', 72, 8);
+            const pathImageUser = validateTextField(req.body.pathImageUser, 'Imagem do usuário', 255);
+
+            if (await this.userRepository.findOneByEmail(email)) {
+                throw new ConflictException('Email já está em uso.');
             }
 
             const newUser = new User();
             newUser.setName(name);
             newUser.setEmail(email);
-            const hashedPassword = await bcrypt.hash(password, 10);
-            newUser.setPassword(hashedPassword);
-            newUser.setAdmin(admin as UserRole);  
+            newUser.setPassword(await bcrypt.hash(password, 10));
+            newUser.setAdmin(UserRole.USER);
             newUser.setPathImageUser(pathImageUser);
-            const savedUser = await this.userRepository.save(newUser);
 
-            res.status(201).json({
-                message: "Usuário criado com sucesso",
-                data: {
-                    id: savedUser.getId(),
-                    name: savedUser.getName(),
-                    email: savedUser.getEmail(),
-                    admin: savedUser.getAdmin(),
-                }
-            });
+            const savedUser = await this.userRepository.save(newUser);
+            res.status(201).json({ message: 'Usuário criado com sucesso', data: this.serializeUser(savedUser) });
         } catch (error) {
             next(error);
         }
@@ -52,15 +42,8 @@ export class UserController {
 
     public async getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const users: User[] = await this.userRepository.findAll();
-            const userData = users.map((user: User) => ({
-                id: user.getId(),
-                name: user.getName(),
-                email: user.getEmail(),
-                admin: user.getAdmin(),
-            }));
-            
-            res.json(userData);
+            const users = await this.userRepository.findAll();
+            res.json(users.map((user) => this.serializeUser(user)));
         } catch (error) {
             next(error);
         }
@@ -68,77 +51,64 @@ export class UserController {
 
     public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id: string = req.params.id;
-            const user: User | null = await this.userRepository.findOne(id);
-            if (!user) {
-                throw new UserNotFoundException();
-            } else {
-                res.json({
-                    id: user.getId(),
-                    name: user.getName(),
-                    email: user.getEmail(),
-                    admin: user.getAdmin(),
-                });
-            }
+            const id = validateId(req.params.id);
+            assertOwnerOrAdmin(req, id);
+
+            const user = await this.userRepository.findOne(id);
+            if (!user) throw new UserNotFoundException();
+
+            res.json(this.serializeUser(user));
         } catch (error) {
             next(error);
         }
-
     }
 
     public async getUserWithImages(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id: string = req.params.id;
-    
-            if (!id) {
-                throw new BadRequestException("ID do usuário é obrigatório.");
-            }
-            
+            const id = validateId(req.params.id);
+            assertOwnerOrAdmin(req, id);
+
             const user = await this.userRepository.getImagesByUserId(id);
-            
-            if (!user) {
-                throw new UserNotFoundException();
-            }
-            
+            if (!user) throw new UserNotFoundException();
+
             res.json({
-                id: user.getId(),
-                name: user.getName(),
-                email: user.getEmail(),
-                images: user.images
+                ...this.serializeUser(user),
+                images: (user.images ?? []).map((image) => ({
+                    id: image.getId(),
+                    pathImage: image.getPathImage(),
+                    description: image.getDescription(),
+                })),
             });
         } catch (error) {
             next(error);
         }
     }
-    
-    
 
     public async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id: string = req.params.id;
-            const userData = req.body;
-            const userToUpdate: User | null = await this.userRepository.findOne(id);
+            const id = validateId(req.params.id);
+            assertOwnerOrAdmin(req, id);
 
-            if (!userToUpdate) {
-                throw new UserNotFoundException();
+            const user = await this.userRepository.findOne(id);
+            if (!user) throw new UserNotFoundException();
+
+            const name = validateTextField(req.body.name, 'Nome', 100);
+            const email = validateEmail(req.body.email);
+            const password = validateTextField(req.body.password, 'Senha', 72, 8);
+            const pathImageUser = validateTextField(req.body.pathImageUser, 'Imagem do usuário', 255);
+
+            const emailOwner = await this.userRepository.findOneByEmail(email);
+            if (emailOwner && emailOwner.getId() !== id) {
+                throw new ConflictException('Email já está em uso.');
             }
 
-            userToUpdate.setName(userData.name);
-            userToUpdate.setEmail(userData.email);
-            userToUpdate.setPassword(userData.password);
-            userToUpdate.setAdmin(userData.admin);
-            userToUpdate.setPathImageUser(userData.pathImageUser);
-            const updatedUser: User = await this.userRepository.save(userToUpdate);
+            user.setName(name);
+            user.setEmail(email);
+            user.setPassword(await bcrypt.hash(password, 10));
+            user.setPathImageUser(pathImageUser);
 
-            res.json({
-                message: "Usuário atualizado com sucesso",
-                data: {
-                    id: updatedUser.getId(),
-                    name: updatedUser.getName(),
-                    email: updatedUser.getEmail(),
-                    admin: updatedUser.getAdmin(),
-                }
-            });
+            const updatedUser = await this.userRepository.save(user);
+            res.json({ message: 'Usuário atualizado com sucesso', data: this.serializeUser(updatedUser) });
         } catch (error) {
             next(error);
         }
@@ -146,15 +116,12 @@ export class UserController {
 
     public async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id: string = req.params.id;
-            const userToDelete: User | null = await this.userRepository.findOne(id);
+            const id = validateId(req.params.id);
+            assertOwnerOrAdmin(req, id);
 
-            if (!userToDelete) {
-                throw new UserNotFoundException();
-            } else {
-                await this.userRepository.delete(id);
-                res.json({ message: "Usuário deletado com sucesso" });
-            }
+            if (!await this.userRepository.findOne(id)) throw new UserNotFoundException();
+            await this.userRepository.delete(id);
+            res.status(204).send();
         } catch (error) {
             next(error);
         }
@@ -162,28 +129,33 @@ export class UserController {
 
     public async login(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { email, password } = req.body;
-            if (!email || !password) {
-                throw new UserNotFoundException('Email e senha são obrigatórios');
-            }
+            const email = validateEmail(req.body.email);
+            const password = validateTextField(req.body.password, 'Senha', 72, 1);
             const user = await this.userRepository.findOneByEmail(email);
-            if (!user) {
-                throw new UserNotFoundException('Usuário ou senha incorretos');
-            }
-            const isPasswordValid = await bcrypt.compare(password, user.getPassword());
-            if (!isPasswordValid) {
-                throw new UserNotFoundException('Usuário ou senha incorretos');
+
+            if (!user || !await bcrypt.compare(password, user.getPassword())) {
+                throw new UnauthorizedException('Email ou senha incorretos.');
             }
 
-            const secret = process.env.JWT_SECRET || 'default_secret'; 
             const token = jwt.sign(
-                { userId: user.getId() },
-                secret, 
-                { expiresIn: '1h' }
+                { userId: user.getId(), role: user.getAdmin() },
+                config.jwtSecret,
+                { expiresIn: '1h' },
             );
+
             res.json({ message: 'Login bem-sucedido', token });
         } catch (error) {
             next(error);
         }
+    }
+
+    private serializeUser(user: User) {
+        return {
+            id: user.getId(),
+            name: user.getName(),
+            email: user.getEmail(),
+            pathImageUser: user.getPathImageUser(),
+            role: user.getAdmin(),
+        };
     }
 }

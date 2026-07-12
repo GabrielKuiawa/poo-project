@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import App from './App';
 import ServerErrorException from './exception/ServerErrorException';
+import { config } from './config';
 
-const PORT = process.env.PORT || 3000;
 
 function handleStartupError(error: unknown): never {
     const message = error instanceof Error ? error.message : String(error);
@@ -18,8 +18,8 @@ async function startServer(): Promise<void> {
         const application = new App();
         await application.initialize();
 
-        const server = application.getApp().listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+        const server = application.getApp().listen(config.port, () => {
+            console.log(`Server running on port ${config.port}`);
         });
 
         server.on('error', handleStartupError);

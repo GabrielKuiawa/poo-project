@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import HttpException from "../exception/HttpException";
-import NotFoundException from "../exception/NotFoundException";
 import ServerErrorException from "../exception/ServerErrorException";
-import BadRequestException from "../exception/BadRequestException";
-import UnauthorizedException from "../exception/UnauthorizedException";
+import ConflictException from "../exception/ConflictException";
+import NotFoundException from "../exception/NotFoundException";
 
 
 export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
@@ -11,22 +10,30 @@ export const notFoundHandler = (req: Request, res: Response, next: NextFunction)
 };
 
 export const globalErrorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
-    let exception: HttpException = new ServerErrorException();
-    let status: number = error.status || 500; 
+    let exception: HttpException;
 
-    if (status === 404) {
-        exception = new NotFoundException(error.message);
-    } else if (status === 400) {
-        exception = new BadRequestException(error.message);
-    } else if (status === 401) {
-        exception = new UnauthorizedException(error.message);
-    } else if (status === 500) {
-        exception = new ServerErrorException(error.message);
+    if (error?.code === 'ER_DUP_ENTRY') {
+        exception = new ConflictException('Já existe um recurso com esses dados.');
+    } else if (isHttpException(error)) {
+        exception = error;
+    } else {
+        exception = new ServerErrorException();
     }
 
-    console.error(`[ERROR] ${status} - ${error.message || exception.message}`);
+    console.error(`[ERROR] ${exception.status} - ${error?.message || exception.message}`);
 
     const errorMessage = exception.logErrorToFile();
 
-    res.status(status).json({ message: errorMessage, status });
+    res.status(exception.status).json({ message: errorMessage, status: exception.status });
 };
+
+function isHttpException(error: unknown): error is HttpException {
+    if (!error || typeof error !== 'object') {
+        return false;
+    }
+
+    const candidate = error as Partial<HttpException>;
+    return typeof candidate.status === 'number'
+        && typeof candidate.message === 'string'
+        && typeof candidate.logErrorToFile === 'function';
+}

@@ -6,11 +6,11 @@ export default class UserRepository extends RepositoryService<User>{
         super(User);
     }
 
-    public async findOneByEmail(email: string): Promise<User> {
+    public async findOneByEmail(email: string): Promise<User | null> {
         return this.repository.findOneBy({ email } as any); 
     }
 
-    public async getImagesByUserId(id : string) : Promise<User> {
+    public async getImagesByUserId(id : string) : Promise<User | null> {
         return this.repository.createQueryBuilder("user") .leftJoinAndSelect('user.images', 'image')
         .where('user.id = :id', { id })
         .getOne();

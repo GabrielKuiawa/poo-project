@@ -1,19 +1,8 @@
-import Logger from "../utils/Logger";
-import HttpException from "./HttpException";
-import UnauthorizedException from "./UnauthorizedException";
+import NotFoundException from './NotFoundException';
 
-export class UserNotFoundException extends Error implements HttpException {
-    public status: number;
-    public message: string;
-
-    constructor(message = 'Acesso não autorizado') {
+export class UserNotFoundException extends NotFoundException {
+    constructor(message = 'Usuário não encontrado') {
         super(message);
-        this.status = 401;
-        this.message = message;
-        Object.setPrototypeOf(this, UnauthorizedException.prototype);
-    }
-
-    logErrorToFile(): string {
-        return 
+        Object.setPrototypeOf(this, UserNotFoundException.prototype);
     }
 }

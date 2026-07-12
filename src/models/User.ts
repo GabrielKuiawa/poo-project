@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import Category from './Category';  
 import Image from './Image';  
 import { UserRole } from '../enum/UserRole';
+import { validateEmail, validateTextField } from '../utils/validation';
 @Entity()
 export class User {
 
@@ -11,7 +12,7 @@ export class User {
     @Column({ length: 100 })
     private name!: string;
 
-    @Column()
+    @Column({ length: 255 })
     private pathImageUser!: string;
 
     @Column({ unique: true })
@@ -38,7 +39,7 @@ export class User {
     }
 
     public setName(name: string): void {
-        this.name = name;
+        this.name = validateTextField(name, 'Nome', 100);
     }
 
     public getPathImageUser(): string {
@@ -46,7 +47,7 @@ export class User {
     }
 
     public setPathImageUser(pathImageUser: string): void {
-        this.pathImageUser = pathImageUser;
+        this.pathImageUser = validateTextField(pathImageUser, 'Imagem do usuário', 255);
     }
 
     public getEmail(): string {
@@ -54,7 +55,7 @@ export class User {
     }
 
     public setEmail(email: string): void {
-        this.email = email;
+        this.email = validateEmail(email);
     }
 
     public getPassword(): string {

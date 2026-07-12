@@ -1,4 +1,4 @@
-import HttpException from "../exception/HttpException";
+import ForbiddenException from "../exception/ForbiddenException";
 import NotFoundException from "../exception/NotFoundException";
 import Image from "../models/Image";
 import CategoryRepository from "../repository/CategoryRepository";
@@ -22,10 +22,7 @@ export class ImageService {
         if (!user) 
             throw new NotFoundException('Usuário não encontrado');
 
-        const categories = await this.categoryRepository.findByIds(categoryIds);
-
-        if (categories.length !== categoryIds.length) 
-            throw new NotFoundException('Uma ou mais categorias não foram encontradas');
+        const categories = await this.getOwnedCategories(categoryIds, userId);
         
         const image = new Image();
         image.setPathImage(pathImage);
@@ -36,5 +33,19 @@ export class ImageService {
         });
 
         return this.imageRepository.save(image);
+    }
+
+    public async getOwnedCategories(categoryIds: string[], userId: string) {
+        const categories = await this.categoryRepository.findByIds(categoryIds);
+
+        if (categories.length !== categoryIds.length) {
+            throw new NotFoundException('Uma ou mais categorias não foram encontradas.');
+        }
+
+        if (categories.some((category) => category.getUser().getId() !== userId)) {
+            throw new ForbiddenException('Você só pode utilizar suas próprias categorias.');
+        }
+
+        return categories;
     }
 }

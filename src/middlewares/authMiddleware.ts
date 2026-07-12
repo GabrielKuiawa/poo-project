@@ -2,27 +2,50 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import UnauthorizedException from '../exception/UnauthorizedException';
-import HttpException from '../exception/HttpException';
+import ForbiddenException from '../exception/ForbiddenException';
+import { config } from '../config';
+import { UserRole } from '../enum/UserRole';
+
+interface AuthenticationPayload extends jwt.JwtPayload {
+    userId: string;
+    role: UserRole;
+}
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    
-    if (!token) {
-        let exception: HttpException = new UnauthorizedException();
-        const errorMenssage = exception.logErrorToFile(); 
+    const [scheme, token] = req.headers.authorization?.split(' ') ?? [];
 
-        res.status(401).json({ message: errorMenssage }); 
-
+    if (scheme !== 'Bearer' || !token) {
+        next(new UnauthorizedException('Token de autenticação não informado'));
         return;
     }
-    
-    const secretKey = process.env.JWT_SECRET!;
 
-    jwt.verify(token, secretKey, (err, decoded) => {
-        if (err) {
-            return res.status(403).json({ message: 'Token inválido' }); 
+    try {
+        const decoded = jwt.verify(token, config.jwtSecret) as AuthenticationPayload;
+
+        if (!decoded.userId || !Object.values(UserRole).includes(decoded.role)) {
+            next(new UnauthorizedException('Token de autenticação inválido'));
+            return;
         }
-        console.log(decoded)
-        next(); 
-    });
+
+        req.auth = { userId: decoded.userId, role: decoded.role };
+        next();
+    } catch {
+        next(new UnauthorizedException('Token de autenticação inválido ou expirado'));
+    }
+};
+
+export const requireRole = (role: UserRole) => {
+    return (req: Request, res: Response, next: NextFunction): void => {
+        if (!req.auth) {
+            next(new UnauthorizedException());
+            return;
+        }
+
+        if (req.auth.role !== role) {
+            next(new ForbiddenException());
+            return;
+        }
+
+        next();
+    };
 };

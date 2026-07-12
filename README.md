@@ -287,7 +287,31 @@ http://localhost:3000/api
 | `npm run build` | Compila o TypeScript para o diretório `build/` |
 | `npm start` | Executa a aplicação compilada |
 | `npm run typecheck` | Valida os tipos sem gerar arquivos |
+| `npm run migration:run` | Aplica as migrations pendentes |
+| `npm run migration:revert` | Reverte a última migration aplicada |
 | `npm test` | Executa os testes com Jest |
+
+## Autenticação e autorização
+
+O cadastro e o login são públicos. As operações de escrita de imagens e categorias exigem um JWT no cabeçalho:
+
+```http
+Authorization: Bearer <token>
+```
+
+Usuários comuns podem consultar e alterar apenas o próprio perfil e os próprios recursos. A listagem completa de usuários é restrita a administradores. O papel enviado no cadastro é ignorado e toda conta pública é criada como `user`.
+
+As rotas públicas de leitura de imagens e categorias permanecem abertas para permitir a futura experiência de descoberta de conteúdo.
+
+## Banco de dados e migrations
+
+O schema não é alterado automaticamente pela aplicação. As mudanças estruturais são versionadas em `src/migration/` e executadas na inicialização ou manualmente com:
+
+```bash
+npm run migration:run
+```
+
+Um MySQL isolado e temporário para futuros testes de integração está definido em `docker-compose.test.yml`.
 
 ## Testes
 
@@ -333,15 +357,15 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 - [x] Executar o MySQL em container com armazenamento persistente
 - [x] Adicionar um build Docker multi-stage para a API
 - [x] Melhorar a inicialização e o tratamento de falhas do banco
-- [ ] Fortalecer a autenticação e a autorização das rotas
-- [ ] Adicionar validação de requisições e erros HTTP consistentes
+- [x] Fortalecer a autenticação e a autorização das rotas
+- [x] Adicionar validação de requisições e erros HTTP consistentes
 - [ ] Adicionar testes unitários e de integração
 - [ ] Automatizar os testes do Postman com Newman
 - [ ] Adicionar verificações de lint, formatação e cobertura
 - [ ] Criar um fluxo com GitHub Issues e Projects
 - [ ] Adicionar integração contínua
 - [ ] Adicionar pipelines de entrega para staging e produção
-- [ ] Substituir a sincronização automática por migrations
+- [x] Substituir a sincronização automática por migrations
 - [ ] Adicionar logs estruturados e centralizados
 - [ ] Converter o repositório em um monorepo
 - [ ] Adicionar um frontend em React

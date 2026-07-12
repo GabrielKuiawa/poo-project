@@ -8,16 +8,20 @@ export default class CategoryRepository extends RepositoryService<Category>{
     }
 
     public async findByIds(ids: string[]): Promise<Category[]> {
-        const categories: Category[] = [];
-    
-        for (const id of ids) {
-            const category = await this.findOne(id);
-    
-            if (category) {
-                categories.push(category);
-            }
+        if (ids.length === 0) {
+            return [];
         }
-    
-        return categories;
+
+        return this.repository.find({
+            where: { id: In(ids) } as any,
+            relations: { user: true },
+        });
+    }
+
+    public async findOneWithUser(id: string): Promise<Category | null> {
+        return this.repository.findOne({
+            where: { id } as any,
+            relations: { user: true },
+        });
     }
 }

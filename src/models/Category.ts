@@ -4,7 +4,7 @@ import Image from './Image';
 import { User } from './User';
 
 @Entity()
-@Unique(['name']) 
+@Unique(['name', 'user'])
 export default class Category {
 
     @PrimaryGeneratedColumn('uuid')
@@ -13,10 +13,10 @@ export default class Category {
     @Column({ nullable: false, length: 100 })
     private name!: string;
 
-    @ManyToMany(() => Image, (image) => image.categories)
+    @ManyToMany(() => Image, (image) => image.categories, { onDelete: 'CASCADE' })
     public images!: Image[];
 
-    @ManyToOne(() => User, (user) => user.categories, { nullable: false })
+    @ManyToOne(() => User, (user) => user.categories, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' }) 
     public user!: User;
 
@@ -29,8 +29,7 @@ export default class Category {
     }
 
     public setName(name: string): void {
-        validateTextField(name, 'Name', 100); 
-        this.name = name;
+        this.name = validateTextField(name, 'Nome', 100);
     }
 
     public setUser(user: User): void {
@@ -38,5 +37,9 @@ export default class Category {
             throw new Error("User cannot be null.");
         }
         this.user = user;
+    }
+
+    public getUser(): User {
+        return this.user;
     }
 }
