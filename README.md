@@ -1,10 +1,28 @@
-# API de Gerenciamento de Imagens
+# Plataforma de Inspiração Visual
 
-Uma API REST para organizar imagens em categorias e associá-las a usuários. Este projeto está sendo desenvolvido como um ambiente prático para aprender programação orientada a objetos, arquitetura backend, bancos de dados, testes automatizados, containers, CI/CD e práticas de implantação em produção.
+Uma plataforma de descoberta, compartilhamento e organização de referências visuais, inspirada em produtos como o Pinterest. A proposta é permitir que usuários publiquem imagens, encontrem inspirações e organizem conteúdos por categorias de acordo com seus interesses.
 
-O objetivo não é apenas entregar um CRUD funcional, mas evoluir uma aplicação pequena utilizando práticas de engenharia adotadas em projetos reais.
+O backend REST existente representa a primeira etapa dessa visão. O objetivo não é apenas entregar operações CRUD, mas evoluir a base atual até uma aplicação completa, com experiência social, frontend próprio e infraestrutura preparada para produção.
+
+Ao mesmo tempo, o projeto funciona como um ambiente prático para aprender programação orientada a objetos, arquitetura backend, bancos de dados, testes automatizados, containers, CI/CD e práticas de implantação.
 
 > **Status:** projeto de aprendizado em desenvolvimento ativo. A API principal e o ambiente Docker já estão disponíveis. O fortalecimento da autenticação, os testes automatizados, o CI/CD e o frontend fazem parte do roadmap.
+
+## Visão do produto
+
+A experiência planejada é semelhante à de uma rede de inspiração visual:
+
+```text
+Usuário publica uma imagem
+          ↓
+Adiciona descrição e categorias
+          ↓
+Outros usuários descobrem o conteúdo
+          ↓
+Salvam e organizam suas referências
+```
+
+No estágio atual, usuários, imagens e categorias formam o núcleo do domínio. Recursos como feed, busca, coleções, interações sociais e descoberta de conteúdo serão adicionados conforme a aplicação evoluir.
 
 ## Objetivos de aprendizado
 
@@ -325,9 +343,13 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 - [ ] Adicionar logs estruturados e centralizados
 - [ ] Converter o repositório em um monorepo
 - [ ] Adicionar um frontend em React
+- [ ] Criar feed e descoberta de imagens
+- [ ] Adicionar busca por imagens e categorias
+- [ ] Permitir que usuários salvem e organizem referências
+- [ ] Adicionar interações sociais entre usuários e conteúdos
 
 ## Por que este projeto existe
 
-Este repositório documenta o processo de transformar uma aplicação CRUD orientada a objetos em um sistema sustentável e preparado para produção. Decisões arquiteturais, erros, refatorações, testes, automações e deploys fazem parte intencionalmente da jornada de aprendizado.
+Este repositório documenta o processo de transformar a base de uma aplicação orientada a objetos em uma plataforma de inspiração visual sustentável e preparada para produção. Decisões de produto e arquitetura, erros, refatorações, testes, automações e deploys fazem parte intencionalmente da jornada de aprendizado.
 
 O projeto continuará evoluindo à medida que novas práticas de engenharia forem estudadas e aplicadas.
