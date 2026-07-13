@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-COPY tsconfig.json ./
+COPY tsconfig.json tsconfig.build.json ./
 COPY src ./src
 
 RUN npm run build
@@ -21,8 +21,6 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/build ./build
-
-RUN mkdir -p /app/logs && chown node:node /app/logs
 
 USER node
 

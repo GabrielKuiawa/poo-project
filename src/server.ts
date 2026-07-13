@@ -1,14 +1,17 @@
 import 'dotenv/config';
 import App from './App';
-import ServerErrorException from './exception/ServerErrorException';
 import { config } from './config';
+import { logger } from './utils/Logger';
 
 
 function handleStartupError(error: unknown): never {
     const message = error instanceof Error ? error.message : String(error);
 
-    console.error('Failed to start application:', error);
-    new ServerErrorException(message).logErrorToFile();
+    logger.error('Failed to start application', {
+        errorName: error instanceof Error ? error.name : typeof error,
+        errorMessage: message,
+        stack: error instanceof Error ? error.stack : undefined,
+    });
 
     process.exit(1);
 }
@@ -19,7 +22,7 @@ async function startServer(): Promise<void> {
         await application.initialize();
 
         const server = application.getApp().listen(config.port, () => {
-            console.log(`Server running on port ${config.port}`);
+            logger.info('Server started', { port: config.port });
         });
 
         server.on('error', handleStartupError);

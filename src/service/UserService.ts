@@ -10,6 +10,9 @@ import { AuthenticatedUser } from "../types/AuthenticatedUser";
 import { assertOwnerOrAdmin } from "../utils/authorization";
 import { config } from "../config";
 
+const DUMMY_PASSWORD_HASH =
+  "$2a$10$0Z2gC9QmZZ.P7WYRyuKHlexJzZ5b8WsyMqBQlqlf1nOrdeSgo7WrC";
+
 export class UserService {
   private userRepository: UserRepository;
 
@@ -109,8 +112,12 @@ export class UserService {
 
   public async login(email: string, password: string): Promise<string> {
     const user = await this.userRepository.findOneByEmail(email);
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user?.getPassword() ?? DUMMY_PASSWORD_HASH,
+    );
 
-    if (!user || !(await bcrypt.compare(password, user.getPassword()))) {
+    if (!user || !passwordMatches) {
       throw new UnauthorizedException("Email ou senha incorretos.");
     }
 

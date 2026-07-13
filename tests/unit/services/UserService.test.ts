@@ -230,11 +230,18 @@ describe("UserService", () => {
     });
 
     it("should reject invalid credentials", async () => {
+      const compareSpy = jest.spyOn(bcrypt, "compare");
       userRepository.findOneByEmail.mockResolvedValue(null);
 
       await expect(
         userService.login("unknown@example.com", "password123"),
       ).rejects.toBeInstanceOf(UnauthorizedException);
+
+      expect(compareSpy).toHaveBeenCalledWith(
+        "password123",
+        expect.stringMatching(/^\$2[aby]\$10\$/),
+      );
+      compareSpy.mockRestore();
     });
   });
 });

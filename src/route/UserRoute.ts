@@ -5,6 +5,10 @@ import { BaseRoute } from "./BaseRoute";
 import { authMiddleware, requireRole } from "../middlewares/authMiddleware";
 import { UserRole } from "../enum/UserRole";
 import { UserService } from "../service/UserService";
+import {
+  createLoginRateLimiter,
+  createRegistrationRateLimiter,
+} from "../middlewares/rateLimit";
 
 export default class UserRoute extends BaseRoute {
   private userController: UserController;
@@ -20,11 +24,15 @@ export default class UserRoute extends BaseRoute {
   protected initRoutes(): void {
     this.router.post(
       "/login",
+      createLoginRateLimiter(),
       (req: Request, res: Response, next: NextFunction) =>
         this.userController.login(req, res, next),
     );
-    this.router.post("/", (req: Request, res: Response, next: NextFunction) =>
-      this.userController.saveUser(req, res, next),
+    this.router.post(
+      "/",
+      createRegistrationRateLimiter(),
+      (req: Request, res: Response, next: NextFunction) =>
+        this.userController.saveUser(req, res, next),
     );
     this.router.get(
       "/",

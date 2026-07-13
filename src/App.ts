@@ -1,6 +1,7 @@
 import { Application } from 'express';
 import express = require('express');
 import { globalErrorHandler, notFoundHandler} from './middlewares/errorHandler';
+import { requestContext } from './middlewares/requestContext';
 import Route from './route/Route';
 import { AppDataSource } from './data-source'; 
 
@@ -23,7 +24,8 @@ export default class App {
     }
 
     private initMiddlewares(): void {
-        this.app.use(express.json());
+        this.app.use(requestContext);
+        this.app.use(express.json({ limit: '100kb' }));
     }
 
     private initRoutes(): void {
