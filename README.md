@@ -359,7 +359,8 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 - [x] Melhorar a inicialização e o tratamento de falhas do banco
 - [x] Fortalecer a autenticação e a autorização das rotas
 - [x] Adicionar validação de requisições e erros HTTP consistentes
-- [ ] Adicionar testes unitários e de integração
+- [x] Adicionar testes unitários dos serviços
+- [ ] Adicionar testes de integração
 - [ ] Automatizar os testes do Postman com Newman
 - [ ] Adicionar verificações de lint, formatação e cobertura
 - [ ] Criar um fluxo com GitHub Issues e Projects
