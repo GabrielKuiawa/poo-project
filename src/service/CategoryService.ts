@@ -4,25 +4,23 @@ import CategoryRepository from "../repository/CategoryRepository";
 import UserRepository from "../repository/UserRepository";
 
 export class CategoryService {
-    private categoryRepository: CategoryRepository;
-    private userRepository: UserRepository;
+  private categoryRepository: CategoryRepository;
+  private userRepository: UserRepository;
 
-    constructor(categoryRepository: CategoryRepository) {
-        this.categoryRepository = categoryRepository;
-        this.userRepository = new UserRepository();
-    }
+  constructor(
+    categoryRepository: CategoryRepository,
+    userRepository: UserRepository,
+  ) {
+    this.categoryRepository = categoryRepository;
+    this.userRepository = userRepository;
+  }
 
-
-    public async saveCategory(name: string, userId: string): Promise<Category> {
-        const user = await this.userRepository.findOne(userId);
-        if (!user) 
-            throw new UserNotFoundException();
-        const newCategory = new Category();
-        newCategory.setName(name);
-        newCategory.setUser(user);
-        return this.categoryRepository.save(newCategory);
-    }
-
-    
-    
+  public async saveCategory(name: string, userId: string): Promise<Category> {
+    const user = await this.userRepository.findOne(userId);
+    if (!user) throw new UserNotFoundException();
+    const newCategory = new Category();
+    newCategory.setName(name);
+    newCategory.setUser(user);
+    return this.categoryRepository.save(newCategory);
+  }
 }

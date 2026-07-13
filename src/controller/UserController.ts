@@ -5,7 +5,6 @@ import UserRepository from '../repository/UserRepository';
 import { User } from '../models/User';
 import { UserNotFoundException } from '../exception/UserNotFoundException';
 import { UserRole } from '../enum/UserRole';
-import BadRequestException from '../exception/BadRequestException';
 import ConflictException from '../exception/ConflictException';
 import UnauthorizedException from '../exception/UnauthorizedException';
 import { config } from '../config';
