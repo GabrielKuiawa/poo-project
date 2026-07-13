@@ -20,7 +20,6 @@ export default class CategoryRoute extends BaseRoute {
     );
 
     this.categoryController = new CategoryController(
-      categoryRepository,
       categoryService,
     );
 

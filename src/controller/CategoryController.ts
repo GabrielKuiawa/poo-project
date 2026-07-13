@@ -1,19 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import CategoryRepository from "../repository/CategoryRepository";
 import Category from "../models/Category";
 import { CategoryService } from "../service/CategoryService";
-import NotFoundException from "../exception/NotFoundException";
 import {
-  assertOwnerOrAdmin,
+  getAuthenticatedUser,
   getAuthenticatedUserId,
 } from "../utils/authorization";
 import { validateId, validateTextField } from "../utils/validation";
 
 export class CategoryController {
-  constructor(
-    private readonly categoryRepository: CategoryRepository,
-    private readonly categoryService: CategoryService,
-  ) {}
+  constructor(private readonly categoryService: CategoryService) {}
 
   public async saveCategory(
     req: Request,
@@ -41,7 +36,7 @@ export class CategoryController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const categories = await this.categoryRepository.findAll();
+      const categories = await this.categoryService.getCategories();
       res.json(categories.map((category) => this.serializeCategory(category)));
     } catch (error) {
       next(error);
@@ -54,10 +49,9 @@ export class CategoryController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const category = await this.categoryRepository.findOne(
-        validateId(req.params.id),
-      );
-      if (!category) throw new NotFoundException("Categoria não encontrada.");
+      const id: string = validateId(req.params.id);
+      const category = await this.categoryService.getCategoryById(id);
+
       res.json(this.serializeCategory(category));
     } catch (error) {
       next(error);
@@ -71,15 +65,16 @@ export class CategoryController {
   ): Promise<void> {
     try {
       const id = validateId(req.params.id);
-      const category = await this.categoryRepository.findOneWithUser(id);
-      if (!category) throw new NotFoundException("Categoria não encontrada.");
+      const name = validateTextField(req.body.name, "Nome", 100);
 
-      assertOwnerOrAdmin(req, category.getUser().getId());
-      category.setName(validateTextField(req.body.name, "Nome", 100));
-      const updated = await this.categoryRepository.save(category);
+      const category = await this.categoryService.updateCategory(
+        id,
+        name,
+        getAuthenticatedUser(req),
+      );
       res.json({
         message: "Categoria atualizada",
-        data: this.serializeCategory(updated),
+        data: this.serializeCategory(category),
       });
     } catch (error) {
       next(error);
@@ -93,11 +88,8 @@ export class CategoryController {
   ): Promise<void> {
     try {
       const id = validateId(req.params.id);
-      const category = await this.categoryRepository.findOneWithUser(id);
-      if (!category) throw new NotFoundException("Categoria não encontrada.");
 
-      assertOwnerOrAdmin(req, category.getUser().getId());
-      await this.categoryRepository.delete(id);
+      await this.categoryService.deleteCategory(id, getAuthenticatedUser(req));
       res.status(204).send();
     } catch (error) {
       next(error);

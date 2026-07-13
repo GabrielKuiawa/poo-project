@@ -1,12 +1,10 @@
 import { UserRole } from '../enum/UserRole';
+import { AuthenticatedUser } from './AuthenticatedUser';
 
 declare global {
     namespace Express {
         interface Request {
-            auth?: {
-                userId: string;
-                role: UserRole;
-            };
+            auth?: AuthenticatedUser;
         }
     }
 }
