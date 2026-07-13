@@ -1,7 +1,7 @@
 import { User } from "../models/User";
-import { RepositoryService } from "../service/RepositoryService";
+import { BaseRepository } from "./BaseRepository";
 
-export default class UserRepository extends RepositoryService<User>{
+export default class UserRepository extends BaseRepository<User>{
     constructor() {
         super(User);
     }

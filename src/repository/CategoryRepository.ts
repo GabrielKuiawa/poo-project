@@ -1,8 +1,8 @@
 import { In } from "typeorm";
 import Category from "../models/Category";
-import { RepositoryService } from "../service/RepositoryService";
+import { BaseRepository } from "./BaseRepository";
 
-export default class CategoryRepository extends RepositoryService<Category>{
+export default class CategoryRepository extends BaseRepository<Category>{
     constructor() {
         super(Category);
     }

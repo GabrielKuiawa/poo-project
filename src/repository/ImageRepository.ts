@@ -1,7 +1,7 @@
 import Image from "../models/Image";
-import { RepositoryService } from "../service/RepositoryService";
+import { BaseRepository } from "./BaseRepository";
 
-export default class ImageRepository extends RepositoryService<Image>{
+export default class ImageRepository extends BaseRepository<Image>{
     constructor() {
         super(Image);
     }

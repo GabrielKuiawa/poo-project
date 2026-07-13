@@ -1,7 +1,7 @@
 import { Repository, EntityTarget, DeepPartial, ObjectLiteral } from 'typeorm';
 import { AppDataSource } from '../data-source';
 
-export class RepositoryService<T extends ObjectLiteral>  {
+export class BaseRepository<T extends ObjectLiteral>  {
     protected repository: Repository<T>;
 
     constructor(entity: EntityTarget<T>) {
