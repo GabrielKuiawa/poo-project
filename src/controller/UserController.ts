@@ -8,7 +8,7 @@ import { UserRole } from '../enum/UserRole';
 import ConflictException from '../exception/ConflictException';
 import UnauthorizedException from '../exception/UnauthorizedException';
 import { config } from '../config';
-import { assertOwnerOrAdmin } from '../utils/authorization';
+import { assertOwnerOrAdmin, getAuthenticatedUser } from '../utils/authorization';
 import { validateEmail, validateId, validateTextField } from '../utils/validation';
 
 export class UserController {
@@ -51,7 +51,7 @@ export class UserController {
     public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = validateId(req.params.id);
-            assertOwnerOrAdmin(req, id);
+            assertOwnerOrAdmin(getAuthenticatedUser(req), id);
 
             const user = await this.userRepository.findOne(id);
             if (!user) throw new UserNotFoundException();
@@ -65,7 +65,7 @@ export class UserController {
     public async getUserWithImages(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = validateId(req.params.id);
-            assertOwnerOrAdmin(req, id);
+            assertOwnerOrAdmin(getAuthenticatedUser(req), id);
 
             const user = await this.userRepository.getImagesByUserId(id);
             if (!user) throw new UserNotFoundException();
@@ -86,7 +86,7 @@ export class UserController {
     public async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = validateId(req.params.id);
-            assertOwnerOrAdmin(req, id);
+            assertOwnerOrAdmin(getAuthenticatedUser(req), id);
 
             const user = await this.userRepository.findOne(id);
             if (!user) throw new UserNotFoundException();
@@ -116,7 +116,7 @@ export class UserController {
     public async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const id = validateId(req.params.id);
-            assertOwnerOrAdmin(req, id);
+            assertOwnerOrAdmin(getAuthenticatedUser(req), id);
 
             if (!await this.userRepository.findOne(id)) throw new UserNotFoundException();
             await this.userRepository.delete(id);

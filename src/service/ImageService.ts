@@ -1,9 +1,12 @@
 import ForbiddenException from "../exception/ForbiddenException";
 import NotFoundException from "../exception/NotFoundException";
+import Category from "../models/Category";
 import Image from "../models/Image";
 import CategoryRepository from "../repository/CategoryRepository";
 import ImageRepository from "../repository/ImageRepository";
 import UserRepository from "../repository/UserRepository";
+import { AuthenticatedUser } from "../types/AuthenticatedUser";
+import { assertOwnerOrAdmin } from "../utils/authorization";
 
 export class ImageService {
   private imageRepository: ImageRepository;
@@ -42,7 +45,61 @@ export class ImageService {
     return this.imageRepository.save(image);
   }
 
-  public async getOwnedCategories(categoryIds: string[], userId: string) {
+  public async getImages(): Promise<Image[]> {
+    return this.imageRepository.findAllWithRelations();
+  }
+
+  public async getImageById(id: string): Promise<Image> {
+    const image = await this.imageRepository.findOneWithRelations(id);
+
+    if (!image) {
+      throw new NotFoundException("Imagem não encontrada.");
+    }
+
+    return image;
+  }
+
+  public async updateImage(
+    id: string,
+    pathImage: string,
+    description: string,
+    categoryIds: string[],
+    authenticatedUser: AuthenticatedUser,
+  ): Promise<Image> {
+    const image = await this.imageRepository.findOneWithRelations(id);
+
+    if (!image) {
+      throw new NotFoundException("Imagem não encontrada.");
+    }
+
+    const ownerId = image.getUser().getId();
+    assertOwnerOrAdmin(authenticatedUser, ownerId);
+
+    image.setPathImage(pathImage);
+    image.setDescription(description);
+    image.setCategories(await this.getOwnedCategories(categoryIds, ownerId));
+
+    return this.imageRepository.save(image);
+  }
+
+  public async deleteImage(
+    id: string,
+    authenticatedUser: AuthenticatedUser,
+  ): Promise<void> {
+    const image = await this.imageRepository.findOneWithRelations(id);
+
+    if (!image) {
+      throw new NotFoundException("Imagem não encontrada.");
+    }
+
+    assertOwnerOrAdmin(authenticatedUser, image.getUser().getId());
+    await this.imageRepository.delete(id);
+  }
+
+  public async getOwnedCategories(
+    categoryIds: string[],
+    userId: string,
+  ): Promise<Category[]> {
     const categories = await this.categoryRepository.findByIds(categoryIds);
 
     if (categories.length !== categoryIds.length) {

@@ -22,7 +22,7 @@ export default class ImageRoute extends BaseRoute {
       categoryRepository,
     );
 
-    this.imageController = new ImageController(imageRepository, imageService);
+    this.imageController = new ImageController(imageService);
 
     this.initRoutes();
   }
