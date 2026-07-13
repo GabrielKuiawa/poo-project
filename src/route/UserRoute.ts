@@ -4,6 +4,7 @@ import UserRepository from "../repository/UserRepository";
 import { BaseRoute } from "./BaseRoute";
 import { authMiddleware, requireRole } from "../middlewares/authMiddleware";
 import { UserRole } from "../enum/UserRole";
+import { UserService } from "../service/UserService";
 
 export default class UserRoute extends BaseRoute {
   private userController: UserController;
@@ -11,7 +12,8 @@ export default class UserRoute extends BaseRoute {
   constructor() {
     super();
     const userRepository = new UserRepository();
-    this.userController = new UserController(userRepository);
+    const userService = new UserService(userRepository);
+    this.userController = new UserController(userService);
     this.initRoutes();
   }
 
