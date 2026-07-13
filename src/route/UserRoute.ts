@@ -6,21 +6,54 @@ import { authMiddleware, requireRole } from "../middlewares/authMiddleware";
 import { UserRole } from "../enum/UserRole";
 
 export default class UserRoute extends BaseRoute {
-    private userController: UserController;
+  private userController: UserController;
 
-    constructor() {
-        super();
-        const userRepository = new UserRepository();
-        this.userController = new UserController(userRepository);
-    }
+  constructor() {
+    super();
+    const userRepository = new UserRepository();
+    this.userController = new UserController(userRepository);
+    this.initRoutes();
+  }
 
-    protected initRoutes(): void {
-        this.router.post('/login', (req: Request, res: Response, next:NextFunction) => this.userController.login(req, res, next));
-        this.router.post('/', (req: Request, res: Response, next:NextFunction) => this.userController.saveUser(req, res, next));
-        this.router.get('/', authMiddleware, requireRole(UserRole.ADMIN), (req: Request, res: Response, next:NextFunction) => this.userController.getUsers(req, res, next));
-        this.router.get('/images/:id', authMiddleware, (req: Request, res: Response, next:NextFunction) => this.userController.getUserWithImages(req, res, next));
-        this.router.get('/:id', authMiddleware, (req: Request, res: Response, next:NextFunction) => this.userController.getUserById(req, res, next));
-        this.router.put('/:id', authMiddleware, (req: Request, res: Response, next:NextFunction) => this.userController.updateUser(req, res, next));
-        this.router.delete('/:id', authMiddleware, (req: Request, res: Response, next:NextFunction) => this.userController.deleteUser(req, res, next));
-    }
+  protected initRoutes(): void {
+    this.router.post(
+      "/login",
+      (req: Request, res: Response, next: NextFunction) =>
+        this.userController.login(req, res, next),
+    );
+    this.router.post("/", (req: Request, res: Response, next: NextFunction) =>
+      this.userController.saveUser(req, res, next),
+    );
+    this.router.get(
+      "/",
+      authMiddleware,
+      requireRole(UserRole.ADMIN),
+      (req: Request, res: Response, next: NextFunction) =>
+        this.userController.getUsers(req, res, next),
+    );
+    this.router.get(
+      "/images/:id",
+      authMiddleware,
+      (req: Request, res: Response, next: NextFunction) =>
+        this.userController.getUserWithImages(req, res, next),
+    );
+    this.router.get(
+      "/:id",
+      authMiddleware,
+      (req: Request, res: Response, next: NextFunction) =>
+        this.userController.getUserById(req, res, next),
+    );
+    this.router.put(
+      "/:id",
+      authMiddleware,
+      (req: Request, res: Response, next: NextFunction) =>
+        this.userController.updateUser(req, res, next),
+    );
+    this.router.delete(
+      "/:id",
+      authMiddleware,
+      (req: Request, res: Response, next: NextFunction) =>
+        this.userController.deleteUser(req, res, next),
+    );
+  }
 }
