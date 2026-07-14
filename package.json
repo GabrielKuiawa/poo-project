@@ -38,6 +38,11 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
-    "test": "jest"
+    "test": "jest --runInBand",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest --runInBand tests/integration",
+    "test:e2e": "jest --runInBand tests/e2e",
+    "test:db:up": "docker compose -f docker-compose.test.yml --profile test up -d --wait mysql-test",
+    "test:db:down": "docker compose -f docker-compose.test.yml --profile test down -v"
   }
 }

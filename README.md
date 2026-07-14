@@ -289,7 +289,12 @@ http://localhost:3000/api
 | `npm run typecheck` | Valida os tipos sem gerar arquivos |
 | `npm run migration:run` | Aplica as migrations pendentes |
 | `npm run migration:revert` | Reverte a última migration aplicada |
-| `npm test` | Executa os testes com Jest |
+| `npm test` | Executa toda a suíte com Jest |
+| `npm run test:unit` | Executa apenas os testes unitários |
+| `npm run test:integration` | Executa serviços e repositórios contra o MySQL de teste |
+| `npm run test:e2e` | Executa a API completa por HTTP contra o MySQL de teste |
+| `npm run test:db:up` | Inicia o MySQL temporário usado pelos testes |
+| `npm run test:db:down` | Encerra e remove o ambiente de banco dos testes |
 
 ## Autenticação e autorização
 
@@ -311,18 +316,26 @@ O schema não é alterado automaticamente pela aplicação. As mudanças estrutu
 npm run migration:run
 ```
 
-Um MySQL isolado e temporário para futuros testes de integração está definido em `docker-compose.test.yml`.
+Um MySQL isolado e temporário para os testes de integração e E2E está definido em `docker-compose.test.yml`.
 
 ## Testes
 
-O Jest e o ts-jest estão configurados, mas a suíte automatizada ainda está em desenvolvimento. A estratégia planejada inclui:
+O Jest e o ts-jest executam três níveis de teste:
 
-- Testes unitários de validações e comportamentos de domínio
-- Testes dos serviços com dependências simuladas
-- Testes de integração dos repositórios com um banco dedicado
-- Testes HTTP das rotas da API
-- Coleções do Postman automatizadas com Newman
-- Relatórios de cobertura na integração contínua
+- **Unitários:** serviços com repositórios simulados e middlewares isolados.
+- **Integração:** serviços, repositórios, TypeORM, migrations e MySQL real.
+- **E2E:** aplicação Express completa por HTTP, incluindo autenticação, autorização e persistência.
+
+Para executar os testes que dependem do banco:
+
+```bash
+npm run test:db:up
+npm run test:integration
+npm run test:e2e
+npm run test:db:down
+```
+
+O banco usa `tmpfs`, não compartilha dados com o ambiente de desenvolvimento e é limpo entre os casos de teste. Porta, credenciais e nome podem ser sobrescritos pelas variáveis `DB_TEST_PORT`, `DB_TEST_USERNAME`, `DB_TEST_PASSWORD` e `DB_TEST_DATABASE`.
 
 ## Estrutura do Docker
 
@@ -360,7 +373,7 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 - [x] Fortalecer a autenticação e a autorização das rotas
 - [x] Adicionar validação de requisições e erros HTTP consistentes
 - [x] Adicionar testes unitários dos serviços
-- [ ] Adicionar testes de integração
+- [x] Adicionar testes de integração e E2E
 - [ ] Automatizar os testes do Postman com Newman
 - [ ] Adicionar verificações de lint, formatação e cobertura
 - [ ] Criar um fluxo com GitHub Issues e Projects
