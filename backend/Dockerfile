@@ -2,11 +2,11 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm ci
 
-COPY backend/tsconfig.json backend/tsconfig.build.json ./
-COPY backend/src ./src
+COPY tsconfig.json tsconfig.build.json ./
+COPY src ./src
 
 RUN npm run build
 
@@ -17,7 +17,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/build ./build

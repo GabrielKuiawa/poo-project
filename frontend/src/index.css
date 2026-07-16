@@ -1,0 +1,131 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #27232f;
+  background: #f8f6fa;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+.page {
+  width: min(860px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 72px 0;
+}
+
+.hero {
+  margin-bottom: 48px;
+}
+
+.eyebrow {
+  color: #7d4e9e;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 620px;
+  margin: 12px 0;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.hero p {
+  max-width: 600px;
+  color: #625b69;
+  line-height: 1.6;
+}
+
+.api-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #6e3c8d;
+}
+
+h2 {
+  font-size: 1.15rem;
+}
+
+.endpoint-list {
+  overflow: hidden;
+  border: 1px solid #ded8e3;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.endpoint {
+  display: grid;
+  grid-template-columns: 68px minmax(180px, 1fr) 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid #eeeaf1;
+}
+
+.endpoint:last-child {
+  border-bottom: 0;
+}
+
+.endpoint a,
+.endpoint code {
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+}
+
+.endpoint a {
+  text-decoration: none;
+}
+
+.endpoint a:hover {
+  text-decoration: underline;
+}
+
+.endpoint p {
+  margin: 0;
+  color: #716a77;
+}
+
+.method {
+  padding: 5px 7px;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.method-get {
+  color: #17643b;
+  background: #e3f5e9;
+}
+
+.method-post {
+  color: #725314;
+  background: #fff3d6;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 40px 0;
+  }
+
+  .endpoint {
+    grid-template-columns: 62px 1fr;
+  }
+
+  .endpoint p {
+    grid-column: 2;
+  }
+}

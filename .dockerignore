@@ -1,9 +1,12 @@
-node_modules
-build
 .git
+.github
 .env
 .env.*
 !.env.example
-logs
-.vscode
+backend/node_modules
+backend/build
+backend/logs
+frontend/node_modules
+frontend/dist
 .idea
+.vscode

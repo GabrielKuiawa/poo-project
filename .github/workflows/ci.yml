@@ -28,18 +28,50 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: backend
         run: npm ci
 
-      - name: Check TypeScript
+      - name: Check backend TypeScript
+        working-directory: backend
         run: npm run typecheck
 
-      - name: Build application
+      - name: Build backend
+        working-directory: backend
         run: npm run build
 
-      - name: Run unit tests
+      - name: Run backend unit tests
+        working-directory: backend
         run: npm run test:unit
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Start frontend and verify HTTP response
+        working-directory: frontend
+        run: |
+          npm run preview -- --host 127.0.0.1 > "$RUNNER_TEMP/frontend.log" 2>&1 &
+          frontend_pid=$!
+          trap 'kill "$frontend_pid"' EXIT
+
+          for attempt in {1..10}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat "$RUNNER_TEMP/frontend.log"
+          exit 1
 
   database-tests:
     name: Integration and E2E tests
@@ -56,24 +88,30 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
+        working-directory: backend
         run: npm ci
 
       - name: Start test database
+        working-directory: backend
         run: npm run test:db:up
 
       - name: Run integration tests
+        working-directory: backend
         run: npm run test:integration
 
       - name: Run E2E tests
+        working-directory: backend
         run: npm run test:e2e
 
       - name: Stop test database
         if: always()
+        working-directory: backend
         run: npm run test:db:down
 
-  deploy:
+  deploy-backend:
     name: Deploy backend to DigitalOcean
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -92,5 +130,28 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           app_name: mood-board
+          print_build_logs: true
+          print_deploy_logs: true
+
+  deploy-frontend:
+    name: Deploy frontend to DigitalOcean
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: database-tests
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      vars.DIGITALOCEAN_FRONTEND_APP_NAME != ''
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Deploy App Platform frontend
+        uses: digitalocean/app_action/deploy@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          app_name: ${{ vars.DIGITALOCEAN_FRONTEND_APP_NAME }}
           print_build_logs: true
           print_deploy_logs: true

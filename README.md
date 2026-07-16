@@ -8,7 +8,7 @@ Ao mesmo tempo, o projeto funciona como um ambiente prático para aprender progr
 
 O projeto nasceu como um trabalho da disciplina de Programação Orientada a Objetos da faculdade. Depois da entrega acadêmica, decidi continuar seu desenvolvimento e utilizá-lo para estudar práticas que vão além do conteúdo original da matéria, aproximando-o gradualmente de um produto real e preparado para produção.
 
-> **Status:** projeto de aprendizado em desenvolvimento ativo. A API principal e o ambiente Docker já estão disponíveis. O fortalecimento da autenticação, os testes automatizados, o CI/CD e o frontend fazem parte do roadmap.
+> **Status:** projeto de aprendizado em desenvolvimento ativo. A API, os testes, o CI e o ambiente Docker já estão disponíveis. O frontend possui uma página inicial simples com os principais endpoints; as telas do produto ainda serão construídas.
 
 ## Visão do produto
 
@@ -66,6 +66,7 @@ No estágio atual, usuários, imagens e categorias formam o núcleo do domínio.
 | Autenticação | JSON Web Token |
 | Hash de senhas | bcryptjs |
 | Testes | Jest e ts-jest |
+| Frontend | React, TypeScript e Vite |
 | Containers | Docker e Docker Compose |
 
 ## Arquitetura
@@ -107,25 +108,27 @@ Um usuário pode possuir várias imagens e categorias. Uma imagem pode pertencer
 
 ```text
 .
-├── src/
-│   ├── controller/     # Requisições e respostas HTTP
-│   ├── enum/           # Enumerações do domínio
-│   ├── exception/      # Exceções HTTP e da aplicação
-│   ├── middlewares/    # Middlewares do Express
-│   ├── models/         # Entidades TypeORM e comportamentos de domínio
-│   ├── repository/     # Acesso ao banco de dados
-│   ├── route/          # Definição das rotas
-│   ├── service/        # Casos de uso da aplicação
-│   ├── utils/          # Validação e logs
-│   ├── App.ts          # Configuração do Express
-│   ├── data-source.ts  # Configuração do TypeORM
-│   └── server.ts       # Ponto de entrada
-├── Dockerfile
-├── docker-compose.yml
-├── jest.config.js
-├── package.json
-└── tsconfig.json
+├── backend/                 # API independente
+│   ├── src/
+│   │   ├── controller/    # Requisições e respostas HTTP
+│   │   ├── middlewares/   # Autenticação, segurança e erros
+│   │   ├── models/        # Entidades TypeORM
+│   │   ├── repository/    # Persistência
+│   │   ├── route/         # Rotas HTTP
+│   │   └── service/       # Casos de uso
+│   ├── tests/
+│   ├── Dockerfile
+│   └── package.json
+├── frontend/                # React + TypeScript + Vite
+│   ├── src/
+│   ├── Dockerfile
+│   └── package.json
+├── scripts/run-dev.mjs      # Executa os dois projetos localmente
+├── docker-compose.yml       # Frontend, backend e MySQL
+└── package.json             # Comandos de orquestração
 ```
+
+Backend e frontend possuem dependências, lockfiles e comandos próprios. A raiz apenas os orquestra; não existem pacotes de aplicação compartilhados entre eles.
 
 ## Executando com Docker
 
@@ -136,17 +139,17 @@ Um usuário pode possuir várias imagens e categorias. Uma imagem pode pertencer
 
 ### 1. Configure as variáveis de ambiente
 
-Copie o arquivo de exemplo:
+Cada aplicação possui somente suas próprias variáveis. Crie os dois arquivos locais:
 
 ```bash
-cp .env.example .env
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
-Preencha as variáveis:
+O `backend/.env` contém a porta da API, banco e JWT:
 
 ```env
 PORT=3000
-
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=user
@@ -158,42 +161,51 @@ MYSQL_ROOT_PASSWORD=sua_senha_root
 JWT_SECRET=seu_segredo_jwt_longo_e_aleatorio
 ```
 
+O `frontend/.env` possui apenas o endereço público da API:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+Não existe `.env` na raiz. Os scripts de Docker carregam explicitamente os arquivos de cada projeto. Isso evita duplicar credenciais e mantém backend e frontend executáveis de forma independente.
+
 Quando a API é executada pelo Docker Compose, o `DB_HOST` é sobrescrito com o nome do serviço MySQL. O valor `localhost` é utilizado quando a API roda diretamente na máquina.
 
 ### 2. Construa e inicie a aplicação
 
 ```bash
-docker compose up --build
+npm run docker:up
 ```
 
 Para executar em segundo plano:
 
 ```bash
-docker compose up --build -d
+docker compose --env-file backend/.env --env-file frontend/.env up --build -d
 ```
 
-A API estará disponível em:
+A aplicação estará disponível em:
 
 ```text
-http://localhost:3000
+Frontend: http://localhost:5173
+Backend:  http://localhost:3000
 ```
 
 Consulte o estado dos containers:
 
 ```bash
-docker compose ps
+npm run docker:ps
 ```
 
 Acompanhe os logs da API:
 
 ```bash
-docker compose logs -f node-app
+npm run docker:logs
 ```
 
 Encerre o ambiente preservando o banco:
 
 ```bash
-docker compose down
+npm run docker:down
 ```
 
 > O comando `docker compose down -v` também remove o volume do MySQL e todos os dados armazenados nele.
@@ -204,38 +216,41 @@ docker compose down
 
 - Node.js
 - npm
-- Uma instância do MySQL em execução
+- Docker para executar o MySQL local
 
-Instale as dependências:
+Instale as dependências de cada projeto:
 
 ```bash
-npm ci
+npm --prefix backend ci
+npm --prefix frontend ci
 ```
 
 Inicie somente o banco pelo Docker:
 
 ```bash
-docker compose up -d mysql
+npm run db:up
 ```
 
-Execute a API com recarregamento automático:
+Execute frontend e backend juntos, ambos com recarregamento automático:
 
 ```bash
 npm run dev
 ```
 
-Compile e execute a aplicação gerada:
+Também é possível executar cada projeto isoladamente:
+
+```bash
+npm run dev:backend
+npm run dev:frontend
+```
+
+Compile os dois projetos:
 
 ```bash
 npm run build
-npm start
 ```
 
-Valide os tipos sem gerar arquivos:
-
-```bash
-npm run typecheck
-```
+O frontend em `http://localhost:5173` apresenta uma página simples com os endpoints da API. Ela serve apenas como ponto inicial para as telas do produto.
 
 ## Endpoints da API
 
@@ -282,12 +297,19 @@ npm run typecheck
 
 ## Scripts disponíveis
 
+### Raiz do monorepo
+
 | Comando | Descrição |
 | --- | --- |
-| `npm run dev` | Executa o TypeScript com recarregamento automático |
-| `npm run build` | Compila o TypeScript para o diretório `build/` |
-| `npm start` | Executa a aplicação compilada |
-| `npm run typecheck` | Valida os tipos sem gerar arquivos |
+| `npm run dev` | Executa backend e frontend juntos |
+| `npm run dev:backend` | Executa somente a API |
+| `npm run dev:frontend` | Executa somente o Vite |
+| `npm run build` | Compila backend e frontend |
+| `npm run db:up` | Inicia somente o MySQL de desenvolvimento |
+| `npm run docker:up` | Constrói e executa toda a aplicação com Docker |
+| `npm run docker:down` | Encerra os containers preservando o volume do banco |
+| `npm run docker:ps` | Mostra o estado dos containers |
+| `npm run docker:logs` | Acompanha os logs da stack |
 | `npm run migration:run` | Aplica as migrations pendentes |
 | `npm run migration:revert` | Reverte a última migration aplicada |
 | `npm test` | Executa toda a suíte com Jest |
@@ -296,6 +318,8 @@ npm run typecheck
 | `npm run test:e2e` | Executa a API completa por HTTP contra o MySQL de teste |
 | `npm run test:db:up` | Inicia o MySQL temporário usado pelos testes |
 | `npm run test:db:down` | Encerra e remove o ambiente de banco dos testes |
+
+Os scripts de migrations da raiz apenas encaminham o comando para o backend. Eles também podem ser executados diretamente dentro de `backend/`.
 
 ## Autenticação e autorização
 
@@ -311,13 +335,13 @@ As rotas públicas de leitura de imagens e categorias permanecem abertas para pe
 
 ## Banco de dados e migrations
 
-O schema não é alterado automaticamente pela aplicação. As mudanças estruturais são versionadas em `src/migration/` e executadas na inicialização ou manualmente com:
+O schema não é alterado automaticamente pela aplicação. As mudanças estruturais são versionadas em `backend/src/migration/` e executadas na inicialização ou manualmente com:
 
 ```bash
-npm run migration:run
+npm --prefix backend run migration:run
 ```
 
-Um MySQL isolado e temporário para os testes de integração e E2E está definido em `docker-compose.test.yml`.
+Um MySQL isolado e temporário para os testes de integração e E2E está definido em `backend/docker-compose.test.yml`.
 
 ## Testes
 
@@ -340,7 +364,9 @@ O banco usa `tmpfs`, não compartilha dados com o ambiente de desenvolvimento e 
 
 ## CI/CD
 
-O workflow `.github/workflows/ci.yml` executa typecheck, build, testes unitários, integração e E2E. Em Pull Requests ele apenas valida o código. Depois de um push na `main`, o deploy do app `mood-board` para a DigitalOcean é iniciado automaticamente somente se todos os jobs anteriores passarem.
+O workflow `.github/workflows/ci.yml` executa typecheck, build, testes unitários, integração e E2E. O frontend também é compilado, iniciado com o servidor de preview e verificado por uma requisição HTTP. Em Pull Requests o workflow apenas valida o código.
+
+Depois de um push na `main`, o deploy do backend `mood-board` para a DigitalOcean continua sendo iniciado somente se todos os testes passarem. Esse fluxo preserva a configuração que já existe na App Platform.
 
 A infraestrutura permanece configurada na App Platform. Ela utiliza o `Dockerfile` da raiz, uma única instância da API e o domínio planejado `api.mood-board.gabizin.me`. O autodeploy da própria App Platform permanece desabilitado para que o GitHub Actions seja o único responsável pela publicação.
 
@@ -348,6 +374,28 @@ O ambiente `production` do GitHub precisa apenas deste secret:
 
 ```text
 DIGITALOCEAN_ACCESS_TOKEN
+```
+
+### Deploy do frontend
+
+O workflow está preparado para publicar o frontend sem colocar o backend atual em risco. O job somente é executado quando existe a variável de repositório `DIGITALOCEAN_FRONTEND_APP_NAME`.
+
+Antes de habilitar esse job:
+
+1. Crie um segundo app do tipo Static Site na DigitalOcean.
+2. Configure `frontend` como Source Directory.
+3. Use `npm run build` como Build Command e `dist` como Output Directory.
+4. Cadastre `VITE_API_URL` como variável de build com a URL pública do backend, por exemplo `https://api.mood-board.gabizin.me`.
+5. Desative o autodeploy nativo desse app, pois o GitHub Actions controlará a publicação.
+6. No GitHub, crie a repository variable `DIGITALOCEAN_FRONTEND_APP_NAME` com o nome desse app.
+
+Enquanto essa variável não existir, o frontend é validado pelo CI, mas seu deploy é ignorado. O deploy do backend continua funcionando normalmente.
+
+Os dois apps podem usar domínios separados, por exemplo:
+
+```text
+Frontend: mood-board.gabizin.me
+Backend:  api.mood-board.gabizin.me
 ```
 
 O Managed MySQL é anexado diretamente ao app e fornece `DATABASE_URL` em tempo de execução. A aplicação usa essa URL com SSL. O `JWT_SECRET` permanece criptografado na App Platform. No DNS de `gabizin.me`, o registro `CNAME` de `api.mood-board` deve apontar para o endereço fornecido pela plataforma.
@@ -375,7 +423,7 @@ Frontend React
 Banco MySQL
 ```
 
-A API, o banco e o futuro frontend poderão ser implantados de forma independente. As variáveis de ambiente fornecerão endereços e segredos específicos de cada ambiente sem exigir a reconstrução das imagens.
+A API, o banco e o frontend poderão ser implantados de forma independente. As variáveis de ambiente fornecerão endereços e segredos específicos de cada ambiente.
 
 ## Roadmap
 
@@ -396,8 +444,9 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 - [ ] Ativar a entrega contínua do backend na DigitalOcean
 - [x] Substituir a sincronização automática por migrations
 - [ ] Adicionar logs estruturados e centralizados
-- [ ] Converter o repositório em um monorepo
-- [ ] Adicionar um frontend em React
+- [x] Converter o repositório em um monorepo
+- [x] Adicionar o setup inicial do frontend com React, TypeScript e Vite
+- [ ] Construir as telas do frontend
 - [ ] Criar feed e descoberta de imagens
 - [ ] Adicionar busca por imagens e categorias
 - [ ] Permitir que usuários salvem e organizem referências
