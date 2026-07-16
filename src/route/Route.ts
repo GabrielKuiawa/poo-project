@@ -12,7 +12,21 @@ export default class Route {
         this.initRoute();
     }
 
-    private initRoute() {
+    private initRoute(): void {
+        this.router.get('/', (_req: Request, res: Response) => {
+            res.json({
+                name: 'Mood Board API',
+                description: 'API REST da plataforma de inspiração visual Mood Board.',
+                repository: 'https://github.com/GabrielKuiawa/mood-board',
+                endpoints: {
+                    images: '/api/image',
+                    categories: '/api/category',
+                    users: '/api/user',
+                    login: '/api/user/login',
+                },
+            });
+        });
+
         const categoryRoute = new CategoryRoute();  
         const imageRoute = new ImageRoute();  
         const userRoute = new UserRoute();  

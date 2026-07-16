@@ -239,11 +239,12 @@ npm run typecheck
 
 ## Endpoints da API
 
-A URL-base atual é:
+| Ambiente | URL |
+| --- | --- |
+| Local | `http://localhost:3000` |
+| Produção | `https://api.mood-board.gabizin.me` |
 
-```text
-http://localhost:3000/api
-```
+`GET /` apresenta a API, o repositório e os principais endpoints. Os recursos abaixo utilizam o prefixo `/api`.
 
 ### Usuários
 
