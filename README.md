@@ -337,6 +337,32 @@ npm run test:db:down
 
 O banco usa `tmpfs`, não compartilha dados com o ambiente de desenvolvimento e é limpo entre os casos de teste. Porta, credenciais e nome podem ser sobrescritos pelas variáveis `DB_TEST_PORT`, `DB_TEST_USERNAME`, `DB_TEST_PASSWORD` e `DB_TEST_DATABASE`.
 
+## CI/CD
+
+O workflow `.github/workflows/ci.yml` executa typecheck, build, testes unitários, integração e E2E. Em Pull Requests ele apenas valida o código. Depois de um push na `main`, o deploy para a DigitalOcean é liberado somente se todos os jobs anteriores passarem e a variável `DIGITALOCEAN_DEPLOY_ENABLED` estiver definida como `true`.
+
+A infraestrutura da App Platform está descrita em `.do/app.yaml`. Ela utiliza o `Dockerfile` da raiz, uma única instância da API e o domínio planejado `api.mood-board.gabizin.me`. O autodeploy da própria App Platform permanece desabilitado para que o GitHub Actions seja o único responsável pela publicação.
+
+Antes de habilitar o deploy, o ambiente `production` do GitHub deve receber estes secrets:
+
+```text
+DIGITALOCEAN_ACCESS_TOKEN
+DO_DB_HOST
+DO_DB_PORT
+DO_DB_USERNAME
+DO_DB_PASSWORD
+DO_DB_DATABASE
+DO_JWT_SECRET
+```
+
+Depois que o Managed MySQL e os secrets estiverem configurados, crie a variável de repositório:
+
+```text
+DIGITALOCEAN_DEPLOY_ENABLED=true
+```
+
+O Managed MySQL deve permitir conexões da aplicação por meio de Trusted Sources. No DNS de `gabizin.me`, o registro `CNAME` de `api.mood-board` deve apontar para o endereço fornecido pela App Platform.
+
 ## Estrutura do Docker
 
 A imagem Node utiliza um build multi-stage:
@@ -377,8 +403,8 @@ A API, o banco e o futuro frontend poderão ser implantados de forma independent
 - [ ] Automatizar os testes do Postman com Newman
 - [ ] Adicionar verificações de lint, formatação e cobertura
 - [ ] Criar um fluxo com GitHub Issues e Projects
-- [ ] Adicionar integração contínua
-- [ ] Adicionar pipelines de entrega para staging e produção
+- [x] Adicionar integração contínua
+- [ ] Ativar a entrega contínua do backend na DigitalOcean
 - [x] Substituir a sincronização automática por migrations
 - [ ] Adicionar logs estruturados e centralizados
 - [ ] Converter o repositório em um monorepo

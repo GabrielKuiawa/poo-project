@@ -72,3 +72,32 @@ jobs:
       - name: Stop test database
         if: always()
         run: npm run test:db:down
+
+  deploy:
+    name: Deploy backend to DigitalOcean
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: database-tests
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      vars.DIGITALOCEAN_DEPLOY_ENABLED == 'true'
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Deploy App Platform application
+        uses: digitalocean/app_action/deploy@v2
+        env:
+          DB_HOST: ${{ secrets.DO_DB_HOST }}
+          DB_PORT: ${{ secrets.DO_DB_PORT }}
+          DB_USERNAME: ${{ secrets.DO_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DO_DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DO_DB_DATABASE }}
+          JWT_SECRET: ${{ secrets.DO_JWT_SECRET }}
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          print_build_logs: true
+          print_deploy_logs: true
