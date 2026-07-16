@@ -378,18 +378,23 @@ DIGITALOCEAN_ACCESS_TOKEN
 
 ### Deploy do frontend
 
-O workflow está preparado para publicar o frontend sem colocar o backend atual em risco. O job somente é executado quando existe a variável de repositório `DIGITALOCEAN_FRONTEND_APP_NAME`.
+O frontend é publicado pelo GitHub Pages depois de cada push na `main`, somente após todos os testes passarem. O workflow configura o caminho público do Vite, compila `frontend`, envia o diretório `dist` e publica o artefato no ambiente `github-pages`.
 
-Antes de habilitar esse job:
+Antes do primeiro deploy, habilite o Pages uma única vez no repositório:
 
-1. Crie um segundo app do tipo Static Site na DigitalOcean.
-2. Configure `frontend` como Source Directory.
-3. Use `npm run build` como Build Command e `dist` como Output Directory.
-4. Cadastre `VITE_API_URL` como variável de build com a URL pública do backend, por exemplo `https://api.mood-board.gabizin.me`.
-5. Desative o autodeploy nativo desse app, pois o GitHub Actions controlará a publicação.
-6. No GitHub, crie a repository variable `DIGITALOCEAN_FRONTEND_APP_NAME` com o nome desse app.
+1. Abra **Settings > Pages** no GitHub.
+2. Em **Build and deployment**, escolha **GitHub Actions** como Source.
+3. Faça o push para a `main` ou execute o workflow `CI` manualmente.
 
-Enquanto essa variável não existir, o frontend é validado pelo CI, mas seu deploy é ignorado. O deploy do backend continua funcionando normalmente.
+Sem domínio próprio, o endereço será:
+
+```text
+https://gabrielkuiawa.github.io/mood-board/
+```
+
+O endereço da API usado no build fica definido no próprio workflow como `VITE_API_URL=https://api.mood-board.gabizin.me`. Ele não é um segredo e não precisa ser duplicado em arquivos `.env`.
+
+Para usar `mood-board.gabizin.me`, cadastre esse domínio em **Settings > Pages > Custom domain** e crie no DNS um registro `CNAME` de `mood-board` apontando para `gabrielkuiawa.github.io`. Depois, execute o workflow novamente para o Vite receber o caminho correto do Pages.
 
 Os dois apps podem usar domínios separados, por exemplo:
 
@@ -398,7 +403,7 @@ Frontend: mood-board.gabizin.me
 Backend:  api.mood-board.gabizin.me
 ```
 
-O Managed MySQL é anexado diretamente ao app e fornece `DATABASE_URL` em tempo de execução. A aplicação usa essa URL com SSL. O `JWT_SECRET` permanece criptografado na App Platform. No DNS de `gabizin.me`, o registro `CNAME` de `api.mood-board` deve apontar para o endereço fornecido pela plataforma.
+O Managed MySQL é anexado diretamente ao app da API e fornece `DATABASE_URL` em tempo de execução. A aplicação usa essa URL com SSL. O `JWT_SECRET` permanece criptografado na App Platform. No DNS de `gabizin.me`, o registro `CNAME` de `api.mood-board` deve apontar para o endereço fornecido pela plataforma.
 
 ## Estrutura do Docker
 
