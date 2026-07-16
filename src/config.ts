@@ -18,14 +18,39 @@ function requirePort(name: string): number {
     return value;
 }
 
+function readBooleanEnvironmentVariable(
+    name: string,
+    defaultValue: boolean,
+): boolean {
+    const value = process.env[name]?.trim().toLowerCase();
+
+    if (!value) return defaultValue;
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+
+    throw new Error(`A variável de ambiente ${name} deve ser true ou false.`);
+}
+
+const databaseUrl = process.env.DATABASE_URL?.trim();
+
 export const config = {
     port: requirePort('PORT'),
     database: {
-        host: requireEnvironmentVariable('DB_HOST'),
-        port: requirePort('DB_PORT'),
-        username: requireEnvironmentVariable('DB_USERNAME'),
-        password: requireEnvironmentVariable('DB_PASSWORD'),
-        name: requireEnvironmentVariable('DB_DATABASE'),
+        url: databaseUrl,
+        host: databaseUrl ? undefined : requireEnvironmentVariable('DB_HOST'),
+        port: databaseUrl ? undefined : requirePort('DB_PORT'),
+        username: databaseUrl
+            ? undefined
+            : requireEnvironmentVariable('DB_USERNAME'),
+        password: databaseUrl
+            ? undefined
+            : requireEnvironmentVariable('DB_PASSWORD'),
+        name: databaseUrl
+            ? undefined
+            : requireEnvironmentVariable('DB_DATABASE'),
+        ssl:
+            Boolean(databaseUrl) ||
+            readBooleanEnvironmentVariable('DB_SSL', false),
     },
     jwtSecret: requireEnvironmentVariable('JWT_SECRET'),
 };

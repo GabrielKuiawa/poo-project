@@ -339,20 +339,14 @@ O banco usa `tmpfs`, não compartilha dados com o ambiente de desenvolvimento e 
 
 ## CI/CD
 
-O workflow `.github/workflows/ci.yml` executa typecheck, build, testes unitários, integração e E2E. Em Pull Requests ele apenas valida o código. Depois de um push na `main`, o deploy para a DigitalOcean é liberado somente se todos os jobs anteriores passarem e a variável `DIGITALOCEAN_DEPLOY_ENABLED` estiver definida como `true`.
+O workflow `.github/workflows/ci.yml` executa typecheck, build, testes unitários, integração e E2E. Em Pull Requests ele apenas valida o código. Depois de um push na `main`, o deploy do app `mood-board` para a DigitalOcean é liberado somente se todos os jobs anteriores passarem e a variável `DIGITALOCEAN_DEPLOY_ENABLED` estiver definida como `true`.
 
-A infraestrutura da App Platform está descrita em `.do/app.yaml`. Ela utiliza o `Dockerfile` da raiz, uma única instância da API e o domínio planejado `api.mood-board.gabizin.me`. O autodeploy da própria App Platform permanece desabilitado para que o GitHub Actions seja o único responsável pela publicação.
+A infraestrutura permanece configurada na App Platform. Ela utiliza o `Dockerfile` da raiz, uma única instância da API e o domínio planejado `api.mood-board.gabizin.me`. O autodeploy da própria App Platform permanece desabilitado para que o GitHub Actions seja o único responsável pela publicação.
 
-Antes de habilitar o deploy, o ambiente `production` do GitHub deve receber estes secrets:
+O ambiente `production` do GitHub precisa apenas deste secret:
 
 ```text
 DIGITALOCEAN_ACCESS_TOKEN
-DO_DB_HOST
-DO_DB_PORT
-DO_DB_USERNAME
-DO_DB_PASSWORD
-DO_DB_DATABASE
-DO_JWT_SECRET
 ```
 
 Depois que o Managed MySQL e os secrets estiverem configurados, crie a variável de repositório:
@@ -361,7 +355,7 @@ Depois que o Managed MySQL e os secrets estiverem configurados, crie a variável
 DIGITALOCEAN_DEPLOY_ENABLED=true
 ```
 
-O Managed MySQL deve permitir conexões da aplicação por meio de Trusted Sources. No DNS de `gabizin.me`, o registro `CNAME` de `api.mood-board` deve apontar para o endereço fornecido pela App Platform.
+O Managed MySQL é anexado diretamente ao app e fornece `DATABASE_URL` em tempo de execução. A aplicação usa essa URL com SSL. O `JWT_SECRET` permanece criptografado na App Platform. No DNS de `gabizin.me`, o registro `CNAME` de `api.mood-board` deve apontar para o endereço fornecido pela plataforma.
 
 ## Estrutura do Docker
 

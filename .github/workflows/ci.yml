@@ -90,14 +90,8 @@ jobs:
 
       - name: Deploy App Platform application
         uses: digitalocean/app_action/deploy@v2
-        env:
-          DB_HOST: ${{ secrets.DO_DB_HOST }}
-          DB_PORT: ${{ secrets.DO_DB_PORT }}
-          DB_USERNAME: ${{ secrets.DO_DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DO_DB_PASSWORD }}
-          DB_DATABASE: ${{ secrets.DO_DB_DATABASE }}
-          JWT_SECRET: ${{ secrets.DO_JWT_SECRET }}
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          app_name: mood-board
           print_build_logs: true
           print_deploy_logs: true

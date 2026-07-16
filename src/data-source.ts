@@ -11,11 +11,13 @@ import { CascadeCategoryImages1720760000002 } from "./migration/1720760000002-Ca
 
 export const AppDataSource = new DataSource({
   type: "mysql",
+  url: config.database.url,
   host: config.database.host,
   port: config.database.port,
   username: config.database.username,
   password: config.database.password,
   database: config.database.name,
+  ssl: config.database.ssl ? { rejectUnauthorized: false } : undefined,
   synchronize: false,
   logging: false,
   entities: [User, Image, Category],
