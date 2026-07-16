@@ -1,6 +1,7 @@
 import { Express, RequestHandler } from "express";
 import express = require("express");
 import request = require("supertest");
+import ConflictException from "../../../src/exception/ConflictException";
 import {
   globalErrorHandler,
   notFoundHandler,
@@ -11,6 +12,18 @@ import {
 } from "../../../src/middlewares/rateLimit";
 import { requestContext } from "../../../src/middlewares/requestContext";
 
+let stderrWriteSpy: jest.SpyInstance;
+
+beforeEach(() => {
+  stderrWriteSpy = jest
+    .spyOn(process.stderr, "write")
+    .mockImplementation(() => true);
+});
+
+afterEach(() => {
+  stderrWriteSpy.mockRestore();
+});
+
 function createJsonApp(limit = "100kb"): Express {
   const app = express();
   app.use(requestContext);
@@ -18,6 +31,9 @@ function createJsonApp(limit = "100kb"): Express {
   app.post("/json", (_req, res) => res.status(204).send());
   app.get("/error", () => {
     throw new Error("Internal test error");
+  });
+  app.get("/conflict", (_req, _res, next) => {
+    next(new ConflictException("Email já está em uso."));
   });
   app.use(notFoundHandler);
   app.use(globalErrorHandler);
@@ -65,10 +81,6 @@ describe("request and error middleware", () => {
   });
 
   it("writes unexpected errors as structured JSON", async () => {
-    const writeSpy = jest
-      .spyOn(process.stderr, "write")
-      .mockImplementation(() => true);
-
     const response = await request(createJsonApp())
       .get("/error")
       .set("X-Request-Id", "request-error-1");
@@ -76,7 +88,7 @@ describe("request and error middleware", () => {
     expect(response.status).toBe(500);
     expect(response.body.message).toBe("Erro no servidor");
 
-    const logEntry = JSON.parse(String(writeSpy.mock.calls[0][0]));
+    const logEntry = JSON.parse(String(stderrWriteSpy.mock.calls[0][0]));
     expect(logEntry).toMatchObject({
       level: "error",
       message: "Request failed",
@@ -86,8 +98,41 @@ describe("request and error middleware", () => {
       status: 500,
       errorMessage: "Internal test error",
     });
+  });
 
-    writeSpy.mockRestore();
+  it.each([
+    {
+      path: "/missing-route",
+      status: 404,
+      requestId: "request-not-found-1",
+      errorName: "NotFoundException",
+      errorMessage: "Página não encontrada",
+    },
+    {
+      path: "/conflict",
+      status: 409,
+      requestId: "request-conflict-1",
+      errorName: "ConflictException",
+      errorMessage: "Email já está em uso.",
+    },
+  ])("writes $status responses as structured warnings", async (testCase) => {
+    const response = await request(createJsonApp())
+      .get(testCase.path)
+      .set("X-Request-Id", testCase.requestId);
+
+    expect(response.status).toBe(testCase.status);
+
+    const logEntry = JSON.parse(String(stderrWriteSpy.mock.calls[0][0]));
+    expect(logEntry).toMatchObject({
+      level: "warn",
+      message: "Request rejected",
+      requestId: testCase.requestId,
+      method: "GET",
+      path: testCase.path,
+      status: testCase.status,
+      errorName: testCase.errorName,
+      errorMessage: testCase.errorMessage,
+    });
   });
 });
 

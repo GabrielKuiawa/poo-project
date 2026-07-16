@@ -45,6 +45,15 @@ export const globalErrorHandler = (
       errorMessage: originalError?.message ?? String(error),
       stack: originalError?.stack,
     });
+  } else if (exception.status >= 400) {
+    logger.warn("Request rejected", {
+      requestId,
+      method: req.method,
+      path: req.originalUrl,
+      status: exception.status,
+      errorName: exception.name,
+      errorMessage: exception.message,
+    });
   }
 
   res.status(exception.status).json({
