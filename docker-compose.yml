@@ -23,7 +23,8 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: Dockerfile
       target: runtime
     ports:
       - "${PORT:-3000}:3000"
@@ -42,7 +43,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
       target: runtime
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}

@@ -1,9 +1,0 @@
-node_modules
-build
-.git
-.env
-.env.*
-!.env.example
-logs
-.vscode
-.idea

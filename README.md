@@ -117,13 +117,14 @@ Um usuário pode possuir várias imagens e categorias. Uma imagem pode pertencer
 │   │   ├── route/         # Rotas HTTP
 │   │   └── service/       # Casos de uso
 │   ├── tests/
-│   ├── Dockerfile
+│   ├── docker-compose.test.yml # MySQL temporário dos testes
 │   └── package.json
 ├── frontend/                # React + TypeScript + Vite
 │   ├── src/
 │   ├── Dockerfile
 │   └── package.json
 ├── scripts/run-dev.mjs      # Executa os dois projetos localmente
+├── Dockerfile               # Imagem de produção da API
 ├── docker-compose.yml       # Frontend, backend e MySQL
 └── package.json             # Comandos de orquestração
 ```
