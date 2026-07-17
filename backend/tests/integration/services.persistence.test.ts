@@ -55,10 +55,7 @@ describe("integration between services, repositories, and MySQL", () => {
       bcrypt.compare("password123", persistedUser!.getPassword()),
     ).resolves.toBe(true);
 
-    const token = await userService.login(
-      "gabriel@example.com",
-      "password123",
-    );
+    const token = await userService.login("gabriel@example.com", "password123");
     expect(jwt.verify(token, process.env.JWT_SECRET!)).toMatchObject({
       userId: user.getId(),
       role: UserRole.USER,

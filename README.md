@@ -101,6 +101,8 @@ O último comando preserva o volume do MySQL. Executar `docker compose down -v` 
 | `npm run dev:frontend` | Executa somente o Vite |
 | `npm run build` | Compila os dois projetos |
 | `npm run typecheck` | Verifica o TypeScript dos dois projetos |
+| `npm run lint` | Executa o lint dos dois projetos |
+| `npm run format:check` | Verifica a formatação do backend |
 | `npm test` | Executa a suíte do backend |
 | `npm run docker:up` | Sobe a stack completa em containers |
 | `npm run docker:down` | Encerra a stack preservando o banco |

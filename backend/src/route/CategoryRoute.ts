@@ -19,9 +19,7 @@ export default class CategoryRoute extends BaseRoute {
       userRepository,
     );
 
-    this.categoryController = new CategoryController(
-      categoryService,
-    );
+    this.categoryController = new CategoryController(categoryService);
 
     this.initRoutes();
   }

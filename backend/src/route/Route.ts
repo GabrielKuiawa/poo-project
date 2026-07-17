@@ -1,41 +1,39 @@
-import { Router, Request, Response } from 'express';
-import CategoryRoute from './CategoryRoute';
-import ImageRoute from './Image';
-import UserRoute from './UserRoute';
-
-
+import { Router, Request, Response } from "express";
+import CategoryRoute from "./CategoryRoute";
+import ImageRoute from "./ImageRoute";
+import UserRoute from "./UserRoute";
 
 export default class Route {
-    private router: Router = Router();
+  private router: Router = Router();
 
-    constructor() {
-        this.initRoute();
-    }
+  constructor() {
+    this.initRoute();
+  }
 
-    private initRoute(): void {
-        this.router.get('/', (_req: Request, res: Response) => {
-            res.json({
-                name: 'Mood Board API',
-                description: 'API REST da plataforma de inspiração visual Mood Board.',
-                repository: 'https://github.com/GabrielKuiawa/mood-board',
-                endpoints: {
-                    images: '/api/image',
-                    categories: '/api/category',
-                    users: '/api/user',
-                    login: '/api/user/login',
-                },
-            });
-        });
+  private initRoute(): void {
+    this.router.get("/", (_req: Request, res: Response) => {
+      res.json({
+        name: "Mood Board API",
+        description: "API REST da plataforma de inspiração visual Mood Board.",
+        repository: "https://github.com/GabrielKuiawa/mood-board",
+        endpoints: {
+          images: "/api/image",
+          categories: "/api/category",
+          users: "/api/user",
+          login: "/api/user/login",
+        },
+      });
+    });
 
-        const categoryRoute = new CategoryRoute();  
-        const imageRoute = new ImageRoute();  
-        const userRoute = new UserRoute();  
-        this.router.use('/api/category', categoryRoute.getRouter());
-        this.router.use('/api/image', imageRoute.getRouter());
-        this.router.use('/api/user', userRoute.getRouter());
-    }
+    const categoryRoute = new CategoryRoute();
+    const imageRoute = new ImageRoute();
+    const userRoute = new UserRoute();
+    this.router.use("/api/category", categoryRoute.getRouter());
+    this.router.use("/api/image", imageRoute.getRouter());
+    this.router.use("/api/user", userRoute.getRouter());
+  }
 
-    public getRouter(): Router {
-        return this.router;
-    }
+  public getRouter(): Router {
+    return this.router;
+  }
 }

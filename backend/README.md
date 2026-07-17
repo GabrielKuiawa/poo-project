@@ -50,21 +50,21 @@ Crie o arquivo local:
 cp .env.example .env
 ```
 
-| Variável | Uso |
-| --- | --- |
-| `PORT` | Porta HTTP da API |
-| `CORS_ORIGIN` | Origens do frontend permitidas, separadas por vírgula |
-| `DATABASE_URL` | URL do banco gerenciado em produção |
-| `DB_HOST` | Host do MySQL local |
-| `DB_PORT` | Porta do MySQL |
-| `DB_USERNAME` | Usuário do banco |
-| `DB_PASSWORD` | Senha do banco |
-| `DB_DATABASE` | Nome do banco |
-| `DB_SSL` | Habilita SSL na conexão |
-| `MYSQL_ROOT_PASSWORD` | Senha root usada pelo Compose local |
-| `JWT_SECRET` | Segredo usado para assinar tokens |
-| `DB_TEST_PORT` | Porta do MySQL isolado dos testes |
-| `DB_TEST_DATABASE` | Nome do banco de testes |
+| Variável              | Uso                                                   |
+| --------------------- | ----------------------------------------------------- |
+| `PORT`                | Porta HTTP da API                                     |
+| `CORS_ORIGIN`         | Origens do frontend permitidas, separadas por vírgula |
+| `DATABASE_URL`        | URL do banco gerenciado em produção                   |
+| `DB_HOST`             | Host do MySQL local                                   |
+| `DB_PORT`             | Porta do MySQL                                        |
+| `DB_USERNAME`         | Usuário do banco                                      |
+| `DB_PASSWORD`         | Senha do banco                                        |
+| `DB_DATABASE`         | Nome do banco                                         |
+| `DB_SSL`              | Habilita SSL na conexão                               |
+| `MYSQL_ROOT_PASSWORD` | Senha root usada pelo Compose local                   |
+| `JWT_SECRET`          | Segredo usado para assinar tokens                     |
+| `DB_TEST_PORT`        | Porta do MySQL isolado dos testes                     |
+| `DB_TEST_DATABASE`    | Nome do banco de testes                               |
 
 `DATABASE_URL`, quando preenchida, substitui as variáveis `DB_*` de conexão. Dentro do Docker Compose, o host do banco é sobrescrito para `mysql`; fora dos containers, o padrão é `localhost`.
 
@@ -81,17 +81,20 @@ A API estará em `http://localhost:3000`. Ela precisa de um MySQL acessível; pe
 
 Comandos principais:
 
-| Comando | Função |
-| --- | --- |
-| `npm run dev` | Executa com recarregamento automático |
-| `npm run typecheck` | Verifica o TypeScript |
-| `npm run build` | Gera o JavaScript em `build/` |
-| `npm start` | Executa o build compilado |
-| `npm run migration:run` | Aplica migrations pendentes |
-| `npm run migration:revert` | Reverte a última migration |
-| `npm run test:unit` | Executa testes unitários |
-| `npm run test:integration` | Executa testes de integração |
-| `npm run test:e2e` | Executa testes HTTP ponta a ponta |
+| Comando                    | Função                                    |
+| -------------------------- | ----------------------------------------- |
+| `npm run dev`              | Executa com recarregamento automático     |
+| `npm run typecheck`        | Verifica o TypeScript                     |
+| `npm run lint`             | Verifica problemas estáticos com Oxlint   |
+| `npm run format`           | Formata o backend com Prettier            |
+| `npm run format:check`     | Confere a formatação sem alterar arquivos |
+| `npm run build`            | Gera o JavaScript em `build/`             |
+| `npm start`                | Executa o build compilado                 |
+| `npm run migration:run`    | Aplica migrations pendentes               |
+| `npm run migration:revert` | Reverte a última migration                |
+| `npm run test:unit`        | Executa testes unitários                  |
+| `npm run test:integration` | Executa testes de integração              |
+| `npm run test:e2e`         | Executa testes HTTP ponta a ponta         |
 
 ## Endpoints
 
@@ -99,36 +102,36 @@ As rotas dos recursos utilizam o prefixo `/api`.
 
 ### Usuários
 
-| Método | Endpoint | Descrição |
-| --- | --- | --- |
-| `POST` | `/api/user/login` | Autentica e gera um JWT |
-| `GET` | `/api/user` | Lista usuários |
-| `POST` | `/api/user` | Cadastra um usuário |
-| `GET` | `/api/user/:id` | Busca um usuário |
-| `PUT` | `/api/user/:id` | Atualiza um usuário |
-| `DELETE` | `/api/user/:id` | Exclui um usuário |
-| `GET` | `/api/user/images/:id` | Busca usuário e suas imagens |
+| Método   | Endpoint               | Descrição                    |
+| -------- | ---------------------- | ---------------------------- |
+| `POST`   | `/api/user/login`      | Autentica e gera um JWT      |
+| `GET`    | `/api/user`            | Lista usuários               |
+| `POST`   | `/api/user`            | Cadastra um usuário          |
+| `GET`    | `/api/user/:id`        | Busca um usuário             |
+| `PUT`    | `/api/user/:id`        | Atualiza um usuário          |
+| `DELETE` | `/api/user/:id`        | Exclui um usuário            |
+| `GET`    | `/api/user/images/:id` | Busca usuário e suas imagens |
 
 ### Imagens
 
-| Método | Endpoint | Descrição |
-| --- | --- | --- |
-| `GET` | `/api/image` | Lista imagens |
-| `POST` | `/api/image` | Publica uma imagem |
-| `GET` | `/api/image/:id` | Busca uma imagem |
-| `PUT` | `/api/image/:id` | Atualiza uma imagem |
-| `DELETE` | `/api/image/:id` | Exclui uma imagem |
+| Método   | Endpoint         | Descrição           |
+| -------- | ---------------- | ------------------- |
+| `GET`    | `/api/image`     | Lista imagens       |
+| `POST`   | `/api/image`     | Publica uma imagem  |
+| `GET`    | `/api/image/:id` | Busca uma imagem    |
+| `PUT`    | `/api/image/:id` | Atualiza uma imagem |
+| `DELETE` | `/api/image/:id` | Exclui uma imagem   |
 
 ### Categorias
 
-| Método | Endpoint | Descrição |
-| --- | --- | --- |
-| `GET` | `/api/category` | Lista categorias |
-| `GET` | `/api/category/mine` | Lista categorias do usuário autenticado |
-| `POST` | `/api/category` | Cria uma categoria |
-| `GET` | `/api/category/:id` | Busca uma categoria |
-| `PUT` | `/api/category/:id` | Atualiza uma categoria |
-| `DELETE` | `/api/category/:id` | Exclui uma categoria |
+| Método   | Endpoint             | Descrição                               |
+| -------- | -------------------- | --------------------------------------- |
+| `GET`    | `/api/category`      | Lista categorias                        |
+| `GET`    | `/api/category/mine` | Lista categorias do usuário autenticado |
+| `POST`   | `/api/category`      | Cria uma categoria                      |
+| `GET`    | `/api/category/:id`  | Busca uma categoria                     |
+| `PUT`    | `/api/category/:id`  | Atualiza uma categoria                  |
+| `DELETE` | `/api/category/:id`  | Exclui uma categoria                    |
 
 `GET /` apresenta a API e seus principais endpoints.
 

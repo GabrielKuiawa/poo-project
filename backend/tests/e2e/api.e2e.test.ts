@@ -4,10 +4,7 @@ import App from "../../src/App";
 import { AppDataSource } from "../../src/data-source";
 import { UserRole } from "../../src/enum/UserRole";
 import { User } from "../../src/models/User";
-import {
-  clearTestDatabase,
-  closeTestDatabase,
-} from "../helpers/database";
+import { clearTestDatabase, closeTestDatabase } from "../helpers/database";
 
 describe("API E2E", () => {
   let api: ReturnType<typeof request>;
@@ -131,9 +128,9 @@ describe("API E2E", () => {
       .get("/api/category/mine")
       .set("Authorization", `Bearer ${ownerToken}`)
       .expect(200);
-    expect(ownerCategories.body.map((item: { id: string }) => item.id)).toEqual([
-      category.body.data.id,
-    ]);
+    expect(ownerCategories.body.map((item: { id: string }) => item.id)).toEqual(
+      [category.body.data.id],
+    );
     expect(ownerCategories.body).not.toContainEqual(
       expect.objectContaining({ id: otherCategory.body.data.id }),
     );
@@ -188,10 +185,7 @@ describe("API E2E", () => {
       .options("/api/category")
       .set("Origin", allowedOrigin)
       .set("Access-Control-Request-Method", "POST")
-      .set(
-        "Access-Control-Request-Headers",
-        "Authorization, Content-Type",
-      );
+      .set("Access-Control-Request-Headers", "Authorization, Content-Type");
 
     expect(allowedResponse.status).toBe(204);
     expect(allowedResponse.headers["access-control-allow-origin"]).toBe(

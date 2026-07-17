@@ -129,12 +129,9 @@ describe("ImageService", () => {
       userRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        imageService.saveImage(
-          "/images/new.png",
-          "New description",
-          OWNER_ID,
-          [CATEGORY_ID],
-        ),
+        imageService.saveImage("/images/new.png", "New description", OWNER_ID, [
+          CATEGORY_ID,
+        ]),
       ).rejects.toBeInstanceOf(NotFoundException);
 
       expect(categoryRepository.findByIds).not.toHaveBeenCalled();
@@ -187,9 +184,9 @@ describe("ImageService", () => {
     it("should throw when the image does not exist", async () => {
       imageRepository.findOneWithRelations.mockResolvedValue(null);
 
-      await expect(
-        imageService.getImageById(IMAGE_ID),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      await expect(imageService.getImageById(IMAGE_ID)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 

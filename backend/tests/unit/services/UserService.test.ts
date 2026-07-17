@@ -2,7 +2,7 @@ jest.mock("../../../src/config", () => ({
   config: { jwtSecret: "test-jwt-secret" },
 }));
 
-import * as bcrypt from "bcryptjs";
+import bcrypt = require("bcryptjs");
 import * as jwt from "jsonwebtoken";
 import { UserRole } from "../../../src/enum/UserRole";
 import ConflictException from "../../../src/exception/ConflictException";
@@ -73,9 +73,7 @@ describe("UserService", () => {
       delete: jest.fn(),
     };
 
-    userService = new UserService(
-      userRepository as unknown as UserRepository,
-    );
+    userService = new UserService(userRepository as unknown as UserRepository);
   });
 
   describe("saveUser", () => {
@@ -152,9 +150,9 @@ describe("UserService", () => {
     user.images = [];
     userRepository.getImagesByUserId.mockResolvedValue(user);
 
-    await expect(
-      userService.getUserWithImages(USER_ID, admin),
-    ).resolves.toBe(user);
+    await expect(userService.getUserWithImages(USER_ID, admin)).resolves.toBe(
+      user,
+    );
     expect(userRepository.getImagesByUserId).toHaveBeenCalledWith(USER_ID);
   });
 
@@ -219,10 +217,7 @@ describe("UserService", () => {
         createUser(USER_ID, "user@example.com", passwordHash),
       );
 
-      const token = await userService.login(
-        "user@example.com",
-        "password123",
-      );
+      const token = await userService.login("user@example.com", "password123");
       const payload = jwt.verify(token, "test-jwt-secret") as jwt.JwtPayload;
 
       expect(payload.userId).toBe(USER_ID);

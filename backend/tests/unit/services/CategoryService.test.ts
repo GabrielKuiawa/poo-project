@@ -88,10 +88,7 @@ describe("CategoryService", () => {
         async (category) => category as Category,
       );
 
-      const result = await categoryService.saveCategory(
-        "Technology",
-        OWNER_ID,
-      );
+      const result = await categoryService.saveCategory("Technology", OWNER_ID);
 
       expect(userRepository.findOne).toHaveBeenCalledWith(OWNER_ID);
       expect(categoryRepository.save).toHaveBeenCalledTimes(1);
@@ -128,9 +125,7 @@ describe("CategoryService", () => {
 
   describe("getCategoriesByUserId", () => {
     it("should return only categories owned by the user", async () => {
-      const categories = [
-        createCategory("Technology", createUser(OWNER_ID)),
-      ];
+      const categories = [createCategory("Technology", createUser(OWNER_ID))];
       categoryRepository.findByUserId.mockResolvedValue(categories);
 
       const result = await categoryService.getCategoriesByUserId(OWNER_ID);

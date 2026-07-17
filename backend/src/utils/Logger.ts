@@ -14,11 +14,7 @@ export default class Logger {
     this.write("error", message, metadata);
   }
 
-  private write(
-    level: LogLevel,
-    message: string,
-    metadata: LogMetadata,
-  ): void {
+  private write(level: LogLevel, message: string, metadata: LogMetadata): void {
     const entry = JSON.stringify({
       ...metadata,
       timestamp: new Date().toISOString(),

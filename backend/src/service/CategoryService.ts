@@ -61,7 +61,10 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
-  public async deleteCategory(id: string, authenticatedUser: AuthenticatedUser): Promise<void> {
+  public async deleteCategory(
+    id: string,
+    authenticatedUser: AuthenticatedUser,
+  ): Promise<void> {
     const category = await this.categoryRepository.findOneWithUser(id);
     if (!category) throw new NotFoundException("Categoria não encontrada.");
 
