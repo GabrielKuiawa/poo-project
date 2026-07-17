@@ -107,6 +107,6 @@ O último comando preserva o volume do MySQL. Executar `docker compose down -v` 
 
 ## CI/CD
 
-Pull Requests executam build, typecheck e testes. Depois de um push na `main`, o mesmo workflow publica a API na DigitalOcean e o frontend no GitHub Pages somente quando todas as validações passam.
+O workflow `CI` executa build, typecheck e testes em Pull Requests e pushes. Depois de um push na `main`, o workflow `CD` somente publica a API na DigitalOcean e o frontend no GitHub Pages quando o CI do mesmo commit termina com sucesso.
 
 Os detalhes de cada publicação ficam nos READMEs das respectivas aplicações.

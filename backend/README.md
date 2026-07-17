@@ -176,4 +176,4 @@ Em produção:
 - Banco: Managed MySQL fornecido por `DATABASE_URL`
 - Segredo necessário no GitHub: `DIGITALOCEAN_ACCESS_TOKEN`
 
-O deploy ocorre pelo workflow `.github/workflows/ci.yml` depois que todas as validações passam em um push para a `main`.
+O deploy ocorre pelo workflow `.github/workflows/cd.yml` depois que o CI do mesmo commit passa em um push para a `main`.

@@ -63,7 +63,7 @@ O frontend em container fica disponível em `http://localhost:5173`.
 
 ## GitHub Pages
 
-Depois de um push na `main`, o workflow de CI:
+Depois de um push na `main`, o workflow de CD aguarda o CI terminar com sucesso e então:
 
 1. Executa as validações do monorepo.
 2. Configura o caminho público do Vite.
