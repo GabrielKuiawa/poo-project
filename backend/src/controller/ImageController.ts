@@ -131,6 +131,11 @@ export class ImageController {
       id: image.getId(),
       pathImage: image.getPathImage(),
       description: image.getDescription(),
+      author: {
+        id: image.getUser().getId(),
+        name: image.getUser().getName(),
+        pathImageUser: image.getUser().getPathImageUser(),
+      },
       categories: image.getCategories().map((category) => ({
         id: category.getId(),
         name: category.getName(),

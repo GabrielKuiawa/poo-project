@@ -53,6 +53,7 @@ cp .env.example .env
 | Variável | Uso |
 | --- | --- |
 | `PORT` | Porta HTTP da API |
+| `CORS_ORIGIN` | Origens do frontend permitidas, separadas por vírgula |
 | `DATABASE_URL` | URL do banco gerenciado em produção |
 | `DB_HOST` | Host do MySQL local |
 | `DB_PORT` | Porta do MySQL |
@@ -123,6 +124,7 @@ As rotas dos recursos utilizam o prefixo `/api`.
 | Método | Endpoint | Descrição |
 | --- | --- | --- |
 | `GET` | `/api/category` | Lista categorias |
+| `GET` | `/api/category/mine` | Lista categorias do usuário autenticado |
 | `POST` | `/api/category` | Cria uma categoria |
 | `GET` | `/api/category/:id` | Busca uma categoria |
 | `PUT` | `/api/category/:id` | Atualiza uma categoria |

@@ -43,6 +43,21 @@ export class CategoryController {
     }
   }
 
+  public async getAuthenticatedUserCategories(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const categories = await this.categoryService.getCategoriesByUserId(
+        getAuthenticatedUserId(req),
+      );
+      res.json(categories.map((category) => this.serializeCategory(category)));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public async getCategoryById(
     req: Request,
     res: Response,

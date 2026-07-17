@@ -33,6 +33,10 @@ export class CategoryService {
     return this.categoryRepository.findAll();
   }
 
+  public async getCategoriesByUserId(userId: string): Promise<Category[]> {
+    return this.categoryRepository.findByUserId(userId);
+  }
+
   public async getCategoryById(id: string): Promise<Category> {
     const category = await this.categoryRepository.findOne(id);
 

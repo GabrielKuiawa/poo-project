@@ -1,9 +1,11 @@
 import { Application } from 'express';
 import express = require('express');
+import cors = require('cors');
 import { globalErrorHandler, notFoundHandler} from './middlewares/errorHandler';
 import { requestContext } from './middlewares/requestContext';
 import Route from './route/Route';
 import { AppDataSource } from './data-source'; 
+import { config } from './config';
 
 export default class App {
     private app: Application;
@@ -25,6 +27,10 @@ export default class App {
 
     private initMiddlewares(): void {
         this.app.use(requestContext);
+        this.app.use(cors({
+            origin: config.corsOrigins,
+            exposedHeaders: ['X-Request-Id'],
+        }));
         this.app.use(express.json({ limit: '100kb' }));
     }
 

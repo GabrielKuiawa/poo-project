@@ -18,6 +18,12 @@ export default class CategoryRepository extends BaseRepository<Category>{
         });
     }
 
+    public async findByUserId(userId: string): Promise<Category[]> {
+        return this.repository.find({
+            where: { user: { id: userId } } as any,
+        });
+    }
+
     public async findOneWithUser(id: string): Promise<Category | null> {
         return this.repository.findOne({
             where: { id } as any,

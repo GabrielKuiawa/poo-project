@@ -12,7 +12,12 @@ import { AuthenticatedUser } from "../../../src/types/AuthenticatedUser";
 type CategoryRepositoryMock = jest.Mocked<
   Pick<
     CategoryRepository,
-    "findAll" | "findOne" | "findOneWithUser" | "save" | "delete"
+    | "findAll"
+    | "findByUserId"
+    | "findOne"
+    | "findOneWithUser"
+    | "save"
+    | "delete"
   >
 >;
 
@@ -58,6 +63,7 @@ describe("CategoryService", () => {
   beforeEach(() => {
     categoryRepository = {
       findAll: jest.fn(),
+      findByUserId: jest.fn(),
       findOne: jest.fn(),
       findOneWithUser: jest.fn(),
       save: jest.fn(),
@@ -117,6 +123,20 @@ describe("CategoryService", () => {
 
       expect(result).toBe(categories);
       expect(categoryRepository.findAll).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("getCategoriesByUserId", () => {
+    it("should return only categories owned by the user", async () => {
+      const categories = [
+        createCategory("Technology", createUser(OWNER_ID)),
+      ];
+      categoryRepository.findByUserId.mockResolvedValue(categories);
+
+      const result = await categoryService.getCategoriesByUserId(OWNER_ID);
+
+      expect(result).toBe(categories);
+      expect(categoryRepository.findByUserId).toHaveBeenCalledWith(OWNER_ID);
     });
   });
 

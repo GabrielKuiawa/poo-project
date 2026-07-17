@@ -56,6 +56,17 @@ describe("API E2E", () => {
       .send({ name: "Architecture" });
     expect(createdCategory.status).toBe(201);
 
+    const ownedCategories = await api
+      .get("/api/category/mine")
+      .set("Authorization", authorization);
+    expect(ownedCategories.status).toBe(200);
+    expect(ownedCategories.body).toEqual([
+      {
+        id: createdCategory.body.data.id,
+        name: "Architecture",
+      },
+    ]);
+
     const createdImage = await api
       .post("/api/image")
       .set("Authorization", authorization)
@@ -80,6 +91,11 @@ describe("API E2E", () => {
     expect(publicFeed.status).toBe(200);
     expect(publicFeed.body).toHaveLength(1);
     expect(publicFeed.body[0].id).toBe(createdImage.body.data.id);
+    expect(publicFeed.body[0].author).toEqual({
+      id: registration.body.data.id,
+      name: "Gabriel",
+      pathImageUser: "/users/gabriel.png",
+    });
 
     await api
       .delete(`/api/category/${createdCategory.body.data.id}`)
@@ -104,6 +120,23 @@ describe("API E2E", () => {
       .set("Authorization", `Bearer ${ownerToken}`)
       .send({ name: "Design" })
       .expect(201);
+
+    const otherCategory = await api
+      .post("/api/category")
+      .set("Authorization", `Bearer ${otherToken}`)
+      .send({ name: "Other user category" })
+      .expect(201);
+
+    const ownerCategories = await api
+      .get("/api/category/mine")
+      .set("Authorization", `Bearer ${ownerToken}`)
+      .expect(200);
+    expect(ownerCategories.body.map((item: { id: string }) => item.id)).toEqual([
+      category.body.data.id,
+    ]);
+    expect(ownerCategories.body).not.toContainEqual(
+      expect.objectContaining({ id: otherCategory.body.data.id }),
+    );
 
     const missingToken = await api
       .post("/api/category")
@@ -146,6 +179,38 @@ describe("API E2E", () => {
     expect(missingImage.body.message).toBe("Imagem não encontrada.");
     expect(missingImage.body.requestId).toBe(
       missingImage.headers["x-request-id"],
+    );
+  });
+
+  it("sets CORS headers only for configured browser origins", async () => {
+    const allowedOrigin = "http://localhost:5173";
+    const allowedResponse = await api
+      .options("/api/category")
+      .set("Origin", allowedOrigin)
+      .set("Access-Control-Request-Method", "POST")
+      .set(
+        "Access-Control-Request-Headers",
+        "Authorization, Content-Type",
+      );
+
+    expect(allowedResponse.status).toBe(204);
+    expect(allowedResponse.headers["access-control-allow-origin"]).toBe(
+      allowedOrigin,
+    );
+    expect(allowedResponse.headers["access-control-expose-headers"]).toBe(
+      "X-Request-Id",
+    );
+    expect(allowedResponse.headers["access-control-allow-headers"]).toContain(
+      "Authorization",
+    );
+
+    const blockedResponse = await api
+      .get("/api/image")
+      .set("Origin", "https://example.com");
+
+    expect(blockedResponse.status).toBe(200);
+    expect(blockedResponse.headers).not.toHaveProperty(
+      "access-control-allow-origin",
     );
   });
 

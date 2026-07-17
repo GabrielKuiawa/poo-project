@@ -36,6 +36,12 @@ export default class CategoryRoute extends BaseRoute {
       (req: Request, res: Response, next: NextFunction) =>
         this.categoryController.saveCategory(req, res, next),
     );
+    this.router.get(
+      "/mine",
+      authMiddleware,
+      (req: Request, res: Response, next: NextFunction) =>
+        this.categoryController.getAuthenticatedUserCategories(req, res, next),
+    );
     this.router.get("/:id", (req: Request, res: Response, next: NextFunction) =>
       this.categoryController.getCategoryById(req, res, next),
     );
