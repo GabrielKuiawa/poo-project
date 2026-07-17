@@ -20,6 +20,7 @@
     "migration:run": "npm --prefix backend run migration:run",
     "migration:revert": "npm --prefix backend run migration:revert",
     "db:up": "docker compose --env-file backend/.env up -d mysql",
+    "db:down": "docker compose --env-file backend/.env down",
     "docker:up": "docker compose --env-file backend/.env --env-file frontend/.env up --build",
     "docker:down": "docker compose --env-file backend/.env --env-file frontend/.env down",
     "docker:ps": "docker compose --env-file backend/.env --env-file frontend/.env ps",
