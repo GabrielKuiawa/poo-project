@@ -44,6 +44,8 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
+    "seed": "node build/seed/run.js",
+    "seed:dev": "ts-node --files src/seed/run.ts",
     "test": "jest --runInBand",
     "test:unit": "jest tests/unit",
     "test:integration": "jest --runInBand tests/integration",

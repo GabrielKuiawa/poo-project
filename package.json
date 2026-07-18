@@ -19,6 +19,8 @@
     "test:db:down": "npm --prefix backend run test:db:down",
     "migration:run": "npm --prefix backend run migration:run",
     "migration:revert": "npm --prefix backend run migration:revert",
+    "seed": "npm --prefix backend run seed",
+    "seed:dev": "npm --prefix backend run seed:dev",
     "db:up": "docker compose --env-file backend/.env up -d mysql",
     "db:down": "docker compose --env-file backend/.env down",
     "docker:up": "docker compose --env-file backend/.env --env-file frontend/.env up --build",

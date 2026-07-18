@@ -92,6 +92,8 @@ Comandos principais:
 | `npm start`                | Executa o build compilado                 |
 | `npm run migration:run`    | Aplica migrations pendentes               |
 | `npm run migration:revert` | Reverte a última migration                |
+| `npm run seed:dev`         | Popula o banco usando o TypeScript local  |
+| `npm run seed`             | Popula o banco usando o build compilado   |
 | `npm run test:unit`        | Executa testes unitários                  |
 | `npm run test:integration` | Executa testes de integração              |
 | `npm run test:e2e`         | Executa testes HTTP ponta a ponta         |
@@ -155,6 +157,24 @@ npm run migration:revert
 ```
 
 Não edite uma migration que já foi aplicada. Crie uma nova migration para cada alteração posterior do schema.
+
+### Dados de demonstração
+
+O seeder cria 8 usuários, 48 categorias e 200 imagens para desenvolvimento ou demonstração. Ele executa as migrations pendentes e substitui somente as contas com e-mails reservados pelo próprio seed, portanto pode ser executado novamente sem duplicar dados.
+
+Defina uma senha privada com pelo menos 8 caracteres em `SEED_USER_PASSWORD`. No ambiente local, com o TypeScript:
+
+```bash
+npm run seed:dev
+```
+
+Em uma imagem de produção já compilada:
+
+```bash
+npm run seed
+```
+
+O seeder não roda durante a inicialização normal nem automaticamente a cada deploy. Para popular o banco publicado, execute o comando uma vez no console do serviço, com `DATABASE_URL` e `SEED_USER_PASSWORD` configuradas. Todos os usuários de demonstração utilizam a mesma senha definida nessa variável; o valor não é registrado nos logs.
 
 ## Testes
 
