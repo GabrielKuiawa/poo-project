@@ -92,6 +92,8 @@ Comandos principais:
 | `npm start`                | Executa o build compilado                 |
 | `npm run migration:run`    | Aplica migrations pendentes               |
 | `npm run migration:revert` | Reverte a última migration                |
+| `npm run seed:dev`         | Popula o banco usando o TypeScript local  |
+| `npm run seed`             | Popula o banco usando o build compilado   |
 | `npm run test:unit`        | Executa testes unitários                  |
 | `npm run test:integration` | Executa testes de integração              |
 | `npm run test:e2e`         | Executa testes HTTP ponta a ponta         |
@@ -155,6 +157,35 @@ npm run migration:revert
 ```
 
 Não edite uma migration que já foi aplicada. Crie uma nova migration para cada alteração posterior do schema.
+
+### Dados de demonstração
+
+O seeder cria 8 usuários, 48 categorias e 200 imagens para desenvolvimento ou demonstração. Ele executa as migrations pendentes e substitui somente as contas com e-mails reservados pelo próprio seed, portanto pode ser executado novamente sem duplicar dados.
+
+Defina uma senha privada com pelo menos 8 caracteres em `SEED_USER_PASSWORD`. No ambiente local, com o TypeScript:
+
+```bash
+npm run seed:dev
+```
+
+Em uma imagem de produção já compilada:
+
+```bash
+npm run seed
+```
+
+O seeder não roda durante a inicialização normal do container. Em produção, ele deve ser configurado como um job `PRE_DEPLOY` da DigitalOcean App Platform para executar antes de cada publicação:
+
+```text
+Source:      GitHub / GabrielKuiawa/mood-board / main
+Dockerfile:  Dockerfile
+Run command: npm run seed
+Trigger:     Before every deploy
+```
+
+O job precisa receber `DATABASE_URL` e `SEED_USER_PASSWORD`. Como a configuração atual do backend valida todas as variáveis ao carregar o DataSource, compartilhe também `PORT`, `CORS_ORIGIN` e `JWT_SECRET` com o job. Marque `DATABASE_URL`, `SEED_USER_PASSWORD` e `JWT_SECRET` como secrets.
+
+Depois que esse recurso for salvo no app `mood-board`, o workflow de CD existente preserva o job remoto e cada deploy executa migrations e seed antes de publicar a nova versão. Se o seed falhar, a publicação não deve prosseguir. Todos os usuários de demonstração utilizam a mesma senha definida em `SEED_USER_PASSWORD`; o valor não é registrado nos logs.
 
 ## Testes
 

@@ -103,12 +103,14 @@ O último comando preserva o volume do MySQL. Executar `docker compose down -v` 
 | `npm run typecheck` | Verifica o TypeScript dos dois projetos |
 | `npm run lint` | Executa o lint dos dois projetos |
 | `npm run format:check` | Verifica a formatação do backend |
+| `npm run seed:dev` | Popula o banco local com dados de demonstração |
+| `npm run seed` | Popula o banco usando o backend compilado |
 | `npm test` | Executa a suíte do backend |
 | `npm run docker:up` | Sobe a stack completa em containers |
 | `npm run docker:down` | Encerra a stack preservando o banco |
 
 ## CI/CD
 
-O workflow `CI` executa build, typecheck e testes em Pull Requests e pushes. Depois de um push na `main`, o workflow `CD` somente publica a API na DigitalOcean e o frontend no GitHub Pages quando o CI do mesmo commit termina com sucesso.
+O workflow `CI` executa build, typecheck e testes em Pull Requests e pushes. Depois de um push na `main`, o workflow `CD` somente publica a API na DigitalOcean e o frontend no GitHub Pages quando o CI do mesmo commit termina com sucesso. Para executar migrations e seed antes de cada publicação, o app da API deve ter o job `PRE_DEPLOY` descrito na documentação do backend.
 
 Os detalhes de cada publicação ficam nos READMEs das respectivas aplicações.
