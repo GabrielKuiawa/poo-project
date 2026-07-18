@@ -5,11 +5,11 @@ const images: ImageMock[] = mockImages;
 
 function App() {
   return (
-    <main className="min-h-screen w-full columns-[190px] gap-3 p-3">
+    <main className="min-h-screen w-full columns-[230px] gap-4 px-4 py-3">
       {images.map((image) => (
-        <div key={image.id} className="mb-3 break-inside-avoid">
+        <div key={image.id} className="mb-5 break-inside-avoid">
           <img
-            className="block h-auto min-h-60 w-full rounded-2xl object-cover"
+            className="block h-auto min-h-37.5 max-h-130 w-full rounded-2xl object-cover"
             src={image.pathImage}
             alt={image.description}
             loading="lazy"

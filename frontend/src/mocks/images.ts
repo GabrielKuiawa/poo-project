@@ -870,9 +870,25 @@ function createSeededRandom(seed: number) {
   };
 }
 
+function shuffleWithSeed<T>(items: readonly T[], seed: number): T[] {
+  const shuffledItems = [...items];
+  const shuffleRandom = createSeededRandom(seed);
+
+  for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
+    const targetIndex = Math.floor(shuffleRandom() * (index + 1));
+    const currentItem = shuffledItems[index]!;
+
+    shuffledItems[index] = shuffledItems[targetIndex]!;
+    shuffledItems[targetIndex] = currentItem;
+  }
+
+  return shuffledItems;
+}
+
+const shuffledImages = shuffleWithSeed(baseImages, 20260718);
 const random = createSeededRandom(20260717);
 
-export const mockImages: ImageMock[] = baseImages.map((image, index) => {
+export const mockImages: ImageMock[] = shuffledImages.map((image, index) => {
   const author = authors[Math.floor(random() * authors.length)]!;
   const firstCategoryIndex = Math.floor(random() * categories.length);
   const secondCategoryIndex =
@@ -892,4 +908,3 @@ export const mockImages: ImageMock[] = baseImages.map((image, index) => {
     categories: imageCategories.map((category) => ({ ...category })),
   };
 });
-
