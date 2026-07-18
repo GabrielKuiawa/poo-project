@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { getImages } from "./features/images/api/getImages";
 import { ImageList } from "./features/images/components/ImageList";
+import { ImageListSkeleton } from "./features/images/components/ImageListSkeleton";
 import type { Image } from "./features/images/types";
 import "./index.css";
+
+const MINIMUM_LOADING_TIME = 700;
 
 function App() {
   const [images, setImages] = useState<Image[]>([]);
@@ -14,7 +17,10 @@ function App() {
 
     async function loadImages() {
       try {
-        const data = await getImages(controller.signal);
+        const [data] = await Promise.all([
+          getImages(controller.signal),
+          new Promise((resolve) => setTimeout(resolve, MINIMUM_LOADING_TIME)),
+        ]);
         setImages(data);
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
@@ -33,7 +39,7 @@ function App() {
   }, []);
 
   if (isLoading) {
-    return <p>Carregando imagens...</p>;
+    return <ImageListSkeleton />;
   }
 
   if (error) {
