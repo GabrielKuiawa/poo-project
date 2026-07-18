@@ -1,4 +1,9 @@
 import BadRequestException from "../exception/BadRequestException";
+import { PaginationParams } from "../types/Pagination";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
 
 export const validateTextField = (
   value: unknown,
@@ -57,4 +62,39 @@ export const validateIdArray = (
     validateId(id, `${fieldName}[${index}]`),
   );
   return [...new Set(ids)];
+};
+
+const validatePositiveInteger = (
+  value: unknown,
+  fieldName: string,
+  defaultValue: number,
+): number => {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  if (typeof value !== "string" || !/^\d+$/.test(value)) {
+    throw new BadRequestException(`${fieldName} deve ser um número inteiro.`);
+  }
+
+  const parsedValue = Number(value);
+  if (!Number.isSafeInteger(parsedValue) || parsedValue < 1) {
+    throw new BadRequestException(`${fieldName} deve ser maior que zero.`);
+  }
+
+  return parsedValue;
+};
+
+export const validatePagination = (
+  pageValue: unknown,
+  limitValue: unknown,
+): PaginationParams => {
+  const page = validatePositiveInteger(pageValue, "page", DEFAULT_PAGE);
+  const limit = validatePositiveInteger(limitValue, "limit", DEFAULT_LIMIT);
+
+  if (limit > MAX_LIMIT) {
+    throw new BadRequestException(`limit não pode ser maior que ${MAX_LIMIT}.`);
+  }
+
+  return { page, limit, skip: (page - 1) * limit };
 };

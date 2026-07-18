@@ -5,6 +5,11 @@ import CategoryRepository from "../repository/CategoryRepository";
 import UserRepository from "../repository/UserRepository";
 import { AuthenticatedUser } from "../types/AuthenticatedUser";
 import { assertOwnerOrAdmin } from "../utils/authorization";
+import {
+  createPaginatedResult,
+  PaginatedResult,
+  PaginationParams,
+} from "../types/Pagination";
 
 export class CategoryService {
   private categoryRepository: CategoryRepository;
@@ -29,12 +34,23 @@ export class CategoryService {
     return this.categoryRepository.save(newCategory);
   }
 
-  public async getCategories(): Promise<Category[]> {
-    return this.categoryRepository.findAll();
+  public async getCategories(
+    pagination: PaginationParams,
+  ): Promise<PaginatedResult<Category>> {
+    const [categories, total] =
+      await this.categoryRepository.findPaginated(pagination);
+
+    return createPaginatedResult(categories, total, pagination);
   }
 
-  public async getCategoriesByUserId(userId: string): Promise<Category[]> {
-    return this.categoryRepository.findByUserId(userId);
+  public async getCategoriesByUserId(
+    userId: string,
+    pagination: PaginationParams,
+  ): Promise<PaginatedResult<Category>> {
+    const [categories, total] =
+      await this.categoryRepository.findByUserIdPaginated(userId, pagination);
+
+    return createPaginatedResult(categories, total, pagination);
   }
 
   public async getCategoryById(id: string): Promise<Category> {

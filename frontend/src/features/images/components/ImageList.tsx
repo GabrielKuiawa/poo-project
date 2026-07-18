@@ -1,18 +1,22 @@
-import { ImageCard } from "./ImageCard";
 import type { Image } from "../types";
+import { MasonryGrid } from "./MasonryGrid";
 
 type ImageListProps = {
   images: Image[];
+  isLoadingMore?: boolean;
+  loadingCount?: number;
 };
 
-export function ImageList({ images }: ImageListProps) {
+export function ImageList({
+  images,
+  isLoadingMore = false,
+  loadingCount = 20,
+}: ImageListProps) {
   return (
-    <ul className="min-h-screen w-full columns-[230px] list-none gap-4 px-4 py-3">
-      {images.map((image) => (
-        <li key={image.id} className="mb-5 break-inside-avoid">
-          <ImageCard image={image} />
-        </li>
-      ))}
-    </ul>
+    <MasonryGrid
+      images={images}
+      skeletonCount={isLoadingMore ? loadingCount : 0}
+      busy={isLoadingMore}
+    />
   );
 }

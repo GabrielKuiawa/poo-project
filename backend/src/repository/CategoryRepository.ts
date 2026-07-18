@@ -1,6 +1,7 @@
 import { In } from "typeorm";
 import Category from "../models/Category";
 import { BaseRepository } from "./BaseRepository";
+import { PaginationParams } from "../types/Pagination";
 
 export default class CategoryRepository extends BaseRepository<Category> {
   constructor() {
@@ -18,9 +19,15 @@ export default class CategoryRepository extends BaseRepository<Category> {
     });
   }
 
-  public async findByUserId(userId: string): Promise<Category[]> {
-    return this.repository.find({
+  public async findByUserIdPaginated(
+    userId: string,
+    pagination: PaginationParams,
+  ): Promise<[Category[], number]> {
+    return this.repository.findAndCount({
       where: { user: { id: userId } } as any,
+      skip: pagination.skip,
+      take: pagination.limit,
+      order: { id: "ASC" } as any,
     });
   }
 

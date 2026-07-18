@@ -9,6 +9,12 @@ import UserRepository from "../repository/UserRepository";
 import { AuthenticatedUser } from "../types/AuthenticatedUser";
 import { assertOwnerOrAdmin } from "../utils/authorization";
 import { config } from "../config";
+import Image from "../models/Image";
+import {
+  createPaginatedResult,
+  PaginatedResult,
+  PaginationParams,
+} from "../types/Pagination";
 
 const DUMMY_PASSWORD_HASH =
   "$2a$10$0Z2gC9QmZZ.P7WYRyuKHlexJzZ5b8WsyMqBQlqlf1nOrdeSgo7WrC";
@@ -40,8 +46,12 @@ export class UserService {
     return this.userRepository.save(newUser);
   }
 
-  public async getUsers(): Promise<User[]> {
-    return this.userRepository.findAll();
+  public async getUsers(
+    pagination: PaginationParams,
+  ): Promise<PaginatedResult<User>> {
+    const [users, total] = await this.userRepository.findPaginated(pagination);
+
+    return createPaginatedResult(users, total, pagination);
   }
 
   public async getUserById(
@@ -62,13 +72,20 @@ export class UserService {
   public async getUserWithImages(
     id: string,
     authenticatedUser: AuthenticatedUser,
-  ): Promise<User> {
+    pagination: PaginationParams,
+  ): Promise<{ user: User; images: PaginatedResult<Image> }> {
     assertOwnerOrAdmin(authenticatedUser, id);
 
-    const user = await this.userRepository.getImagesByUserId(id);
+    const user = await this.userRepository.findOne(id);
     if (!user) throw new UserNotFoundException();
 
-    return user;
+    const [images, total] =
+      await this.userRepository.findImagesByUserIdPaginated(id, pagination);
+
+    return {
+      user,
+      images: createPaginatedResult(images, total, pagination),
+    };
   }
 
   public async updateUser(

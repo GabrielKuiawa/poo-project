@@ -8,6 +8,7 @@ import { config } from "./config";
 import { InitialSchema1720760000000 } from "./migration/1720760000000-InitialSchema";
 import { NormalizeConstraintNames1720760000001 } from "./migration/1720760000001-NormalizeConstraintNames";
 import { CascadeCategoryImages1720760000002 } from "./migration/1720760000002-CascadeCategoryImages";
+import { AddImageTitle1720760000003 } from "./migration/1720760000003-AddImageTitle";
 
 export const AppDataSource = new DataSource({
   type: "mysql",
@@ -25,6 +26,7 @@ export const AppDataSource = new DataSource({
     InitialSchema1720760000000,
     NormalizeConstraintNames1720760000001,
     CascadeCategoryImages1720760000002,
+    AddImageTitle1720760000003,
   ],
   subscribers: [],
 });

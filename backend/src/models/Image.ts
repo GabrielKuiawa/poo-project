@@ -17,6 +17,9 @@ export default class Image {
   @Column({ length: 255 })
   private pathImage!: string;
 
+  @Column({ length: 150 })
+  private title!: string;
+
   @Column({ length: 500 })
   private description!: string;
 
@@ -40,6 +43,14 @@ export default class Image {
 
   public getPathImage(): string {
     return this.pathImage;
+  }
+
+  public setTitle(title: string): void {
+    this.title = validateTextField(title, "Título", 150);
+  }
+
+  public getTitle(): string {
+    return this.title;
   }
 
   public setDescription(description: string): void {

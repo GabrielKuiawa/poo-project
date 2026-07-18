@@ -1,14 +1,20 @@
 import Image from "../models/Image";
 import { BaseRepository } from "./BaseRepository";
+import { PaginationParams } from "../types/Pagination";
 
 export default class ImageRepository extends BaseRepository<Image> {
   constructor() {
     super(Image);
   }
 
-  public async findAllWithRelations(): Promise<Image[]> {
-    return this.repository.find({
+  public async findAllWithRelationsPaginated(
+    pagination: PaginationParams,
+  ): Promise<[Image[], number]> {
+    return this.repository.findAndCount({
       relations: { categories: true, user: true },
+      skip: pagination.skip,
+      take: pagination.limit,
+      order: { id: "ASC" } as any,
     });
   }
 

@@ -1,5 +1,6 @@
 import { Repository, EntityTarget, DeepPartial, ObjectLiteral } from "typeorm";
 import { AppDataSource } from "../data-source";
+import { PaginationParams } from "../types/Pagination";
 
 export class BaseRepository<T extends ObjectLiteral> {
   protected repository: Repository<T>;
@@ -14,6 +15,16 @@ export class BaseRepository<T extends ObjectLiteral> {
 
   public async findAll(): Promise<T[]> {
     return this.repository.find();
+  }
+
+  public async findPaginated(
+    pagination: PaginationParams,
+  ): Promise<[T[], number]> {
+    return this.repository.findAndCount({
+      skip: pagination.skip,
+      take: pagination.limit,
+      order: { id: "ASC" } as any,
+    });
   }
 
   public async save(entityData: DeepPartial<T>): Promise<T> {

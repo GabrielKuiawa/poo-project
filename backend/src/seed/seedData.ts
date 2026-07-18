@@ -1,7 +1,10 @@
 export type SeedImageData = {
+  title: string;
   pathImage: string;
   description: string;
 };
+
+type SeedImageWithoutTitle = Omit<SeedImageData, "title">;
 
 export const seedUsers = [
   {
@@ -73,7 +76,7 @@ export const seedCategoryNames = [
   "Viagem",
 ] as const;
 
-export const seedImages: SeedImageData[] = [
+const seedImagesWithoutTitles: SeedImageWithoutTitle[] = [
   {
     pathImage:
       "https://plus.unsplash.com/premium_photo-1679756099018-32b9fec91606?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8c3BhY2UlMjBhc3Ryb25vbXl8ZW58MHx8fHwxNzg0MzQ0ODEwfDA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -1112,3 +1115,19 @@ export const seedImages: SeedImageData[] = [
     description: "green mountain under cloudy sky during daytime",
   },
 ];
+
+const createTitle = (description: string): string => {
+  const normalizedDescription = description.trim();
+  const title =
+    normalizedDescription.charAt(0).toUpperCase() +
+    normalizedDescription.slice(1);
+
+  return title.length <= 150 ? title : `${title.slice(0, 147)}...`;
+};
+
+export const seedImages: SeedImageData[] = seedImagesWithoutTitles.map(
+  (image) => ({
+    ...image,
+    title: createTitle(image.description),
+  }),
+);

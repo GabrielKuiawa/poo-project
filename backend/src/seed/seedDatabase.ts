@@ -84,6 +84,7 @@ export async function seedDatabase(
           ],
       );
 
+      image.setTitle(imageData.title);
       image.setPathImage(imageData.pathImage);
       image.setDescription(imageData.description);
       image.user = owner;

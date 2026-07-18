@@ -13,7 +13,7 @@ import { AuthenticatedUser } from "../../../src/types/AuthenticatedUser";
 type ImageRepositoryMock = jest.Mocked<
   Pick<
     ImageRepository,
-    "findAllWithRelations" | "findOneWithRelations" | "save" | "delete"
+    "findAllWithRelationsPaginated" | "findOneWithRelations" | "save" | "delete"
   >
 >;
 
@@ -28,6 +28,7 @@ const OWNER_ID = "223e4567-e89b-42d3-a456-426614174000";
 const OTHER_USER_ID = "323e4567-e89b-42d3-a456-426614174000";
 const CATEGORY_ID = "423e4567-e89b-42d3-a456-426614174000";
 const SECOND_CATEGORY_ID = "523e4567-e89b-42d3-a456-426614174000";
+const PAGINATION = { page: 1, limit: 20, skip: 0 };
 
 function setEntityId(entity: object, id: string): void {
   Object.defineProperty(entity, "id", { value: id });
@@ -50,6 +51,7 @@ function createCategory(id: string, name: string, user: User): Category {
 function createImage(user: User, categories: Category[] = []): Image {
   const image = new Image();
   setEntityId(image, IMAGE_ID);
+  image.setTitle("Old title");
   image.setPathImage("/images/old.png");
   image.setDescription("Old description");
   image.user = user;
@@ -80,7 +82,7 @@ describe("ImageService", () => {
 
   beforeEach(() => {
     imageRepository = {
-      findAllWithRelations: jest.fn(),
+      findAllWithRelationsPaginated: jest.fn(),
       findOneWithRelations: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
@@ -110,6 +112,7 @@ describe("ImageService", () => {
       imageRepository.save.mockImplementation(async (image) => image as Image);
 
       const result = await imageService.saveImage(
+        "New image",
         "/images/new.png",
         "New description",
         OWNER_ID,
@@ -119,6 +122,7 @@ describe("ImageService", () => {
       expect(userRepository.findOne).toHaveBeenCalledWith(OWNER_ID);
       expect(categoryRepository.findByIds).toHaveBeenCalledWith([CATEGORY_ID]);
       expect(imageRepository.save).toHaveBeenCalledTimes(1);
+      expect(result.getTitle()).toBe("New image");
       expect(result.getPathImage()).toBe("/images/new.png");
       expect(result.getDescription()).toBe("New description");
       expect(result.getUser()).toBe(user);
@@ -129,9 +133,13 @@ describe("ImageService", () => {
       userRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        imageService.saveImage("/images/new.png", "New description", OWNER_ID, [
-          CATEGORY_ID,
-        ]),
+        imageService.saveImage(
+          "New image",
+          "/images/new.png",
+          "New description",
+          OWNER_ID,
+          [CATEGORY_ID],
+        ),
       ).rejects.toBeInstanceOf(NotFoundException);
 
       expect(categoryRepository.findByIds).not.toHaveBeenCalled();
@@ -145,6 +153,7 @@ describe("ImageService", () => {
       imageRepository.save.mockImplementation(async (image) => image as Image);
 
       const result = await imageService.saveImage(
+        "New image",
         "/images/new.png",
         "New description",
         OWNER_ID,
@@ -159,12 +168,18 @@ describe("ImageService", () => {
   describe("getImages", () => {
     it("should return all images with their relations", async () => {
       const images = [createImage(createUser(OWNER_ID))];
-      imageRepository.findAllWithRelations.mockResolvedValue(images);
+      imageRepository.findAllWithRelationsPaginated.mockResolvedValue([
+        images,
+        1,
+      ]);
 
-      const result = await imageService.getImages();
+      const result = await imageService.getImages(PAGINATION);
 
-      expect(result).toBe(images);
-      expect(imageRepository.findAllWithRelations).toHaveBeenCalledTimes(1);
+      expect(result.data).toBe(images);
+      expect(result.meta).toMatchObject({ total: 1, totalPages: 1 });
+      expect(
+        imageRepository.findAllWithRelationsPaginated,
+      ).toHaveBeenCalledWith(PAGINATION);
     });
   });
 
@@ -203,12 +218,14 @@ describe("ImageService", () => {
 
       const result = await imageService.updateImage(
         IMAGE_ID,
+        "Updated image",
         "/images/updated.png",
         "Updated description",
         [CATEGORY_ID],
         owner,
       );
 
+      expect(result.getTitle()).toBe("Updated image");
       expect(result.getPathImage()).toBe("/images/updated.png");
       expect(result.getDescription()).toBe("Updated description");
       expect(result.getCategories()).toEqual([category]);
@@ -226,6 +243,7 @@ describe("ImageService", () => {
 
       const result = await imageService.updateImage(
         IMAGE_ID,
+        "Admin image",
         "/images/admin-update.png",
         "Admin update",
         [],
@@ -242,6 +260,7 @@ describe("ImageService", () => {
       await expect(
         imageService.updateImage(
           IMAGE_ID,
+          "Updated image",
           "/images/updated.png",
           "Updated description",
           [],
@@ -260,6 +279,7 @@ describe("ImageService", () => {
       await expect(
         imageService.updateImage(
           IMAGE_ID,
+          "Updated image",
           "/images/updated.png",
           "Updated description",
           [],
