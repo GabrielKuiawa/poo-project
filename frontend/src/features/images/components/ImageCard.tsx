@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronDown, Upload } from "lucide-react";
 import type { Image } from "../types";
 import { getPlaceholderColor } from "../placeholderColors";
 
@@ -12,11 +13,11 @@ export function ImageCard({ image, index }: ImageCardProps) {
 
   return (
     <article
-      className="overflow-hidden rounded-2xl"
+      className="group relative cursor-pointer overflow-hidden rounded-2xl"
       style={{ backgroundColor: getPlaceholderColor(index) }}
     >
       <img
-        className={`block h-auto min-h-37.5 max-h-130 w-full object-cover transition-opacity duration-500 ease-out ${
+        className={`block h-auto min-h-60 max-h-130 w-full object-cover transition-opacity duration-500 ease-out ${
           isLoaded ? "opacity-100" : "opacity-0"
         }`}
         src={image.pathImage}
@@ -24,6 +25,32 @@ export function ImageCard({ image, index }: ImageCardProps) {
         loading="lazy"
         onLoad={() => setIsLoaded(true)}
       />
+      <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/25" />
+
+      <div className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        <button
+          className="absolute top-3 left-3 flex cursor-pointer items-center gap-0.5 rounded-full px-2 py-3 text-sm font-semibold text-white"
+          type="button"
+        >
+          Perfil
+          <ChevronDown size={16} strokeWidth={2.5} />
+        </button>
+
+        <button
+          className="absolute top-3 right-3 cursor-pointer rounded-full bg-red-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+          type="button"
+        >
+          Salvar
+        </button>
+
+        <button
+          className="absolute right-3 bottom-3 flex size-10 cursor-pointer items-center justify-center rounded-full bg-white text-black transition-colors hover:bg-zinc-200"
+          type="button"
+          aria-label="Compartilhar imagem"
+        >
+          <Upload size={19} strokeWidth={2.5} />
+        </button>
+      </div>
     </article>
   );
 }
