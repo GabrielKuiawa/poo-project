@@ -111,6 +111,6 @@ O último comando preserva o volume do MySQL. Executar `docker compose down -v` 
 
 ## CI/CD
 
-O workflow `CI` executa build, typecheck e testes em Pull Requests e pushes. Depois de um push na `main`, o workflow `CD` somente publica a API na DigitalOcean e o frontend no GitHub Pages quando o CI do mesmo commit termina com sucesso.
+O workflow `CI` executa build, typecheck e testes em Pull Requests e pushes. Depois de um push na `main`, o workflow `CD` somente publica a API na DigitalOcean e o frontend no GitHub Pages quando o CI do mesmo commit termina com sucesso. Para executar migrations e seed antes de cada publicação, o app da API deve ter o job `PRE_DEPLOY` descrito na documentação do backend.
 
 Os detalhes de cada publicação ficam nos READMEs das respectivas aplicações.
