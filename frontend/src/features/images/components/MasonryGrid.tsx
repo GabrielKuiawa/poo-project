@@ -53,9 +53,9 @@ export function MasonryGrid({
 
   const columns = useMemo(() => {
     const items: MasonryItem[] = [
-      ...images.map((image) => ({
+      ...images.map((image, index) => ({
         key: image.id,
-        content: <ImageCard image={image} />,
+        content: <ImageCard image={image} index={index} />,
       })),
       ...Array.from({ length: skeletonCount }, (_, index) => ({
         key: `skeleton-${images.length + index}`,

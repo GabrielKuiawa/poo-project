@@ -1,11 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-
-const skeletonColors = [
-  "bg-muted",
-  "bg-secondary",
-  "bg-accent",
-  "bg-primary/15",
-];
+import { getPlaceholderColor } from "../placeholderColors";
 
 function getSkeletonHeight(index: number) {
   const minimumHeight = 224;
@@ -21,8 +15,11 @@ type ImageCardSkeletonProps = {
 export function ImageCardSkeleton({ index }: ImageCardSkeletonProps) {
   return (
     <Skeleton
-      className={`w-full ${skeletonColors[index % skeletonColors.length]}`}
-      style={{ height: getSkeletonHeight(index) }}
+      className="w-full"
+      style={{
+        height: getSkeletonHeight(index),
+        backgroundColor: getPlaceholderColor(index),
+      }}
     />
   );
 }
