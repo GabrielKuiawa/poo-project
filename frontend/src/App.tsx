@@ -6,6 +6,21 @@ import {
 } from "./features/images/api/getImages";
 import { ImageList } from "./features/images/components/ImageList";
 import { ImageListSkeleton } from "./features/images/components/ImageListSkeleton";
+import type { Image } from "./features/images/types";
+
+const firstPageOrder = [0, 7, 14, 3, 10, 17, 5, 12, 19, 1, 8, 15, 4, 11, 18, 2, 9, 16, 6, 13];
+
+function reorderFirstPage(images: Image[]): Image[] {
+  const reorderedImages = firstPageOrder
+    .map((index) => images[index])
+    .filter((image): image is Image => image !== undefined);
+  const reorderedIds = new Set(reorderedImages.map((image) => image.id));
+
+  return [
+    ...reorderedImages,
+    ...images.filter((image) => !reorderedIds.has(image.id)),
+  ];
+}
 
 function App() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -51,7 +66,9 @@ function App() {
     return <p>{error.message}</p>;
   }
 
-  const images = data.pages.flatMap((page) => page.data);
+  const images = data.pages.flatMap((page, pageIndex) =>
+    pageIndex === 0 ? reorderFirstPage(page.data) : page.data,
+  );
 
   return (
     <>
