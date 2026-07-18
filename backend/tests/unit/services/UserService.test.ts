@@ -18,9 +18,9 @@ type UserRepositoryMock = jest.Mocked<
   Pick<
     UserRepository,
     | "findOne"
-    | "findAll"
+    | "findPaginated"
     | "findOneByEmail"
-    | "getImagesByUserId"
+    | "findImagesByUserIdPaginated"
     | "save"
     | "delete"
   >
@@ -28,6 +28,7 @@ type UserRepositoryMock = jest.Mocked<
 
 const USER_ID = "123e4567-e89b-42d3-a456-426614174000";
 const OTHER_USER_ID = "223e4567-e89b-42d3-a456-426614174000";
+const PAGINATION = { page: 1, limit: 20, skip: 0 };
 
 function createUser(
   id = USER_ID,
@@ -66,9 +67,9 @@ describe("UserService", () => {
   beforeEach(() => {
     userRepository = {
       findOne: jest.fn(),
-      findAll: jest.fn(),
+      findPaginated: jest.fn(),
       findOneByEmail: jest.fn(),
-      getImagesByUserId: jest.fn(),
+      findImagesByUserIdPaginated: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
     };
@@ -115,9 +116,12 @@ describe("UserService", () => {
 
   it("should return all users", async () => {
     const users = [createUser()];
-    userRepository.findAll.mockResolvedValue(users);
+    userRepository.findPaginated.mockResolvedValue([users, 1]);
 
-    await expect(userService.getUsers()).resolves.toBe(users);
+    await expect(userService.getUsers(PAGINATION)).resolves.toMatchObject({
+      data: users,
+      meta: { total: 1, totalPages: 1 },
+    });
   });
 
   describe("getUserById", () => {
@@ -147,13 +151,19 @@ describe("UserService", () => {
 
   it("should return a user with images to an administrator", async () => {
     const user = createUser();
-    user.images = [];
-    userRepository.getImagesByUserId.mockResolvedValue(user);
+    userRepository.findOne.mockResolvedValue(user);
+    userRepository.findImagesByUserIdPaginated.mockResolvedValue([[], 0]);
 
-    await expect(userService.getUserWithImages(USER_ID, admin)).resolves.toBe(
+    await expect(
+      userService.getUserWithImages(USER_ID, admin, PAGINATION),
+    ).resolves.toMatchObject({
       user,
+      images: { data: [], meta: { total: 0 } },
+    });
+    expect(userRepository.findImagesByUserIdPaginated).toHaveBeenCalledWith(
+      USER_ID,
+      PAGINATION,
     );
-    expect(userRepository.getImagesByUserId).toHaveBeenCalledWith(USER_ID);
   });
 
   describe("updateUser", () => {

@@ -12,8 +12,8 @@ import { AuthenticatedUser } from "../../../src/types/AuthenticatedUser";
 type CategoryRepositoryMock = jest.Mocked<
   Pick<
     CategoryRepository,
-    | "findAll"
-    | "findByUserId"
+    | "findPaginated"
+    | "findByUserIdPaginated"
     | "findOne"
     | "findOneWithUser"
     | "save"
@@ -26,6 +26,7 @@ type UserRepositoryMock = jest.Mocked<Pick<UserRepository, "findOne">>;
 const CATEGORY_ID = "123e4567-e89b-42d3-a456-426614174000";
 const OWNER_ID = "223e4567-e89b-42d3-a456-426614174000";
 const OTHER_USER_ID = "323e4567-e89b-42d3-a456-426614174000";
+const PAGINATION = { page: 1, limit: 20, skip: 0 };
 
 function createUser(id: string): User {
   const user = new User();
@@ -62,8 +63,8 @@ describe("CategoryService", () => {
 
   beforeEach(() => {
     categoryRepository = {
-      findAll: jest.fn(),
-      findByUserId: jest.fn(),
+      findPaginated: jest.fn(),
+      findByUserIdPaginated: jest.fn(),
       findOne: jest.fn(),
       findOneWithUser: jest.fn(),
       save: jest.fn(),
@@ -114,24 +115,34 @@ describe("CategoryService", () => {
         createCategory("Technology", user),
         createCategory("Art", user),
       ];
-      categoryRepository.findAll.mockResolvedValue(categories);
+      categoryRepository.findPaginated.mockResolvedValue([categories, 2]);
 
-      const result = await categoryService.getCategories();
+      const result = await categoryService.getCategories(PAGINATION);
 
-      expect(result).toBe(categories);
-      expect(categoryRepository.findAll).toHaveBeenCalledTimes(1);
+      expect(result.data).toBe(categories);
+      expect(result.meta.total).toBe(2);
+      expect(categoryRepository.findPaginated).toHaveBeenCalledWith(PAGINATION);
     });
   });
 
   describe("getCategoriesByUserId", () => {
     it("should return only categories owned by the user", async () => {
       const categories = [createCategory("Technology", createUser(OWNER_ID))];
-      categoryRepository.findByUserId.mockResolvedValue(categories);
+      categoryRepository.findByUserIdPaginated.mockResolvedValue([
+        categories,
+        1,
+      ]);
 
-      const result = await categoryService.getCategoriesByUserId(OWNER_ID);
+      const result = await categoryService.getCategoriesByUserId(
+        OWNER_ID,
+        PAGINATION,
+      );
 
-      expect(result).toBe(categories);
-      expect(categoryRepository.findByUserId).toHaveBeenCalledWith(OWNER_ID);
+      expect(result.data).toBe(categories);
+      expect(categoryRepository.findByUserIdPaginated).toHaveBeenCalledWith(
+        OWNER_ID,
+        PAGINATION,
+      );
     });
   });
 

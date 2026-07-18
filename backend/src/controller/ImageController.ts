@@ -8,8 +8,10 @@ import {
 import {
   validateId,
   validateIdArray,
+  validatePagination,
   validateTextField,
 } from "../utils/validation";
+import { serializePaginationMeta } from "../utils/pagination";
 
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
@@ -20,6 +22,7 @@ export class ImageController {
     next: NextFunction,
   ): Promise<void> {
     try {
+      const title = validateTextField(req.body.title, "Título", 150);
       const pathImage = validateTextField(
         req.body.pathImage,
         "Caminho da imagem",
@@ -32,6 +35,7 @@ export class ImageController {
       );
       const categoryIds = validateIdArray(req.body.categoryIds, "categoryIds");
       const image = await this.imageService.saveImage(
+        title,
         pathImage,
         description,
         getAuthenticatedUserId(req),
@@ -53,8 +57,13 @@ export class ImageController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const images = await this.imageService.getImages();
-      res.json(images.map((image) => this.serializeImage(image)));
+      const result = await this.imageService.getImages(
+        validatePagination(req.query.page, req.query.limit),
+      );
+      res.json({
+        data: result.data.map((image) => this.serializeImage(image)),
+        meta: serializePaginationMeta(req, result.meta),
+      });
     } catch (error) {
       next(error);
     }
@@ -82,6 +91,7 @@ export class ImageController {
   ): Promise<void> {
     try {
       const id = validateId(req.params.id);
+      const title = validateTextField(req.body.title, "Título", 150);
       const pathImage = validateTextField(
         req.body.pathImage,
         "Caminho da imagem",
@@ -96,6 +106,7 @@ export class ImageController {
 
       const image = await this.imageService.updateImage(
         id,
+        title,
         pathImage,
         description,
         categoryIds,
@@ -129,6 +140,7 @@ export class ImageController {
   private serializeImage(image: Image) {
     return {
       id: image.getId(),
+      title: image.getTitle(),
       pathImage: image.getPathImage(),
       description: image.getDescription(),
       author: {

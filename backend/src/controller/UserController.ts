@@ -4,9 +4,11 @@ import { getAuthenticatedUser } from "../utils/authorization";
 import {
   validateEmail,
   validateId,
+  validatePagination,
   validateTextField,
 } from "../utils/validation";
 import { UserService } from "../service/UserService";
+import { serializePaginationMeta } from "../utils/pagination";
 
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -48,8 +50,13 @@ export class UserController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const users = await this.userService.getUsers();
-      res.json(users.map((user) => this.serializeUser(user)));
+      const result = await this.userService.getUsers(
+        validatePagination(req.query.page, req.query.limit),
+      );
+      res.json({
+        data: result.data.map((user) => this.serializeUser(user)),
+        meta: serializePaginationMeta(req, result.meta),
+      });
     } catch (error) {
       next(error);
     }
@@ -80,18 +87,23 @@ export class UserController {
   ): Promise<void> {
     try {
       const id = validateId(req.params.id);
-      const user = await this.userService.getUserWithImages(
+      const result = await this.userService.getUserWithImages(
         id,
         getAuthenticatedUser(req),
+        validatePagination(req.query.page, req.query.limit),
       );
 
       res.json({
-        ...this.serializeUser(user),
-        images: (user.images ?? []).map((image) => ({
-          id: image.getId(),
-          pathImage: image.getPathImage(),
-          description: image.getDescription(),
-        })),
+        ...this.serializeUser(result.user),
+        images: {
+          data: result.images.data.map((image) => ({
+            id: image.getId(),
+            title: image.getTitle(),
+            pathImage: image.getPathImage(),
+            description: image.getDescription(),
+          })),
+          meta: serializePaginationMeta(req, result.images.meta),
+        },
       });
     } catch (error) {
       next(error);

@@ -15,6 +15,7 @@ export default class App {
 
   constructor() {
     this.app = express();
+    this.app.set("trust proxy", 1);
     this.initMiddlewares();
   }
 

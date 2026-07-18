@@ -7,6 +7,11 @@ import ImageRepository from "../repository/ImageRepository";
 import UserRepository from "../repository/UserRepository";
 import { AuthenticatedUser } from "../types/AuthenticatedUser";
 import { assertOwnerOrAdmin } from "../utils/authorization";
+import {
+  createPaginatedResult,
+  PaginatedResult,
+  PaginationParams,
+} from "../types/Pagination";
 
 export class ImageService {
   private imageRepository: ImageRepository;
@@ -24,6 +29,7 @@ export class ImageService {
   }
 
   public async saveImage(
+    title: string,
     pathImage: string,
     description: string,
     userId: string,
@@ -35,6 +41,7 @@ export class ImageService {
     const categories = await this.getOwnedCategories(categoryIds, userId);
 
     const image = new Image();
+    image.setTitle(title);
     image.setPathImage(pathImage);
     image.setDescription(description);
     image.user = user;
@@ -45,8 +52,13 @@ export class ImageService {
     return this.imageRepository.save(image);
   }
 
-  public async getImages(): Promise<Image[]> {
-    return this.imageRepository.findAllWithRelations();
+  public async getImages(
+    pagination: PaginationParams,
+  ): Promise<PaginatedResult<Image>> {
+    const [images, total] =
+      await this.imageRepository.findAllWithRelationsPaginated(pagination);
+
+    return createPaginatedResult(images, total, pagination);
   }
 
   public async getImageById(id: string): Promise<Image> {
@@ -61,6 +73,7 @@ export class ImageService {
 
   public async updateImage(
     id: string,
+    title: string,
     pathImage: string,
     description: string,
     categoryIds: string[],
@@ -75,6 +88,7 @@ export class ImageService {
     const ownerId = image.getUser().getId();
     assertOwnerOrAdmin(authenticatedUser, ownerId);
 
+    image.setTitle(title);
     image.setPathImage(pathImage);
     image.setDescription(description);
     image.setCategories(await this.getOwnedCategories(categoryIds, ownerId));

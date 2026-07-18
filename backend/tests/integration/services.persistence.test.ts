@@ -78,6 +78,7 @@ describe("integration between services, repositories, and MySQL", () => {
       user.getId(),
     );
     const image = await imageService.saveImage(
+      "Modern architecture",
       "/images/house.png",
       "Modern house",
       user.getId(),
@@ -118,6 +119,7 @@ describe("integration between services, repositories, and MySQL", () => {
 
     await expect(
       imageService.saveImage(
+        "Invalid image",
         "/images/invalid.png",
         "Invalid reference",
         owner.getId(),

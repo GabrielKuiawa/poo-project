@@ -1,5 +1,7 @@
 import { User } from "../models/User";
 import { BaseRepository } from "./BaseRepository";
+import Image from "../models/Image";
+import { PaginationParams } from "../types/Pagination";
 
 export default class UserRepository extends BaseRepository<User> {
   constructor() {
@@ -10,11 +12,15 @@ export default class UserRepository extends BaseRepository<User> {
     return this.repository.findOneBy({ email } as any);
   }
 
-  public async getImagesByUserId(id: string): Promise<User | null> {
-    return this.repository
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.images", "image")
-      .where("user.id = :id", { id })
-      .getOne();
+  public async findImagesByUserIdPaginated(
+    id: string,
+    pagination: PaginationParams,
+  ): Promise<[Image[], number]> {
+    return this.repository.manager.getRepository(Image).findAndCount({
+      where: { user: { id } } as any,
+      skip: pagination.skip,
+      take: pagination.limit,
+      order: { id: "ASC" } as any,
+    });
   }
 }

@@ -57,23 +57,28 @@ describe("API E2E", () => {
       .get("/api/category/mine")
       .set("Authorization", authorization);
     expect(ownedCategories.status).toBe(200);
-    expect(ownedCategories.body).toEqual([
-      {
-        id: createdCategory.body.data.id,
-        name: "Architecture",
-      },
-    ]);
+    expect(ownedCategories.body).toMatchObject({
+      data: [
+        {
+          id: createdCategory.body.data.id,
+          name: "Architecture",
+        },
+      ],
+      meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
+    });
 
     const createdImage = await api
       .post("/api/image")
       .set("Authorization", authorization)
       .send({
+        title: "Modern architecture",
         pathImage: "/images/house.png",
         description: "Modern house",
         categoryIds: [createdCategory.body.data.id],
       });
     expect(createdImage.status).toBe(201);
     expect(createdImage.body.data).toMatchObject({
+      title: "Modern architecture",
       pathImage: "/images/house.png",
       description: "Modern house",
       categories: [
@@ -84,14 +89,60 @@ describe("API E2E", () => {
       ],
     });
 
-    const publicFeed = await api.get("/api/image");
+    const publicFeed = await api.get("/api/image?page=1&limit=10");
     expect(publicFeed.status).toBe(200);
-    expect(publicFeed.body).toHaveLength(1);
-    expect(publicFeed.body[0].id).toBe(createdImage.body.data.id);
-    expect(publicFeed.body[0].author).toEqual({
+    expect(publicFeed.body.meta).toMatchObject({
+      page: 1,
+      limit: 10,
+      total: 1,
+      totalPages: 1,
+      next: null,
+      previous: null,
+    });
+    expect(publicFeed.body.data).toHaveLength(1);
+    expect(publicFeed.body.data[0].id).toBe(createdImage.body.data.id);
+    expect(publicFeed.body.data[0].author).toEqual({
       id: registration.body.data.id,
       name: "Gabriel",
       pathImageUser: "/users/gabriel.png",
+    });
+
+    for (const imageNumber of [2, 3]) {
+      await api
+        .post("/api/image")
+        .set("Authorization", authorization)
+        .send({
+          title: `Architecture ${imageNumber}`,
+          pathImage: `/images/house-${imageNumber}.png`,
+          description: `Modern house ${imageNumber}`,
+          categoryIds: [createdCategory.body.data.id],
+        })
+        .expect(201);
+    }
+
+    const deployedOrigin = "https://api.mood-board.gabizin.me";
+    const firstFeedPage = await api
+      .get("/api/image?page=1&limit=2")
+      .set("X-Forwarded-Host", "api.mood-board.gabizin.me")
+      .set("X-Forwarded-Proto", "https");
+    expect(firstFeedPage.body.meta).toMatchObject({
+      next: `${deployedOrigin}/api/image?page=2&limit=2`,
+      previous: null,
+    });
+
+    const secondFeedPage = await api
+      .get("/api/image?page=2&limit=2")
+      .set("X-Forwarded-Host", "api.mood-board.gabizin.me")
+      .set("X-Forwarded-Proto", "https");
+    expect(secondFeedPage.status).toBe(200);
+    expect(secondFeedPage.body.data).toHaveLength(1);
+    expect(secondFeedPage.body.meta).toMatchObject({
+      page: 2,
+      limit: 2,
+      total: 3,
+      totalPages: 2,
+      next: null,
+      previous: `${deployedOrigin}/api/image?page=1&limit=2`,
     });
 
     await api
@@ -128,10 +179,10 @@ describe("API E2E", () => {
       .get("/api/category/mine")
       .set("Authorization", `Bearer ${ownerToken}`)
       .expect(200);
-    expect(ownerCategories.body.map((item: { id: string }) => item.id)).toEqual(
-      [category.body.data.id],
-    );
-    expect(ownerCategories.body).not.toContainEqual(
+    expect(
+      ownerCategories.body.data.map((item: { id: string }) => item.id),
+    ).toEqual([category.body.data.id]);
+    expect(ownerCategories.body.data).not.toContainEqual(
       expect.objectContaining({ id: otherCategory.body.data.id }),
     );
 
@@ -177,6 +228,9 @@ describe("API E2E", () => {
     expect(missingImage.body.requestId).toBe(
       missingImage.headers["x-request-id"],
     );
+
+    const invalidPagination = await api.get("/api/image?page=0&limit=101");
+    expect(invalidPagination.status).toBe(400);
   });
 
   it("sets CORS headers only for configured browser origins", async () => {

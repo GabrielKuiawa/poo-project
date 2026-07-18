@@ -52,6 +52,7 @@ describe("database seed", () => {
       relations: { user: true, categories: true },
     });
 
+    expect(seededImage?.getTitle()).toEqual(expect.any(String));
     expect(seededImage?.getUser()).toBeDefined();
     expect(seededImage?.getCategories().length).toBeGreaterThanOrEqual(1);
   });

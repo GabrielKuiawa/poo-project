@@ -5,7 +5,12 @@ import {
   getAuthenticatedUser,
   getAuthenticatedUserId,
 } from "../utils/authorization";
-import { validateId, validateTextField } from "../utils/validation";
+import {
+  validateId,
+  validatePagination,
+  validateTextField,
+} from "../utils/validation";
+import { serializePaginationMeta } from "../utils/pagination";
 
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -36,8 +41,13 @@ export class CategoryController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const categories = await this.categoryService.getCategories();
-      res.json(categories.map((category) => this.serializeCategory(category)));
+      const result = await this.categoryService.getCategories(
+        validatePagination(req.query.page, req.query.limit),
+      );
+      res.json({
+        data: result.data.map((category) => this.serializeCategory(category)),
+        meta: serializePaginationMeta(req, result.meta),
+      });
     } catch (error) {
       next(error);
     }
@@ -49,10 +59,14 @@ export class CategoryController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const categories = await this.categoryService.getCategoriesByUserId(
+      const result = await this.categoryService.getCategoriesByUserId(
         getAuthenticatedUserId(req),
+        validatePagination(req.query.page, req.query.limit),
       );
-      res.json(categories.map((category) => this.serializeCategory(category)));
+      res.json({
+        data: result.data.map((category) => this.serializeCategory(category)),
+        meta: serializePaginationMeta(req, result.meta),
+      });
     } catch (error) {
       next(error);
     }
