@@ -1,52 +1,66 @@
-import { useEffect, useState } from "react";
-import { getImages } from "./features/images/api/getImages";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import {
+  firstImagesPage,
+  getImages,
+} from "./features/images/api/getImages";
 import { ImageList } from "./features/images/components/ImageList";
 import { ImageListSkeleton } from "./features/images/components/ImageListSkeleton";
-import type { Image } from "./features/images/types";
-import "./index.css";
-
-const MINIMUM_LOADING_TIME = 700;
 
 function App() {
-  const [images, setImages] = useState<Image[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetchingNextPage,
+    isPending,
+  } = useInfiniteQuery({
+    queryKey: ["images"],
+    initialPageParam: firstImagesPage,
+    queryFn: ({ pageParam, signal }) => getImages(pageParam, signal),
+    getNextPageParam: (lastPage) => lastPage.meta.next ?? undefined,
+  });
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadImages() {
-      try {
-        const [data] = await Promise.all([
-          getImages(controller.signal),
-          new Promise((resolve) => setTimeout(resolve, MINIMUM_LOADING_TIME)),
-        ]);
-        setImages(data);
-      } catch (error) {
-        if (error instanceof Error && error.name !== "AbortError") {
-          setError(error.message);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
+    const target = loadMoreRef.current;
+    if (!target || !hasNextPage) {
+      return;
     }
 
-    void loadImages();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
 
-    return () => controller.abort();
-  }, []);
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (isLoading) {
+  if (isPending) {
     return <ImageListSkeleton />;
   }
 
-  if (error) {
-    return <p>{error}</p>;
+  if (isError) {
+    return <p>{error.message}</p>;
   }
 
-  return <ImageList images={images} />;
+  const images = data.pages.flatMap((page) => page.data);
+
+  return (
+    <>
+      <ImageList images={images} isLoadingMore={isFetchingNextPage} />
+      {hasNextPage && (
+        <div ref={loadMoreRef} aria-hidden="true" className="h-px w-full" />
+      )}
+    </>
+  );
 }
 
 export default App;
