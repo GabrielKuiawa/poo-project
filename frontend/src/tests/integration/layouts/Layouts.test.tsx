@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ReactNode } from "react";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -9,8 +9,17 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ children, to }: { children: ReactNode; to: string }) => (
-    <a href={to}>{children}</a>
+  Link: ({
+    children,
+    to,
+    ...props
+  }: {
+    children: ReactNode;
+    to: string;
+  } & AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
   ),
   Outlet: () => <main>Conteúdo da rota</main>,
   useNavigate: () => mocks.navigate,
@@ -33,7 +42,18 @@ describe("AppLayout", () => {
     render(<AppLayout />);
 
     expect(screen.getByRole("banner")).toBeVisible();
+    expect(
+      screen.getByRole("complementary", { name: "Barra lateral" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("navigation", { name: "Navegação principal" }),
+    ).toBeVisible();
+    expect(screen.getByRole("searchbox", { name: "Pesquisar" })).toBeVisible();
     expect(screen.getByRole("link", { name: "mood board" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+    expect(screen.getByRole("link", { name: "Início" })).toHaveAttribute(
       "href",
       "/",
     );
