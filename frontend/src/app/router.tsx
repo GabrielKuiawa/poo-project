@@ -4,14 +4,15 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import App from "./App";
-import { LoginPage } from "./features/auth/components/LoginPage";
-import { RegisterPage } from "./features/auth/components/RegisterPage";
+import App from "@/App";
+import { AppLayout } from "@/app/layouts/AppLayout";
+import { LoginPage } from "@/features/auth/components/LoginPage";
+import { RegisterPage } from "@/features/auth/components/RegisterPage";
 import {
   redirectAuthenticatedSession,
   requireAuthenticatedSession,
-} from "./features/auth/routeGuards";
-import { ImageDetailsPage } from "./features/images/components/ImageDetailsPage";
+} from "@/features/auth/routeGuards";
+import { ImageDetailsPage } from "@/features/images/components/ImageDetailsPage";
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -21,7 +22,7 @@ const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "authenticated",
   beforeLoad: requireAuthenticatedSession,
-  component: Outlet,
+  component: AppLayout,
 });
 
 const indexRoute = createRoute({

@@ -2,7 +2,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { act, screen } from "@testing-library/react";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
-import { router } from "@/router";
+import { router } from "@/app/router";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 describe("application router", () => {

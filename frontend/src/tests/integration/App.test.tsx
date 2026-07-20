@@ -1,28 +1,11 @@
 import { act, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createImage, createImagePage } from "@/tests/fixtures/images";
 import { getLatestIntersectionObserver } from "@/tests/mocks/browserObservers";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
-  clearAuthToken: vi.fn(),
   getImages: vi.fn(),
-  isAuthenticated: vi.fn(),
-  navigate: vi.fn(),
-}));
-
-vi.mock("@tanstack/react-router", () => ({
-  Link: ({ children, to }: { children: ReactNode; to: string }) => (
-    <a href={to}>{children}</a>
-  ),
-  useNavigate: () => mocks.navigate,
-}));
-
-vi.mock("@/features/auth/authStorage", () => ({
-  clearAuthToken: mocks.clearAuthToken,
-  isAuthenticated: mocks.isAuthenticated,
 }));
 
 vi.mock("@/features/images/api/getImages", () => ({
@@ -55,19 +38,15 @@ import App from "@/App";
 
 describe("App", () => {
   beforeEach(() => {
-    mocks.clearAuthToken.mockReset();
     mocks.getImages.mockReset();
-    mocks.isAuthenticated.mockReset().mockReturnValue(true);
-    mocks.navigate.mockReset().mockResolvedValue(undefined);
   });
 
-  it("shows only the feed skeleton while the first page is loading", () => {
+  it("shows the feed skeleton while the first page is loading", () => {
     mocks.getImages.mockReturnValue(new Promise(() => {}));
 
     renderWithProviders(<App />);
 
     expect(screen.getByRole("status")).toHaveTextContent("Carregando feed");
-    expect(screen.queryByRole("banner")).not.toBeInTheDocument();
   });
 
   it("shows the API error when the first page cannot be loaded", async () => {
@@ -76,28 +55,14 @@ describe("App", () => {
     renderWithProviders(<App />);
 
     expect(await screen.findByText("Falha ao carregar o feed.")).toBeVisible();
-    expect(screen.queryByRole("banner")).not.toBeInTheDocument();
   });
 
-  it("renders the authenticated header and an empty feed", async () => {
+  it("renders an empty feed", async () => {
     mocks.getImages.mockResolvedValue(createImagePage({ data: [] }));
 
     renderWithProviders(<App />);
 
     expect(await screen.findByText("Lista vazia")).toBeVisible();
-    expect(screen.getByRole("banner")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Sair" })).toBeVisible();
-  });
-
-  it("clears the session and navigates to login on logout", async () => {
-    const user = userEvent.setup();
-    mocks.getImages.mockResolvedValue(createImagePage({ data: [] }));
-    renderWithProviders(<App />);
-
-    await user.click(await screen.findByRole("button", { name: "Sair" }));
-
-    expect(mocks.clearAuthToken).toHaveBeenCalledOnce();
-    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/login" });
   });
 
   it("loads the next page when the pagination marker becomes visible", async () => {

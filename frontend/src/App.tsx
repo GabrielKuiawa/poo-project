@@ -1,9 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Button } from "./components/ui/button";
-import { clearAuthToken, isAuthenticated } from "./features/auth/authStorage";
+import { useEffect, useRef } from "react";
 import { firstImagesPage, getImages } from "./features/images/api/getImages";
 import { ImageList } from "./features/images/components/ImageList";
 import { ImageListSkeleton } from "./features/images/components/ImageListSkeleton";
@@ -26,9 +22,7 @@ function reorderFirstPage(images: Image[]): Image[] {
 }
 
 function App() {
-  const navigate = useNavigate();
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const [authenticated, setAuthenticated] = useState(isAuthenticated);
   const {
     data,
     error,
@@ -77,37 +71,6 @@ function App() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-black/5 bg-background/85 px-4 py-3 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
-          <Link to="/" className="inline-flex items-center gap-2.5 font-bold">
-            <img
-              src={`${import.meta.env.BASE_URL}favicon.svg`}
-              alt=""
-              className="size-10 shrink-0"
-            />
-            <span className="hidden sm:inline">mood board</span>
-          </Link>
-
-          {authenticated ? (
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                clearAuthToken();
-                setAuthenticated(false);
-                void navigate({ to: "/login" });
-              }}
-            >
-              <LogOut size={17} />
-              Sair
-            </Button>
-          ) : (
-            <Button asChild>
-              <Link to="/login">Entrar</Link>
-            </Button>
-          )}
-        </div>
-      </header>
       <ImageList images={images} isLoadingMore={isFetchingNextPage} />
       {hasNextPage && (
         <div ref={loadMoreRef} aria-hidden="true" className="h-px w-full" />
