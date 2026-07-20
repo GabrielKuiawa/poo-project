@@ -1,9 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { saveAuthToken } from "@/lib/authTokenStorage";
-import { login } from "../api/login";
-import { register } from "../api/register";
-import type { RegistrationData } from "../api/register";
+import { authService } from "../services/authService";
+import type { RegistrationData } from "../services/authService";
 
 export function useRegisterMutation() {
   const navigate = useNavigate();
@@ -17,9 +16,9 @@ export function useRegisterMutation() {
         pathImageUser: registrationData.pathImageUser.trim(),
       };
 
-      await register(normalizedData);
+      await authService.register(normalizedData);
 
-      return login({
+      return authService.login({
         email: normalizedData.email,
         password: normalizedData.password,
       });

@@ -163,7 +163,9 @@ Não edite uma migration que já foi aplicada. Crie uma nova migration para cada
 
 O seeder cria 8 usuários, 48 categorias e 200 imagens para desenvolvimento ou demonstração. Ele executa as migrations pendentes e substitui somente as contas com e-mails reservados pelo próprio seed, portanto pode ser executado novamente sem duplicar dados.
 
-Defina uma senha privada com pelo menos 8 caracteres em `SEED_USER_PASSWORD`. No ambiente local, com o TypeScript:
+O `.env.example` fornece `MoodBoard123!` para as contas de demonstração locais.
+Você pode alterar o valor de `SEED_USER_PASSWORD`, desde que tenha pelo menos 8
+caracteres. Execute o seed local com o TypeScript:
 
 ```bash
 npm run seed:dev

@@ -12,8 +12,8 @@ vi.mock("@/lib/authTokenStorage", () => ({
   getAuthToken: mocks.getAuthToken,
 }));
 
-vi.mock("@/features/auth/api/validateSession", () => ({
-  validateSession: mocks.validateSession,
+vi.mock("@/features/auth/services/authService", () => ({
+  authService: { validateSession: mocks.validateSession },
 }));
 
 import {

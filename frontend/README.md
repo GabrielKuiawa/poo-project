@@ -77,10 +77,10 @@ src/
 │   └── ui/               # Primitives visuais no padrão shadcn
 ├── features/
 │   ├── auth/
-│   │   ├── api/          # Requisições de autenticação
 │   │   ├── components/   # Partes das telas de autenticação
 │   │   ├── hooks/        # Casos de uso de login, cadastro e logout
-│   │   └── pages/        # Páginas usadas diretamente pelo router
+│   │   ├── pages/        # Páginas usadas diretamente pelo router
+│   │   └── services/     # Operações de autenticação e sessão
 │   └── images/
 │       ├── components/   # Cards, listas e elementos de apresentação
 │       ├── pages/        # Feed e detalhes de uma imagem

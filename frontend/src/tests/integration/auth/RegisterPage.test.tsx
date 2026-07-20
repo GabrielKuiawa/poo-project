@@ -18,8 +18,12 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mocks.navigate,
 }));
 
-vi.mock("@/features/auth/api/register", () => ({ register: mocks.register }));
-vi.mock("@/features/auth/api/login", () => ({ login: mocks.login }));
+vi.mock("@/features/auth/services/authService", () => ({
+  authService: {
+    login: mocks.login,
+    register: mocks.register,
+  },
+}));
 vi.mock("@/lib/authTokenStorage", () => ({
   saveAuthToken: mocks.saveAuthToken,
 }));
