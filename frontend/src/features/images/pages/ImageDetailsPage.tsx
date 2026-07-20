@@ -159,7 +159,7 @@ function DetailCard({ image }: { image: Image }) {
             <img
               src={image.pathImage}
               alt={image.description}
-              className="block max-h-205 min-h-80 w-full object-cover"
+              className="block h-auto w-full object-contain"
             />
             <IconAction
               label="Expandir imagem"
@@ -294,7 +294,7 @@ export function ImageDetailsPage() {
     <main className="w-full">
       <div
         aria-busy={isFetchingNextPage}
-        className="grid auto-rows-2 grid-flow-dense grid-cols-1 gap-4 px-4 py-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        className="grid grid-cols-pins auto-rows-2 grid-flow-dense gap-4 px-4 py-3"
       >
         <DetailsMasonryItem wide>
           <DetailCard image={image} />

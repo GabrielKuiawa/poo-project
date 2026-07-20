@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@utility grid-cols-pins {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(calc(var(--spacing) * 58), 1fr)
+  );
+}
+
 :root {
   --radius: 1rem;
   --background: oklch(0.985 0.003 25);
