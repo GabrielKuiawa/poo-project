@@ -155,11 +155,11 @@ function DetailCard({ image }: { image: Image }) {
         </div>
 
         <div className="px-3">
-          <div className="relative mx-auto max-w-155 overflow-hidden rounded-3xl bg-muted">
+          <div className="relative mx-auto w-fit max-w-full overflow-hidden rounded-3xl bg-muted">
             <img
               src={image.pathImage}
               alt={image.description}
-              className="block h-auto w-full object-contain"
+              className="block h-auto max-h-185 w-auto max-w-full object-contain"
             />
             <IconAction
               label="Expandir imagem"

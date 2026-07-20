@@ -6,7 +6,7 @@
 @utility grid-cols-pins {
   grid-template-columns: repeat(
     auto-fill,
-    minmax(calc(var(--spacing) * 58), 1fr)
+    minmax(calc(var(--spacing) * 48), 1fr)
   );
 }
 
