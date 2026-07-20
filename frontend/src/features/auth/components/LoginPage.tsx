@@ -30,8 +30,8 @@ export function LoginPage() {
   return (
     <main className="relative min-h-dvh overflow-hidden bg-zinc-950 text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(230,0,35,0.3),transparent_34%),radial-gradient(circle_at_85%_80%,rgba(153,27,27,0.22),transparent_30%)]" />
-      <div className="absolute top-[-8rem] right-[-5rem] size-80 rounded-full bg-red-500/15 blur-3xl" />
-      <div className="absolute bottom-[-10rem] left-[-7rem] size-96 rounded-full bg-rose-700/20 blur-3xl" />
+      <div className="absolute -top-32 -right-20 size-80 rounded-full bg-red-500/15 blur-3xl" />
+      <div className="absolute -bottom-40 -left-28 size-96 rounded-full bg-rose-700/20 blur-3xl" />
 
       <div className="relative mx-auto grid min-h-dvh max-w-7xl lg:grid-cols-[1.05fr_0.95fr]">
         <section className="hidden flex-col justify-between p-12 lg:flex xl:p-16">
@@ -66,7 +66,7 @@ export function LoginPage() {
         </section>
 
         <section className="flex items-center justify-center px-5 py-10 sm:px-10 lg:py-12">
-          <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9">
+          <div className="w-full max-w-md rounded-4xl border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9">
             <Link
               to="/"
               className="mb-10 inline-flex items-center gap-2.5 text-lg font-bold lg:hidden"
