@@ -25,17 +25,17 @@ Banco MySQL
 
 O domínio atual possui usuários, imagens e categorias. A evolução planejada inclui feed, busca, coleções e descoberta de conteúdo.
 
-### Conta de demonstração local
+### Conta de demonstração
 
-Depois de copiar os arquivos `.env.example` e executar `npm run seed:dev`, use:
+Para testar a aplicação publicada ou o ambiente local depois do seed, use:
 
 | Campo | Valor                  |
 | ----- | ---------------------- |
 | Email | `ana.seed@example.com` |
 | Senha | `MoodBoard123!`        |
 
-Essa senha pertence somente às contas geradas pelo seed local. Em produção,
-`SEED_USER_PASSWORD` deve ser configurada pelo ambiente.
+A conta é pública e permite navegar pelo feed e pelos detalhes em modo somente
+leitura. Operações de criação, alteração e remoção são bloqueadas no backend.
 
 ## Monorepo
 

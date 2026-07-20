@@ -8,7 +8,10 @@ import { UserRole } from "../enum/UserRole";
 interface AuthenticationPayload extends jwt.JwtPayload {
   userId: string;
   role: UserRole;
+  readOnly?: boolean;
 }
+
+const readOnlyMethods = new Set(["GET", "HEAD", "OPTIONS"]);
 
 export const authMiddleware = (
   req: Request,
@@ -33,7 +36,21 @@ export const authMiddleware = (
       return;
     }
 
-    req.auth = { userId: decoded.userId, role: decoded.role };
+    req.auth = {
+      userId: decoded.userId,
+      role: decoded.role,
+      readOnly: decoded.readOnly === true,
+    };
+
+    if (req.auth.readOnly && !readOnlyMethods.has(req.method)) {
+      next(
+        new ForbiddenException(
+          "A conta de demonstração permite somente operações de leitura",
+        ),
+      );
+      return;
+    }
+
     next();
   } catch {
     next(

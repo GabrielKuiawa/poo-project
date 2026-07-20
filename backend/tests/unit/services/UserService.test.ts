@@ -4,6 +4,7 @@ jest.mock("../../../src/config", () => ({
 
 import bcrypt = require("bcryptjs");
 import * as jwt from "jsonwebtoken";
+import { publicDemoAccount } from "../../../src/constants/publicDemoAccount";
 import { UserRole } from "../../../src/enum/UserRole";
 import ConflictException from "../../../src/exception/ConflictException";
 import ForbiddenException from "../../../src/exception/ForbiddenException";
@@ -232,6 +233,22 @@ describe("UserService", () => {
 
       expect(payload.userId).toBe(USER_ID);
       expect(payload.role).toBe(UserRole.USER);
+      expect(payload.readOnly).toBe(false);
+    });
+
+    it("should issue a read-only token for the public demo account", async () => {
+      const passwordHash = await bcrypt.hash(publicDemoAccount.password, 10);
+      userRepository.findOneByEmail.mockResolvedValue(
+        createUser(USER_ID, publicDemoAccount.email, passwordHash),
+      );
+
+      const token = await userService.login(
+        publicDemoAccount.email,
+        publicDemoAccount.password,
+      );
+      const payload = jwt.verify(token, "test-jwt-secret") as jwt.JwtPayload;
+
+      expect(payload.readOnly).toBe(true);
     });
 
     it("should reject invalid credentials", async () => {

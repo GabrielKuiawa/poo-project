@@ -1,4 +1,5 @@
 import { UserRole } from "../enum/UserRole";
+import { publicDemoAccount } from "../constants/publicDemoAccount";
 import ConflictException from "../exception/ConflictException";
 import UnauthorizedException from "../exception/UnauthorizedException";
 import { UserNotFoundException } from "../exception/UserNotFoundException";
@@ -139,7 +140,11 @@ export class UserService {
     }
 
     return jwt.sign(
-      { userId: user.getId(), role: user.getAdmin() },
+      {
+        userId: user.getId(),
+        role: user.getAdmin(),
+        readOnly: user.getEmail() === publicDemoAccount.email,
+      },
       config.jwtSecret,
       { expiresIn: "1h" },
     );

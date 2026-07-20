@@ -1,5 +1,6 @@
 import * as bcrypt from "bcryptjs";
 import { DataSource } from "typeorm";
+import { publicDemoAccount } from "../constants/publicDemoAccount";
 import { UserRole } from "../enum/UserRole";
 import Category from "../models/Category";
 import Image from "../models/Image";
@@ -22,7 +23,10 @@ export async function seedDatabase(
     throw new Error("SEED_USER_PASSWORD deve ter pelo menos 8 caracteres.");
   }
 
-  const passwordHash = await bcrypt.hash(userPassword, 10);
+  const [passwordHash, publicDemoPasswordHash] = await Promise.all([
+    bcrypt.hash(userPassword, 10),
+    bcrypt.hash(publicDemoAccount.password, 10),
+  ]);
 
   return dataSource.transaction(async (manager) => {
     const seedEmails = seedUsers.map((user) => user.email);
@@ -40,7 +44,11 @@ export async function seedDatabase(
       user.setName(userData.name);
       user.setEmail(userData.email);
       user.setPathImageUser(userData.pathImageUser);
-      user.setPassword(passwordHash);
+      user.setPassword(
+        userData.email === publicDemoAccount.email
+          ? publicDemoPasswordHash
+          : passwordHash,
+      );
       user.setAdmin(UserRole.USER);
 
       return user;
