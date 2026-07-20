@@ -31,6 +31,7 @@ vi.mock("@/lib/authTokenStorage", () => ({
 
 import { AppLayout } from "@/app/layouts/AppLayout";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
+import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 describe("AppLayout", () => {
   beforeEach(() => {
@@ -39,7 +40,7 @@ describe("AppLayout", () => {
   });
 
   it("keeps navigation separate from the active route content", () => {
-    render(<AppLayout />);
+    renderWithProviders(<AppLayout />);
 
     expect(screen.getByRole("banner")).toBeVisible();
     expect(
@@ -62,7 +63,7 @@ describe("AppLayout", () => {
 
   it("clears the token and opens login on logout", async () => {
     const user = userEvent.setup();
-    render(<AppLayout />);
+    renderWithProviders(<AppLayout />);
 
     await user.click(screen.getByRole("button", { name: "Sair" }));
 

@@ -1,10 +1,15 @@
 import { Search } from "lucide-react";
+import type { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 
-export function AppHeader() {
+type AppHeaderProps = {
+  userMenu: ReactNode;
+};
+
+export function AppHeader({ userMenu }: AppHeaderProps) {
   return (
     <header className="fixed top-0 right-0 left-[68px] z-40 h-16 bg-background/95 px-3 backdrop-blur-sm sm:px-4">
-      <div className="flex h-full items-center">
+      <div className="flex h-full items-center gap-2">
         <div role="search" className="relative min-w-0 flex-1">
           <Search
             aria-hidden="true"
@@ -18,6 +23,8 @@ export function AppHeader() {
             type="search"
           />
         </div>
+
+        {userMenu}
       </div>
     </header>
   );

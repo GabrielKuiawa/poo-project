@@ -12,6 +12,14 @@ export type RegistrationData = {
   pathImageUser: string;
 };
 
+export type CurrentUser = {
+  id: string;
+  name: string;
+  email: string;
+  pathImageUser: string;
+  role: string;
+};
+
 type LoginResponse = {
   message: string;
   token: string;
@@ -19,14 +27,10 @@ type LoginResponse = {
 
 type RegistrationResponse = {
   message: string;
-  data: {
-    id: string;
-    name: string;
-    email: string;
-    pathImageUser: string;
-    role: string;
-  };
+  data: CurrentUser;
 };
+
+const currentUserPath = "/api/user/me";
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
@@ -52,9 +56,18 @@ export const authService = {
     });
   },
 
+  getCurrentUser(signal?: AbortSignal): Promise<CurrentUser> {
+    return apiRequest<CurrentUser>(currentUserPath, {
+      signal,
+      authenticated: true,
+      errorMessage: "Não foi possível carregar seu perfil.",
+      useServerErrorMessage: false,
+    });
+  },
+
   async validateSession(token: string): Promise<boolean> {
     try {
-      await apiRequest<unknown>("/api/user/me", {
+      await apiRequest<unknown>(currentUserPath, {
         token,
         errorMessage: "Não foi possível validar sua sessão.",
         useServerErrorMessage: false,
