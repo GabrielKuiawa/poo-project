@@ -11,7 +11,7 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
   return (
     <aside
       aria-label="Barra lateral"
-      className="fixed inset-y-0 left-0 z-50 flex w-[68px] flex-col items-center border-r bg-background"
+      className="fixed inset-y-0 left-0 z-50 flex w-17 flex-col items-center border-r bg-background"
     >
       <div className="flex h-16 shrink-0 items-center justify-center">
         <Brand
@@ -29,7 +29,7 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
           className="flex size-11 items-center justify-center rounded-xl bg-foreground text-background outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
           title="Início"
         >
-          <Home aria-hidden="true" className="size-[22px]" strokeWidth={2.2} />
+          <Home aria-hidden="true" className="size-5.5" strokeWidth={2.2} />
         </Link>
       </nav>
 
@@ -43,7 +43,7 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
           title="Sair"
           onClick={onLogout}
         >
-          <LogOut aria-hidden="true" className="size-[22px]" />
+          <LogOut aria-hidden="true" className="size-5.5" />
         </Button>
       </div>
     </aside>

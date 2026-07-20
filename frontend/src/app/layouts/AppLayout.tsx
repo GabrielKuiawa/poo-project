@@ -12,7 +12,7 @@ export function AppLayout() {
       <AppSidebar onLogout={logout} />
       <AppHeader userMenu={<UserMenu onLogout={logout} />} />
 
-      <div className="min-h-screen pt-16 pl-[68px]">
+      <div className="min-h-screen pt-16 pl-17">
         <Outlet />
       </div>
     </div>
