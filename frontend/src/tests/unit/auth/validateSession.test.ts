@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { validateSession } from "@/features/auth/api/validateSession";
-import { apiUrl } from "@/lib/api";
+import { testApiUrl } from "@/tests/fixtures/api";
 
 describe("validateSession", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -12,7 +12,7 @@ describe("validateSession", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(validateSession("valid-token")).resolves.toBe(true);
-    expect(fetchMock).toHaveBeenCalledWith(`${apiUrl}/api/user/me`, {
+    expect(fetchMock).toHaveBeenCalledWith(`${testApiUrl}/api/user/me`, {
       headers: { Authorization: "Bearer valid-token" },
     });
   });

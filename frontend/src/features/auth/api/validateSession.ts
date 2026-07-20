@@ -1,16 +1,18 @@
-import { apiUrl } from "@/lib/api";
+import { ApiError, apiRequest } from "@/lib/api";
 
 export async function validateSession(token: string): Promise<boolean> {
-  const response = await fetch(`${apiUrl}/api/user/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  try {
+    await apiRequest<unknown>("/api/user/me", {
+      token,
+      errorMessage: "Não foi possível validar sua sessão.",
+      useServerErrorMessage: false,
+    });
+  } catch (error) {
+    if (error instanceof ApiError && [401, 403].includes(error.status)) {
+      return false;
+    }
 
-  if (response.status === 401 || response.status === 403) {
-    return false;
-  }
-
-  if (!response.ok) {
-    throw new Error("Não foi possível validar sua sessão.");
+    throw error;
   }
 
   return true;

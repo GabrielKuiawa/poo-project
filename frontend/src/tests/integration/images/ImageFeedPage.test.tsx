@@ -5,12 +5,12 @@ import { getLatestIntersectionObserver } from "@/tests/mocks/browserObservers";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
-  getImages: vi.fn(),
+  getPage: vi.fn(),
 }));
 
-vi.mock("@/features/images/api/getImages", () => ({
-  firstImagesPage: "http://api.test/api/image?page=1&limit=20",
-  getImages: mocks.getImages,
+vi.mock("@/features/images/services/imageService", () => ({
+  initialImagesPage: "/api/image?page=1&limit=20",
+  imageService: { getPage: mocks.getPage },
 }));
 
 vi.mock("@/features/images/components/ImageList", () => ({
@@ -34,41 +34,58 @@ vi.mock("@/features/images/components/ImageListSkeleton", () => ({
   ImageListSkeleton: () => <div role="status">Carregando feed</div>,
 }));
 
-import App from "@/App";
+import { ImageFeedPage } from "@/features/images/pages/ImageFeedPage";
 
-describe("App", () => {
+describe("ImageFeedPage", () => {
   beforeEach(() => {
-    mocks.getImages.mockReset();
+    mocks.getPage.mockReset();
   });
 
   it("shows the feed skeleton while the first page is loading", () => {
-    mocks.getImages.mockReturnValue(new Promise(() => {}));
+    mocks.getPage.mockReturnValue(new Promise(() => {}));
 
-    renderWithProviders(<App />);
+    renderWithProviders(<ImageFeedPage />);
 
     expect(screen.getByRole("status")).toHaveTextContent("Carregando feed");
   });
 
   it("shows the API error when the first page cannot be loaded", async () => {
-    mocks.getImages.mockRejectedValue(new Error("Falha ao carregar o feed."));
+    mocks.getPage.mockRejectedValue(new Error("Falha ao carregar o feed."));
 
-    renderWithProviders(<App />);
+    renderWithProviders(<ImageFeedPage />);
 
     expect(await screen.findByText("Falha ao carregar o feed.")).toBeVisible();
   });
 
   it("renders an empty feed", async () => {
-    mocks.getImages.mockResolvedValue(createImagePage({ data: [] }));
+    mocks.getPage.mockResolvedValue(createImagePage({ data: [] }));
 
-    renderWithProviders(<App />);
+    renderWithProviders(<ImageFeedPage />);
 
     expect(await screen.findByText("Lista vazia")).toBeVisible();
+  });
+
+  it("preserves the image order returned by the API", async () => {
+    mocks.getPage.mockResolvedValue(
+      createImagePage({
+        data: [
+          createImage({ id: "third", title: "Terceira" }),
+          createImage({ id: "first", title: "Primeira" }),
+          createImage({ id: "second", title: "Segunda" }),
+        ],
+      }),
+    );
+
+    renderWithProviders(<ImageFeedPage />);
+
+    const list = await screen.findByLabelText("Lista de imagens");
+    expect(list).toHaveTextContent("TerceiraPrimeiraSegunda");
   });
 
   it("loads the next page when the pagination marker becomes visible", async () => {
     const firstImage = createImage({ id: "first", title: "Primeira" });
     const secondImage = createImage({ id: "second", title: "Segunda" });
-    mocks.getImages
+    mocks.getPage
       .mockResolvedValueOnce(
         createImagePage({
           data: [firstImage],
@@ -87,15 +104,15 @@ describe("App", () => {
         }),
       );
 
-    renderWithProviders(<App />);
+    renderWithProviders(<ImageFeedPage />);
 
     expect(await screen.findByText("Primeira")).toBeVisible();
-    await waitFor(() => expect(mocks.getImages).toHaveBeenCalledOnce());
+    await waitFor(() => expect(mocks.getPage).toHaveBeenCalledOnce());
 
     act(() => getLatestIntersectionObserver().trigger());
 
     expect(await screen.findByText("Segunda")).toBeVisible();
-    expect(mocks.getImages).toHaveBeenNthCalledWith(
+    expect(mocks.getPage).toHaveBeenNthCalledWith(
       2,
       "http://api.test/api/image?page=2&limit=20",
       expect.any(AbortSignal),

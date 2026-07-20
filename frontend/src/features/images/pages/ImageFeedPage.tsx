@@ -1,28 +1,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { PageFeedback } from "./components/shared/PageFeedback";
-import { firstImagesPage, getImages } from "./features/images/api/getImages";
-import { ImageList } from "./features/images/components/ImageList";
-import { ImageListSkeleton } from "./features/images/components/ImageListSkeleton";
-import type { Image } from "./features/images/types";
+import { PageFeedback } from "@/components/shared/PageFeedback";
+import { ImageList } from "../components/ImageList";
+import { ImageListSkeleton } from "../components/ImageListSkeleton";
+import { imageService, initialImagesPage } from "../services/imageService";
 
-const firstPageOrder = [
-  0, 7, 14, 3, 10, 17, 5, 12, 19, 1, 8, 15, 4, 11, 18, 2, 9, 16, 6, 13,
-];
-
-function reorderFirstPage(images: Image[]): Image[] {
-  const reorderedImages = firstPageOrder
-    .map((index) => images[index])
-    .filter((image): image is Image => image !== undefined);
-  const reorderedIds = new Set(reorderedImages.map((image) => image.id));
-
-  return [
-    ...reorderedImages,
-    ...images.filter((image) => !reorderedIds.has(image.id)),
-  ];
-}
-
-function App() {
+export function ImageFeedPage() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const {
     data,
@@ -34,8 +17,8 @@ function App() {
     isPending,
   } = useInfiniteQuery({
     queryKey: ["images"],
-    initialPageParam: firstImagesPage,
-    queryFn: ({ pageParam, signal }) => getImages(pageParam, signal),
+    initialPageParam: initialImagesPage,
+    queryFn: ({ pageParam, signal }) => imageService.getPage(pageParam, signal),
     getNextPageParam: (lastPage) => lastPage.meta.next ?? undefined,
   });
 
@@ -66,9 +49,7 @@ function App() {
     return <PageFeedback variant="error">{error.message}</PageFeedback>;
   }
 
-  const images = data.pages.flatMap((page, pageIndex) =>
-    pageIndex === 0 ? reorderFirstPage(page.data) : page.data,
-  );
+  const images = data.pages.flatMap((page) => page.data);
 
   return (
     <>
@@ -79,5 +60,3 @@ function App() {
     </>
   );
 }
-
-export default App;

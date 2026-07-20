@@ -1,5 +1,5 @@
 import { isRedirect, redirect } from "@tanstack/react-router";
-import { clearAuthToken, getAuthToken } from "./authStorage";
+import { clearAuthToken, getAuthToken } from "@/lib/authTokenStorage";
 import { validateSession } from "./api/validateSession";
 
 export async function requireAuthenticatedSession(): Promise<void> {

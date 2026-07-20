@@ -4,10 +4,10 @@ import {
   getAuthToken,
   isAuthenticated,
   saveAuthToken,
-} from "@/features/auth/authStorage";
+} from "@/lib/authTokenStorage";
 import { createAuthToken } from "@/tests/fixtures/auth";
 
-describe("authStorage", () => {
+describe("authTokenStorage", () => {
   beforeEach(() => {
     window.localStorage.clear();
     vi.useRealTimers();

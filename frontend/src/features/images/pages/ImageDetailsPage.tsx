@@ -4,9 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { PageFeedback } from "@/components/shared/PageFeedback";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getImage } from "../api/getImage";
-import { ImageAuthor } from "./ImageAuthor";
-import { ImageCategories } from "./ImageCategories";
+import { ImageAuthor } from "../components/ImageAuthor";
+import { ImageCategories } from "../components/ImageCategories";
+import { imageService } from "../services/imageService";
 
 const route = getRouteApi("/authenticated/images/$imageId");
 
@@ -18,7 +18,7 @@ export function ImageDetailsPage() {
     isPending,
   } = useQuery({
     queryKey: ["image", imageId],
-    queryFn: ({ signal }) => getImage(imageId, signal),
+    queryFn: ({ signal }) => imageService.getById(imageId, signal),
   });
 
   if (isPending) {

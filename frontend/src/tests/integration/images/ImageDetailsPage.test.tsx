@@ -5,7 +5,7 @@ import { createImage } from "@/tests/fixtures/images";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
-  getImage: vi.fn(),
+  getById: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -17,19 +17,19 @@ vi.mock("@tanstack/react-router", () => ({
   ),
 }));
 
-vi.mock("@/features/images/api/getImage", () => ({
-  getImage: mocks.getImage,
+vi.mock("@/features/images/services/imageService", () => ({
+  imageService: { getById: mocks.getById },
 }));
 
-import { ImageDetailsPage } from "@/features/images/components/ImageDetailsPage";
+import { ImageDetailsPage } from "@/features/images/pages/ImageDetailsPage";
 
 describe("ImageDetailsPage", () => {
   beforeEach(() => {
-    mocks.getImage.mockReset();
+    mocks.getById.mockReset();
   });
 
   it("shows a loading message while the image is pending", () => {
-    mocks.getImage.mockReturnValue(new Promise(() => {}));
+    mocks.getById.mockReturnValue(new Promise(() => {}));
 
     renderWithProviders(<ImageDetailsPage />);
 
@@ -37,7 +37,7 @@ describe("ImageDetailsPage", () => {
   });
 
   it("shows the request error", async () => {
-    mocks.getImage.mockRejectedValue(
+    mocks.getById.mockRejectedValue(
       new Error("Não foi possível carregar a imagem."),
     );
 
@@ -49,7 +49,7 @@ describe("ImageDetailsPage", () => {
   });
 
   it("renders image, author, categories, and the return link", async () => {
-    mocks.getImage.mockResolvedValue(
+    mocks.getById.mockResolvedValue(
       createImage({
         id: "reference-id",
         title: "Arquitetura brutalista",
@@ -76,14 +76,14 @@ describe("ImageDetailsPage", () => {
       "href",
       "/",
     );
-    expect(mocks.getImage).toHaveBeenCalledWith(
+    expect(mocks.getById).toHaveBeenCalledWith(
       "reference-id",
       expect.any(AbortSignal),
     );
   });
 
   it("omits the category list when the image has no categories", async () => {
-    mocks.getImage.mockResolvedValue(createImage({ categories: [] }));
+    mocks.getById.mockResolvedValue(createImage({ categories: [] }));
 
     renderWithProviders(<ImageDetailsPage />);
 

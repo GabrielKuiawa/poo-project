@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { saveAuthToken } from "@/lib/authTokenStorage";
 import { login } from "../api/login";
 import { register } from "../api/register";
 import type { RegistrationData } from "../api/register";
-import { saveAuthToken } from "../authStorage";
 
 export function useRegisterMutation() {
   const navigate = useNavigate();

@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import type { Image } from "../types";
+import type { ImageCategory } from "../types";
 
 type ImageCategoriesProps = {
-  categories: Image["categories"];
+  categories: ImageCategory[];
 };
 
 export function ImageCategories({ categories }: ImageCategoriesProps) {

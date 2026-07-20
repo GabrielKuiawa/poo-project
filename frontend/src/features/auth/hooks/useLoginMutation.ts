@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { saveAuthToken } from "@/lib/authTokenStorage";
 import { login } from "../api/login";
-import { saveAuthToken } from "../authStorage";
 
 export function useLoginMutation() {
   const navigate = useNavigate();

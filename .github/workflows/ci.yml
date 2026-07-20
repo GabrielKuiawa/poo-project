@@ -58,6 +58,8 @@ jobs:
     name: Frontend tests, lint, build and HTTP check
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      VITE_API_URL: http://localhost:3000
 
     steps:
       - name: Checkout repository

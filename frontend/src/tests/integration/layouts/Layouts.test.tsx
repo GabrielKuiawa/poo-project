@@ -16,12 +16,12 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mocks.navigate,
 }));
 
-vi.mock("@/features/auth/authStorage", () => ({
+vi.mock("@/lib/authTokenStorage", () => ({
   clearAuthToken: mocks.clearAuthToken,
 }));
 
 import { AppLayout } from "@/app/layouts/AppLayout";
-import { AuthLayout } from "@/app/layouts/AuthLayout";
+import { AuthLayout } from "@/features/auth/components/AuthLayout";
 
 describe("AppLayout", () => {
   beforeEach(() => {

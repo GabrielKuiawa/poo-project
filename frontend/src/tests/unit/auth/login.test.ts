@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { login } from "@/features/auth/api/login";
-import { apiUrl } from "@/lib/api";
+import { testApiUrl } from "@/tests/fixtures/api";
 
 describe("login", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -24,7 +24,7 @@ describe("login", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      `${apiUrl}/api/user/login`,
+      `${testApiUrl}/api/user/login`,
       expect.objectContaining({
         method: "POST",
         headers: { "Content-Type": "application/json" },

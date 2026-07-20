@@ -1,9 +1,16 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { AuthLayout } from "@/app/layouts/AuthLayout";
 import { LoadingButton } from "@/components/shared/LoadingButton";
-import { AuthFormError, AuthFormFooter, AuthFormHeader } from "./AuthForm";
-import { AuthInputField, AuthPasswordField } from "./AuthInputField";
+import {
+  AuthFormError,
+  AuthFormFooter,
+  AuthFormHeader,
+} from "../components/AuthForm";
+import {
+  AuthInputField,
+  AuthPasswordField,
+} from "../components/AuthInputField";
+import { AuthLayout } from "../components/AuthLayout";
 import { useLoginMutation } from "../hooks/useLoginMutation";
 
 export function LoginPage() {

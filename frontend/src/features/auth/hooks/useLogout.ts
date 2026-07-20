@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
-import { clearAuthToken } from "../authStorage";
+import { clearAuthToken } from "@/lib/authTokenStorage";
 
 export function useLogout() {
   const navigate = useNavigate();

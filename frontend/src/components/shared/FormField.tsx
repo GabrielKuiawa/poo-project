@@ -13,7 +13,7 @@ export function FormField({ children, htmlFor, label, hint }: FormFieldProps) {
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <Label htmlFor={htmlFor}>{label}</Label>
-        {hint && <span className="text-xs text-zinc-500">{hint}</span>}
+        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
       </div>
       {children}
     </div>

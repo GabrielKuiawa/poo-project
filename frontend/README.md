@@ -30,6 +30,9 @@ O frontend precisa somente do endereço público da API:
 VITE_API_URL=http://localhost:3000
 ```
 
+Defina a URL sem `/` no final. No desenvolvimento ela aponta para a API local;
+nos builds de deploy, o ambiente fornece o domínio público da API.
+
 Variáveis prefixadas com `VITE_` são incorporadas ao JavaScript durante o build e não devem conter segredos.
 
 ## Desenvolvimento
@@ -63,6 +66,33 @@ Os testes ficam centralizados em `src/tests/`, separados entre `unit/` e
 TypeScript e os mesmos aliases da aplicação. A configuração compartilhada está
 em `vitest.config.ts`, e a cobertura mínima impede que código novo reduza
 silenciosamente a proteção existente.
+
+## Estrutura do código
+
+```text
+src/
+├── app/                  # Router e layouts globais
+├── components/
+│   ├── shared/           # Componentes reutilizáveis da aplicação
+│   └── ui/               # Primitives visuais no padrão shadcn
+├── features/
+│   ├── auth/
+│   │   ├── api/          # Requisições de autenticação
+│   │   ├── components/   # Partes das telas de autenticação
+│   │   ├── hooks/        # Casos de uso de login, cadastro e logout
+│   │   └── pages/        # Páginas usadas diretamente pelo router
+│   └── images/
+│       ├── components/   # Cards, listas e elementos de apresentação
+│       ├── pages/        # Feed e detalhes de uma imagem
+│       └── services/     # Operações disponíveis sobre imagens
+├── lib/                  # Infraestrutura compartilhada, HTTP e storage
+└── tests/                # Fixtures, mocks e testes unitários/integração
+```
+
+A direção esperada das dependências é `app → features → components/lib`. Uma
+feature não deve importar detalhes internos de outra feature. Código usado
+diretamente pelo router fica em `pages/`; partes dessas páginas ficam em
+`components/`.
 
 ## Docker
 

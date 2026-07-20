@@ -1,4 +1,4 @@
-import { apiUrl } from "@/lib/api";
+import { apiRequest } from "@/lib/api";
 
 type LoginCredentials = {
   email: string;
@@ -10,29 +10,16 @@ type LoginResponse = {
   token: string;
 };
 
-type ErrorResponse = {
-  message?: string;
-};
-
 export async function login(
   credentials: LoginCredentials,
 ): Promise<LoginResponse> {
-  const response = await fetch(`${apiUrl}/api/user/login`, {
+  const body = await apiRequest<LoginResponse>("/api/user/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(credentials),
+    json: credentials,
+    errorMessage: "Não foi possível entrar. Tente novamente em instantes.",
   });
 
-  const body = (await response.json().catch(() => ({}))) as
-    LoginResponse | ErrorResponse;
-
-  if (!response.ok) {
-    throw new Error(
-      body.message ?? "Não foi possível entrar. Tente novamente em instantes.",
-    );
-  }
-
-  if (!("token" in body) || !body.token) {
+  if (!body.token) {
     throw new Error("A resposta do servidor não contém uma sessão válida.");
   }
 

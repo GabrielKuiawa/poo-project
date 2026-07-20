@@ -10,20 +10,9 @@ describe("image presentation helpers", () => {
     expect(getPlaceholderColor(10)).toBe("#8f433b");
   });
 
-  it("varies skeleton height and color by index", () => {
-    const { container, rerender } = render(<ImageCardSkeleton index={0} />);
-    const firstSkeleton = container.firstElementChild;
+  it("uses a stable skeleton size", () => {
+    const { container } = render(<ImageCardSkeleton />);
 
-    expect(firstSkeleton).toHaveStyle({
-      backgroundColor: "#124873",
-      height: "224px",
-    });
-
-    rerender(<ImageCardSkeleton index={1} />);
-
-    expect(container.firstElementChild).toHaveStyle({
-      backgroundColor: "#8f433b",
-      height: "307px",
-    });
+    expect(container.firstElementChild).toHaveClass("h-80", "w-full");
   });
 });

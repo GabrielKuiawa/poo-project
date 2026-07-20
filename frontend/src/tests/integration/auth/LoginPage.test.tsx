@@ -18,11 +18,11 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("@/features/auth/api/login", () => ({ login: mocks.login }));
-vi.mock("@/features/auth/authStorage", () => ({
+vi.mock("@/lib/authTokenStorage", () => ({
   saveAuthToken: mocks.saveAuthToken,
 }));
 
-import { LoginPage } from "@/features/auth/components/LoginPage";
+import { LoginPage } from "@/features/auth/pages/LoginPage";
 
 function renderLoginPage() {
   return renderWithProviders(<LoginPage />);

@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Image } from "../types";
+import type { ImageAuthor as ImageAuthorData } from "../types";
 
 type ImageAuthorProps = {
-  author: Image["author"];
+  author: ImageAuthorData;
 };
 
 export function ImageAuthor({ author }: ImageAuthorProps) {
