@@ -3,7 +3,7 @@ import { Link, getRouteApi } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { getImage } from "../api/getImage";
 
-const route = getRouteApi("/images/$imageId");
+const route = getRouteApi("/authenticated/images/$imageId");
 
 export function ImageDetailsPage() {
   const { imageId } = route.useParams();

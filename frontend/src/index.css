@@ -91,7 +91,7 @@
   text-transform: uppercase;
 }
 
-h1 {
+.page h1 {
   max-width: 620px;
   margin: 12px 0;
   font-size: clamp(2rem, 6vw, 3.5rem);
@@ -111,7 +111,7 @@ h1 {
   color: #6e3c8d;
 }
 
-h2 {
+.page h2 {
   margin: 0.83em 0;
   font-size: 1.15rem;
   font-weight: 700;

@@ -1,4 +1,5 @@
 import type { Image } from "../types";
+import { getAuthToken } from "@/features/auth/authStorage";
 
 const apiUrl = (
   import.meta.env.VITE_API_URL ?? "http://localhost:3000"
@@ -8,9 +9,17 @@ export async function getImage(
   imageId: string,
   signal?: AbortSignal,
 ): Promise<Image> {
-  const response = await fetch(`${apiUrl}/api/image/${imageId}`, { signal });
+  const token = getAuthToken();
+  const response = await fetch(`${apiUrl}/api/image/${imageId}`, {
+    signal,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Sua sessão expirou. Entre novamente.");
+    }
+
     throw new Error(`Não foi possível carregar a imagem: ${response.status}`);
   }
 

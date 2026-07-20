@@ -104,15 +104,16 @@ As rotas dos recursos utilizam o prefixo `/api`.
 
 ### Usuários
 
-| Método   | Endpoint               | Descrição                    |
-| -------- | ---------------------- | ---------------------------- |
-| `POST`   | `/api/user/login`      | Autentica e gera um JWT      |
-| `GET`    | `/api/user`            | Lista usuários               |
-| `POST`   | `/api/user`            | Cadastra um usuário          |
-| `GET`    | `/api/user/:id`        | Busca um usuário             |
-| `PUT`    | `/api/user/:id`        | Atualiza um usuário          |
-| `DELETE` | `/api/user/:id`        | Exclui um usuário            |
-| `GET`    | `/api/user/images/:id` | Busca usuário e suas imagens |
+| Método   | Endpoint               | Descrição                     |
+| -------- | ---------------------- | ----------------------------- |
+| `POST`   | `/api/user/login`      | Autentica e gera um JWT       |
+| `GET`    | `/api/user`            | Lista usuários                |
+| `POST`   | `/api/user`            | Cadastra um usuário           |
+| `GET`    | `/api/user/:id`        | Busca um usuário              |
+| `PUT`    | `/api/user/:id`        | Atualiza um usuário           |
+| `DELETE` | `/api/user/:id`        | Exclui um usuário             |
+| `GET`    | `/api/user/images/:id` | Busca usuário e suas imagens  |
+| `GET`    | `/api/user/me`         | Retorna o usuário autenticado |
 
 ### Imagens
 
@@ -139,7 +140,7 @@ As rotas dos recursos utilizam o prefixo `/api`.
 
 ## Autenticação e autorização
 
-Cadastro, login e leitura de imagens e categorias são públicos. Operações protegidas recebem o token no cabeçalho:
+Cadastro, login e leitura de categorias são públicos. A leitura e todas as operações de escrita de imagens são protegidas. Rotas protegidas recebem o token no cabeçalho:
 
 ```http
 Authorization: Bearer <token>

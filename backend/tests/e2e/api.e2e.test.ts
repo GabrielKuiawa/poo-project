@@ -47,6 +47,16 @@ describe("API E2E", () => {
     expect(login.body.token).toEqual(expect.any(String));
     const authorization = `Bearer ${login.body.token}`;
 
+    const currentUser = await api
+      .get("/api/user/me")
+      .set("Authorization", authorization);
+    expect(currentUser.status).toBe(200);
+    expect(currentUser.body).toMatchObject({
+      id: registration.body.data.id,
+      email: "gabriel@example.com",
+      role: UserRole.USER,
+    });
+
     const createdCategory = await api
       .post("/api/category")
       .set("Authorization", authorization)
@@ -89,9 +99,11 @@ describe("API E2E", () => {
       ],
     });
 
-    const publicFeed = await api.get("/api/image?page=1&limit=10");
-    expect(publicFeed.status).toBe(200);
-    expect(publicFeed.body.meta).toMatchObject({
+    const authenticatedFeed = await api
+      .get("/api/image?page=1&limit=10")
+      .set("Authorization", authorization);
+    expect(authenticatedFeed.status).toBe(200);
+    expect(authenticatedFeed.body.meta).toMatchObject({
       page: 1,
       limit: 10,
       total: 1,
@@ -99,9 +111,9 @@ describe("API E2E", () => {
       next: null,
       previous: null,
     });
-    expect(publicFeed.body.data).toHaveLength(1);
-    expect(publicFeed.body.data[0].id).toBe(createdImage.body.data.id);
-    expect(publicFeed.body.data[0].author).toEqual({
+    expect(authenticatedFeed.body.data).toHaveLength(1);
+    expect(authenticatedFeed.body.data[0].id).toBe(createdImage.body.data.id);
+    expect(authenticatedFeed.body.data[0].author).toEqual({
       id: registration.body.data.id,
       name: "Gabriel",
       pathImageUser: "/users/gabriel.png",
@@ -123,6 +135,7 @@ describe("API E2E", () => {
     const deployedOrigin = "https://api.mood-board.gabizin.me";
     const firstFeedPage = await api
       .get("/api/image?page=1&limit=2")
+      .set("Authorization", authorization)
       .set("X-Forwarded-Host", "api.mood-board.gabizin.me")
       .set("X-Forwarded-Proto", "https");
     expect(firstFeedPage.body.meta).toMatchObject({
@@ -132,6 +145,7 @@ describe("API E2E", () => {
 
     const secondFeedPage = await api
       .get("/api/image?page=2&limit=2")
+      .set("Authorization", authorization)
       .set("X-Forwarded-Host", "api.mood-board.gabizin.me")
       .set("X-Forwarded-Proto", "https");
     expect(secondFeedPage.status).toBe(200);
@@ -150,9 +164,9 @@ describe("API E2E", () => {
       .set("Authorization", authorization)
       .expect(204);
 
-    const imageAfterCategoryDeletion = await api.get(
-      `/api/image/${createdImage.body.data.id}`,
-    );
+    const imageAfterCategoryDeletion = await api
+      .get(`/api/image/${createdImage.body.data.id}`)
+      .set("Authorization", authorization);
     expect(imageAfterCategoryDeletion.status).toBe(200);
     expect(imageAfterCategoryDeletion.body.categories).toEqual([]);
   });
@@ -191,6 +205,9 @@ describe("API E2E", () => {
       .send({ name: "Without authentication" });
     expect(missingToken.status).toBe(401);
 
+    const privateFeedWithoutToken = await api.get("/api/image");
+    expect(privateFeedWithoutToken.status).toBe(401);
+
     const forbiddenUpdate = await api
       .put(`/api/category/${category.body.data.id}`)
       .set("Authorization", `Bearer ${otherToken}`)
@@ -210,8 +227,13 @@ describe("API E2E", () => {
   });
 
   it("returns consistent HTTP errors for invalid input and missing resources", async () => {
+    await seedUser("reader@example.com", UserRole.USER);
+    const readerToken = await login("reader@example.com");
+    const authorization = `Bearer ${readerToken}`;
+
     const invalidId = await api
       .get("/api/image/not-a-uuid")
+      .set("Authorization", authorization)
       .set("X-Request-Id", "e2e-invalid-id");
 
     expect(invalidId.status).toBe(400);
@@ -220,16 +242,18 @@ describe("API E2E", () => {
       requestId: "e2e-invalid-id",
     });
 
-    const missingImage = await api.get(
-      "/api/image/123e4567-e89b-42d3-a456-426614174000",
-    );
+    const missingImage = await api
+      .get("/api/image/123e4567-e89b-42d3-a456-426614174000")
+      .set("Authorization", authorization);
     expect(missingImage.status).toBe(404);
     expect(missingImage.body.message).toBe("Imagem não encontrada.");
     expect(missingImage.body.requestId).toBe(
       missingImage.headers["x-request-id"],
     );
 
-    const invalidPagination = await api.get("/api/image?page=0&limit=101");
+    const invalidPagination = await api
+      .get("/api/image?page=0&limit=101")
+      .set("Authorization", authorization);
     expect(invalidPagination.status).toBe(400);
   });
 
@@ -256,7 +280,7 @@ describe("API E2E", () => {
       .get("/api/image")
       .set("Origin", "https://example.com");
 
-    expect(blockedResponse.status).toBe(200);
+    expect(blockedResponse.status).toBe(401);
     expect(blockedResponse.headers).not.toHaveProperty(
       "access-control-allow-origin",
     );

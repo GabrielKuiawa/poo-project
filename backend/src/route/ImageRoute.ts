@@ -28,8 +28,11 @@ export default class ImageRoute extends BaseRoute {
   }
 
   protected initRoutes(): void {
-    this.router.get("/", (req: Request, res: Response, next: NextFunction) =>
-      this.imageController.getImages(req, res, next),
+    this.router.get(
+      "/",
+      authMiddleware,
+      (req: Request, res: Response, next: NextFunction) =>
+        this.imageController.getImages(req, res, next),
     );
     this.router.post(
       "/",
@@ -37,8 +40,11 @@ export default class ImageRoute extends BaseRoute {
       (req: Request, res: Response, next: NextFunction) =>
         this.imageController.saveImage(req, res, next),
     );
-    this.router.get("/:id", (req: Request, res: Response, next: NextFunction) =>
-      this.imageController.getImageById(req, res, next),
+    this.router.get(
+      "/:id",
+      authMiddleware,
+      (req: Request, res: Response, next: NextFunction) =>
+        this.imageController.getImageById(req, res, next),
     );
     this.router.put(
       "/:id",

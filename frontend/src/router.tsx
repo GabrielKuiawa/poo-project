@@ -5,25 +5,47 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import App from "./App";
+import { LoginPage } from "./features/auth/components/LoginPage";
+import {
+  redirectAuthenticatedSession,
+  requireAuthenticatedSession,
+} from "./features/auth/routeGuards";
 import { ImageDetailsPage } from "./features/images/components/ImageDetailsPage";
 
 const rootRoute = createRootRoute({
   component: Outlet,
 });
 
-const indexRoute = createRoute({
+const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: "authenticated",
+  beforeLoad: requireAuthenticatedSession,
+  component: Outlet,
+});
+
+const indexRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
   path: "/",
   component: App,
 });
 
 export const imageDetailsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => authenticatedRoute,
   path: "/images/$imageId",
   component: ImageDetailsPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, imageDetailsRoute]);
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  beforeLoad: redirectAuthenticatedSession,
+  component: LoginPage,
+});
+
+const routeTree = rootRoute.addChildren([
+  authenticatedRoute.addChildren([indexRoute, imageDetailsRoute]),
+  loginRoute,
+]);
 
 export const router = createRouter({ routeTree });
 
