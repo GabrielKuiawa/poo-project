@@ -1,9 +1,6 @@
 import { isRedirect, redirect } from "@tanstack/react-router";
-import {
-  clearAuthToken,
-  getAuthToken,
-} from "./authStorage";
-import { validateSession } from "./api/validateSession";
+import { clearAuthToken, getAuthToken } from "@/lib/authTokenStorage";
+import { authService } from "./services/authService";
 
 export async function requireAuthenticatedSession(): Promise<void> {
   const token = getAuthToken();
@@ -12,7 +9,7 @@ export async function requireAuthenticatedSession(): Promise<void> {
     throw redirect({ to: "/login" });
   }
 
-  const isValid = await validateSession(token);
+  const isValid = await authService.validateSession(token);
   if (!isValid) {
     clearAuthToken();
     throw redirect({ to: "/login" });
@@ -24,7 +21,7 @@ export async function redirectAuthenticatedSession(): Promise<void> {
   if (!token) return;
 
   try {
-    if (await validateSession(token)) {
+    if (await authService.validateSession(token)) {
       throw redirect({ to: "/" });
     }
 

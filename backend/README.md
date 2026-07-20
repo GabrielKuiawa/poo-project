@@ -163,7 +163,10 @@ Não edite uma migration que já foi aplicada. Crie uma nova migration para cada
 
 O seeder cria 8 usuários, 48 categorias e 200 imagens para desenvolvimento ou demonstração. Ele executa as migrations pendentes e substitui somente as contas com e-mails reservados pelo próprio seed, portanto pode ser executado novamente sem duplicar dados.
 
-Defina uma senha privada com pelo menos 8 caracteres em `SEED_USER_PASSWORD`. No ambiente local, com o TypeScript:
+A conta pública `ana.seed@example.com` sempre recebe a senha `MoodBoard123!` e
+um token de somente leitura. Defina em `SEED_USER_PASSWORD` uma senha privada de
+pelo menos 8 caracteres para os outros sete usuários. Execute o seed local com
+o TypeScript:
 
 ```bash
 npm run seed:dev
@@ -186,7 +189,7 @@ Trigger:     Before every deploy
 
 O job precisa receber `DATABASE_URL` e `SEED_USER_PASSWORD`. Como a configuração atual do backend valida todas as variáveis ao carregar o DataSource, compartilhe também `PORT`, `CORS_ORIGIN` e `JWT_SECRET` com o job. Marque `DATABASE_URL`, `SEED_USER_PASSWORD` e `JWT_SECRET` como secrets.
 
-Depois que esse recurso for salvo no app `mood-board`, o workflow de CD existente preserva o job remoto e cada deploy executa migrations e seed antes de publicar a nova versão. Se o seed falhar, a publicação não deve prosseguir. Todos os usuários de demonstração utilizam a mesma senha definida em `SEED_USER_PASSWORD`; o valor não é registrado nos logs.
+Depois que esse recurso for salvo no app `mood-board`, o workflow de CD existente preserva o job remoto e cada deploy executa migrations e seed antes de publicar a nova versão. Se o seed falhar, a publicação não deve prosseguir. A senha dos outros sete usuários é definida em `SEED_USER_PASSWORD` e não é registrada nos logs.
 
 ## Testes
 

@@ -1,8 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
   register: vi.fn(),
@@ -18,24 +18,20 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mocks.navigate,
 }));
 
-vi.mock("@/features/auth/api/register", () => ({ register: mocks.register }));
-vi.mock("@/features/auth/api/login", () => ({ login: mocks.login }));
-vi.mock("@/features/auth/authStorage", () => ({
+vi.mock("@/features/auth/services/authService", () => ({
+  authService: {
+    login: mocks.login,
+    register: mocks.register,
+  },
+}));
+vi.mock("@/lib/authTokenStorage", () => ({
   saveAuthToken: mocks.saveAuthToken,
 }));
 
-import { RegisterPage } from "@/features/auth/components/RegisterPage";
+import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
 function renderRegisterPage() {
-  const queryClient = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
-  });
-
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <RegisterPage />
-    </QueryClientProvider>,
-  );
+  return renderWithProviders(<RegisterPage />);
 }
 
 describe("RegisterPage", () => {

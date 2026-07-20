@@ -1,4 +1,5 @@
 import * as bcrypt from "bcryptjs";
+import { publicDemoAccount } from "../../src/constants/publicDemoAccount";
 import { AppDataSource } from "../../src/data-source";
 import Category from "../../src/models/Category";
 import Image from "../../src/models/Image";
@@ -39,12 +40,21 @@ describe("database seed", () => {
     );
     await expect(AppDataSource.getRepository(Image).count()).resolves.toBe(200);
 
-    const seededUser = await new UserRepository().findOneByEmail(
-      seedUsers[0].email,
+    const userRepository = new UserRepository();
+    const demoUser = await userRepository.findOneByEmail(
+      publicDemoAccount.email,
     );
-    expect(seededUser).not.toBeNull();
+    expect(demoUser).not.toBeNull();
     await expect(
-      bcrypt.compare(password, seededUser!.getPassword()),
+      bcrypt.compare(publicDemoAccount.password, demoUser!.getPassword()),
+    ).resolves.toBe(true);
+
+    const privateSeedUser = await userRepository.findOneByEmail(
+      seedUsers[1].email,
+    );
+    expect(privateSeedUser).not.toBeNull();
+    await expect(
+      bcrypt.compare(password, privateSeedUser!.getPassword()),
     ).resolves.toBe(true);
 
     const seededImage = await AppDataSource.getRepository(Image).findOne({

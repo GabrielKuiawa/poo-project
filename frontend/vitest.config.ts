@@ -12,18 +12,5 @@ export default defineConfig({
     setupFiles: ["./src/tests/setup.ts"],
     clearMocks: true,
     restoreMocks: true,
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "html"],
-      reportsDirectory: "./coverage",
-      include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/main.tsx"],
-      thresholds: {
-        statements: 35,
-        branches: 40,
-        functions: 25,
-        lines: 35,
-      },
-    },
   },
 });

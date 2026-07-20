@@ -2,7 +2,9 @@
 
 Frontend da plataforma Mood Board, construído com React, TypeScript e Vite.
 
-A página atual apresenta a proposta do produto e os principais endpoints da API. Ela é a base para as futuras telas de feed, autenticação, publicação e organização de referências.
+A aplicação possui autenticação, cadastro, feed virtualizado com paginação
+infinita e visualização dos detalhes de cada referência. Rotas privadas validam a
+sessão pela API antes de liberar o conteúdo.
 
 ## Tecnologias
 
@@ -11,6 +13,7 @@ A página atual apresenta a proposta do produto e os principais endpoints da API
 - Vite
 - Vitest e Testing Library
 - Oxlint
+- Prettier
 - Nginx no ambiente Docker
 
 ## Variáveis de ambiente
@@ -27,6 +30,9 @@ O frontend precisa somente do endereço público da API:
 VITE_API_URL=http://localhost:3000
 ```
 
+Defina a URL sem `/` no final. No desenvolvimento ela aponta para a API local;
+nos builds de deploy, o ambiente fornece o domínio público da API.
+
 Variáveis prefixadas com `VITE_` são incorporadas ao JavaScript durante o build e não devem conter segredos.
 
 ## Desenvolvimento
@@ -42,22 +48,49 @@ A aplicação estará em `http://localhost:5173`.
 
 Comandos disponíveis:
 
-| Comando | Função |
-| --- | --- |
-| `npm run dev` | Inicia o servidor de desenvolvimento |
-| `npm run typecheck` | Verifica o TypeScript |
-| `npm run lint` | Executa o Oxlint |
-| `npm test` | Executa todos os testes uma vez |
-| `npm run test:watch` | Executa os testes em modo interativo |
-| `npm run test:coverage` | Gera o relatório de cobertura em `coverage/` |
-| `npm run build` | Gera o build em `dist/` |
-| `npm run preview` | Serve o build localmente para conferência |
+| Comando                | Função                                     |
+| ---------------------- | ------------------------------------------ |
+| `npm run dev`          | Inicia o servidor de desenvolvimento       |
+| `npm run typecheck`    | Verifica o TypeScript                      |
+| `npm run lint`         | Executa o Oxlint                           |
+| `npm run format`       | Formata os arquivos do frontend            |
+| `npm run format:check` | Verifica a formatação sem alterar arquivos |
+| `npm test`             | Executa todos os testes uma vez            |
+| `npm run test:watch`   | Executa os testes em modo interativo       |
+| `npm run build`        | Gera o build em `dist/`                    |
+| `npm run preview`      | Serve o build localmente para conferência  |
 
 Os testes ficam centralizados em `src/tests/`, separados entre `unit/` e
 `integration/`. Por estarem dentro de `src`, eles usam a mesma configuração do
 TypeScript e os mesmos aliases da aplicação. A configuração compartilhada está
-em `vitest.config.ts`, e a cobertura mínima impede que código novo reduza
-silenciosamente a proteção existente.
+em `vitest.config.ts`.
+
+## Estrutura do código
+
+```text
+src/
+├── app/                  # Router e layouts globais
+├── components/
+│   ├── shared/           # Componentes reutilizáveis da aplicação
+│   └── ui/               # Primitives visuais no padrão shadcn
+├── features/
+│   ├── auth/
+│   │   ├── components/   # Partes das telas de autenticação
+│   │   ├── hooks/        # Casos de uso de login, cadastro e logout
+│   │   ├── pages/        # Páginas usadas diretamente pelo router
+│   │   └── services/     # Operações de autenticação e sessão
+│   └── images/
+│       ├── components/   # Cards, listas e elementos de apresentação
+│       ├── pages/        # Feed e detalhes de uma imagem
+│       └── services/     # Operações disponíveis sobre imagens
+├── lib/                  # Infraestrutura compartilhada, HTTP e storage
+└── tests/                # Fixtures, mocks e testes unitários/integração
+```
+
+A direção esperada das dependências é `app → features → components/lib`. Uma
+feature não deve importar detalhes internos de outra feature. Código usado
+diretamente pelo router fica em `pages/`; partes dessas páginas ficam em
+`components/`.
 
 ## Docker
 

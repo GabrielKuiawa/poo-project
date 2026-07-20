@@ -1,3 +1,5 @@
+import { publicDemoAccount } from "../constants/publicDemoAccount";
+
 export type SeedImageData = {
   title: string;
   pathImage: string;
@@ -9,7 +11,7 @@ type SeedImageWithoutTitle = Omit<SeedImageData, "title">;
 export const seedUsers = [
   {
     name: "Ana Martins",
-    email: "ana.seed@example.com",
+    email: publicDemoAccount.email,
     pathImageUser: "https://i.pravatar.cc/160?img=47",
   },
   {

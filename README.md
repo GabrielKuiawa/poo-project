@@ -4,7 +4,9 @@ Plataforma de descoberta, compartilhamento e organização de referências visua
 
 O projeto nasceu em uma disciplina de Programação Orientada a Objetos e continua evoluindo como laboratório de arquitetura, frontend, banco de dados, testes, containers e CI/CD.
 
-> **Status:** a API, os testes, o ambiente Docker e os deploys estão funcionando. O frontend possui uma apresentação inicial dos endpoints; as telas do produto ainda serão construídas.
+> **Status:** a API, os testes, o ambiente Docker e os deploys estão
+> funcionando. O frontend possui autenticação, cadastro, feed paginado e tela de
+> detalhes das referências.
 
 ## Aplicação
 
@@ -16,12 +18,24 @@ API Node.js
 Banco MySQL
 ```
 
-| Serviço | Produção |
-| --- | --- |
-| Frontend | [mood-board.gabizin.me](https://mood-board.gabizin.me) |
-| API | [api.mood-board.gabizin.me](https://api.mood-board.gabizin.me) |
+| Serviço  | Produção                                                       |
+| -------- | -------------------------------------------------------------- |
+| Frontend | [mood-board.gabizin.me](https://mood-board.gabizin.me)         |
+| API      | [api.mood-board.gabizin.me](https://api.mood-board.gabizin.me) |
 
 O domínio atual possui usuários, imagens e categorias. A evolução planejada inclui feed, busca, coleções e descoberta de conteúdo.
+
+### Conta de demonstração
+
+Para testar a aplicação publicada ou o ambiente local depois do seed, use:
+
+| Campo | Valor                  |
+| ----- | ---------------------- |
+| Email | `ana.seed@example.com` |
+| Senha | `MoodBoard123!`        |
+
+A conta é pública e permite navegar pelo feed e pelos detalhes em modo somente
+leitura. Operações de criação, alteração e remoção são bloqueadas no backend.
 
 ## Monorepo
 
@@ -94,20 +108,21 @@ O último comando preserva o volume do MySQL. Executar `docker compose down -v` 
 
 ## Comandos do monorepo
 
-| Comando | Função |
-| --- | --- |
-| `npm run dev` | Executa frontend e backend juntos |
-| `npm run dev:backend` | Executa somente a API |
-| `npm run dev:frontend` | Executa somente o Vite |
-| `npm run build` | Compila os dois projetos |
-| `npm run typecheck` | Verifica o TypeScript dos dois projetos |
-| `npm run lint` | Executa o lint dos dois projetos |
-| `npm run format:check` | Verifica a formatação do backend |
-| `npm run seed:dev` | Popula o banco local com dados de demonstração |
-| `npm run seed` | Popula o banco usando o backend compilado |
-| `npm test` | Executa a suíte do backend |
-| `npm run docker:up` | Sobe a stack completa em containers |
-| `npm run docker:down` | Encerra a stack preservando o banco |
+| Comando                | Função                                         |
+| ---------------------- | ---------------------------------------------- |
+| `npm run dev`          | Executa frontend e backend juntos              |
+| `npm run dev:backend`  | Executa somente a API                          |
+| `npm run dev:frontend` | Executa somente o Vite                         |
+| `npm run build`        | Compila os dois projetos                       |
+| `npm run typecheck`    | Verifica o TypeScript dos dois projetos        |
+| `npm run lint`         | Executa o lint dos dois projetos               |
+| `npm run format`       | Formata backend e frontend                     |
+| `npm run format:check` | Verifica a formatação dos dois projetos        |
+| `npm run seed:dev`     | Popula o banco local com dados de demonstração |
+| `npm run seed`         | Popula o banco usando o backend compilado      |
+| `npm test`             | Executa a suíte do backend                     |
+| `npm run docker:up`    | Sobe a stack completa em containers            |
+| `npm run docker:down`  | Encerra a stack preservando o banco            |
 
 ## CI/CD
 

@@ -7,13 +7,13 @@ const mocks = vi.hoisted(() => ({
   validateSession: vi.fn(),
 }));
 
-vi.mock("@/features/auth/authStorage", () => ({
+vi.mock("@/lib/authTokenStorage", () => ({
   clearAuthToken: mocks.clearAuthToken,
   getAuthToken: mocks.getAuthToken,
 }));
 
-vi.mock("@/features/auth/api/validateSession", () => ({
-  validateSession: mocks.validateSession,
+vi.mock("@/features/auth/services/authService", () => ({
+  authService: { validateSession: mocks.validateSession },
 }));
 
 import {

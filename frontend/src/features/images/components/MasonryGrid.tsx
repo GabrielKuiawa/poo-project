@@ -62,7 +62,7 @@ export function MasonryGrid({
       })),
       ...Array.from({ length: skeletonCount }, (_, index) => ({
         key: `skeleton-${images.length + index}`,
-        content: <ImageCardSkeleton index={images.length + index} />,
+        content: <ImageCardSkeleton />,
       })),
     ],
     [images, skeletonCount],
