@@ -48,24 +48,22 @@ A aplicação estará em `http://localhost:5173`.
 
 Comandos disponíveis:
 
-| Comando                 | Função                                       |
-| ----------------------- | -------------------------------------------- |
-| `npm run dev`           | Inicia o servidor de desenvolvimento         |
-| `npm run typecheck`     | Verifica o TypeScript                        |
-| `npm run lint`          | Executa o Oxlint                             |
-| `npm run format`        | Formata os arquivos do frontend              |
-| `npm run format:check`  | Verifica a formatação sem alterar arquivos   |
-| `npm test`              | Executa todos os testes uma vez              |
-| `npm run test:watch`    | Executa os testes em modo interativo         |
-| `npm run test:coverage` | Gera o relatório de cobertura em `coverage/` |
-| `npm run build`         | Gera o build em `dist/`                      |
-| `npm run preview`       | Serve o build localmente para conferência    |
+| Comando                | Função                                     |
+| ---------------------- | ------------------------------------------ |
+| `npm run dev`          | Inicia o servidor de desenvolvimento       |
+| `npm run typecheck`    | Verifica o TypeScript                      |
+| `npm run lint`         | Executa o Oxlint                           |
+| `npm run format`       | Formata os arquivos do frontend            |
+| `npm run format:check` | Verifica a formatação sem alterar arquivos |
+| `npm test`             | Executa todos os testes uma vez            |
+| `npm run test:watch`   | Executa os testes em modo interativo       |
+| `npm run build`        | Gera o build em `dist/`                    |
+| `npm run preview`      | Serve o build localmente para conferência  |
 
 Os testes ficam centralizados em `src/tests/`, separados entre `unit/` e
 `integration/`. Por estarem dentro de `src`, eles usam a mesma configuração do
 TypeScript e os mesmos aliases da aplicação. A configuração compartilhada está
-em `vitest.config.ts`, e a cobertura mínima impede que código novo reduza
-silenciosamente a proteção existente.
+em `vitest.config.ts`.
 
 ## Estrutura do código
 
