@@ -6,12 +6,14 @@ describe("login", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("sends the credentials and returns the session token", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({ message: "Login bem-sucedido", token: "jwt-token" }),
-        { status: 200, headers: { "Content-Type": "application/json" } },
-      ),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({ message: "Login bem-sucedido", token: "jwt-token" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(
@@ -38,10 +40,13 @@ describe("login", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ message: "Email ou senha incorretos." }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        }),
+        new Response(
+          JSON.stringify({ message: "Email ou senha incorretos." }),
+          {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
       ),
     );
 

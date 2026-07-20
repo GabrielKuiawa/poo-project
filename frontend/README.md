@@ -2,7 +2,9 @@
 
 Frontend da plataforma Mood Board, construído com React, TypeScript e Vite.
 
-A página atual apresenta a proposta do produto e os principais endpoints da API. Ela é a base para as futuras telas de feed, autenticação, publicação e organização de referências.
+A aplicação possui autenticação, cadastro, feed virtualizado com paginação
+infinita e visualização dos detalhes de cada referência. Rotas privadas validam a
+sessão pela API antes de liberar o conteúdo.
 
 ## Tecnologias
 
@@ -11,6 +13,7 @@ A página atual apresenta a proposta do produto e os principais endpoints da API
 - Vite
 - Vitest e Testing Library
 - Oxlint
+- Prettier
 - Nginx no ambiente Docker
 
 ## Variáveis de ambiente
@@ -42,16 +45,18 @@ A aplicação estará em `http://localhost:5173`.
 
 Comandos disponíveis:
 
-| Comando | Função |
-| --- | --- |
-| `npm run dev` | Inicia o servidor de desenvolvimento |
-| `npm run typecheck` | Verifica o TypeScript |
-| `npm run lint` | Executa o Oxlint |
-| `npm test` | Executa todos os testes uma vez |
-| `npm run test:watch` | Executa os testes em modo interativo |
+| Comando                 | Função                                       |
+| ----------------------- | -------------------------------------------- |
+| `npm run dev`           | Inicia o servidor de desenvolvimento         |
+| `npm run typecheck`     | Verifica o TypeScript                        |
+| `npm run lint`          | Executa o Oxlint                             |
+| `npm run format`        | Formata os arquivos do frontend              |
+| `npm run format:check`  | Verifica a formatação sem alterar arquivos   |
+| `npm test`              | Executa todos os testes uma vez              |
+| `npm run test:watch`    | Executa os testes em modo interativo         |
 | `npm run test:coverage` | Gera o relatório de cobertura em `coverage/` |
-| `npm run build` | Gera o build em `dist/` |
-| `npm run preview` | Serve o build localmente para conferência |
+| `npm run build`         | Gera o build em `dist/`                      |
+| `npm run preview`       | Serve o build localmente para conferência    |
 
 Os testes ficam centralizados em `src/tests/`, separados entre `unit/` e
 `integration/`. Por estarem dentro de `src`, eles usam a mesma configuração do

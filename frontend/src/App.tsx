@@ -3,19 +3,15 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
-import {
-  clearAuthToken,
-  isAuthenticated,
-} from "./features/auth/authStorage";
-import {
-  firstImagesPage,
-  getImages,
-} from "./features/images/api/getImages";
+import { clearAuthToken, isAuthenticated } from "./features/auth/authStorage";
+import { firstImagesPage, getImages } from "./features/images/api/getImages";
 import { ImageList } from "./features/images/components/ImageList";
 import { ImageListSkeleton } from "./features/images/components/ImageListSkeleton";
 import type { Image } from "./features/images/types";
 
-const firstPageOrder = [0, 7, 14, 3, 10, 17, 5, 12, 19, 1, 8, 15, 4, 11, 18, 2, 9, 16, 6, 13];
+const firstPageOrder = [
+  0, 7, 14, 3, 10, 17, 5, 12, 19, 1, 8, 15, 4, 11, 18, 2, 9, 16, 6, 13,
+];
 
 function reorderFirstPage(images: Image[]): Image[] {
   const reorderedImages = firstPageOrder

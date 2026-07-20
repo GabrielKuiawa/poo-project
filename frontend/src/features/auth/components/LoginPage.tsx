@@ -120,7 +120,9 @@ export function LoginPage() {
                   <label className="text-sm font-medium" htmlFor="password">
                     Senha
                   </label>
-                  <span className="text-xs text-zinc-500">Mínimo 8 caracteres</span>
+                  <span className="text-xs text-zinc-500">
+                    Mínimo 8 caracteres
+                  </span>
                 </div>
                 <div className="relative">
                   <Input
@@ -144,7 +146,9 @@ export function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword((visible) => !visible)}
                     className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-zinc-400 transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300"
-                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    aria-label={
+                      showPassword ? "Ocultar senha" : "Mostrar senha"
+                    }
                     aria-pressed={showPassword}
                   >
                     {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}

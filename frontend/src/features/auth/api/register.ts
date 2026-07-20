@@ -32,8 +32,7 @@ export async function register(
   });
 
   const body = (await response.json().catch(() => ({}))) as
-    | RegistrationResponse
-    | ErrorResponse;
+    RegistrationResponse | ErrorResponse;
 
   if (!response.ok) {
     throw new Error(

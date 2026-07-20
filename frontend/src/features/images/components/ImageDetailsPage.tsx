@@ -7,7 +7,11 @@ const route = getRouteApi("/authenticated/images/$imageId");
 
 export function ImageDetailsPage() {
   const { imageId } = route.useParams();
-  const { data: image, error, isPending } = useQuery({
+  const {
+    data: image,
+    error,
+    isPending,
+  } = useQuery({
     queryKey: ["image", imageId],
     queryFn: ({ signal }) => getImage(imageId, signal),
   });

@@ -24,8 +24,7 @@ export async function login(
   });
 
   const body = (await response.json().catch(() => ({}))) as
-    | LoginResponse
-    | ErrorResponse;
+    LoginResponse | ErrorResponse;
 
   if (!response.ok) {
     throw new Error(

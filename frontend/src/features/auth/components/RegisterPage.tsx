@@ -168,7 +168,10 @@ export function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="profile-image-url">
+                <label
+                  className="text-sm font-medium"
+                  htmlFor="profile-image-url"
+                >
                   URL da foto de perfil
                 </label>
                 <Input
@@ -195,7 +198,9 @@ export function RegisterPage() {
                   <label className="text-sm font-medium" htmlFor="password">
                     Senha
                   </label>
-                  <span className="text-xs text-zinc-500">Mínimo 8 caracteres</span>
+                  <span className="text-xs text-zinc-500">
+                    Mínimo 8 caracteres
+                  </span>
                 </div>
                 <div className="relative">
                   <Input
@@ -220,7 +225,9 @@ export function RegisterPage() {
                     type="button"
                     onClick={() => setShowPassword((visible) => !visible)}
                     className="absolute top-1/2 right-3.5 -translate-y-1/2 cursor-pointer text-zinc-400 transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300"
-                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    aria-label={
+                      showPassword ? "Ocultar senha" : "Mostrar senha"
+                    }
                     aria-pressed={showPassword}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -246,7 +253,9 @@ export function RegisterPage() {
                 {registerMutation.isPending && (
                   <LoaderCircle className="animate-spin" aria-hidden="true" />
                 )}
-                {registerMutation.isPending ? "Criando sua conta..." : "Criar conta"}
+                {registerMutation.isPending
+                  ? "Criando sua conta..."
+                  : "Criar conta"}
               </Button>
             </form>
 
