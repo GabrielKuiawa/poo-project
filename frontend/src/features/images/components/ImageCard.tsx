@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { ChevronDown, Upload } from "lucide-react";
 import type { Image } from "../types";
 import { getPlaceholderColor } from "../placeholderColors";
@@ -16,6 +17,12 @@ export function ImageCard({ image, index }: ImageCardProps) {
       className="group relative cursor-pointer overflow-hidden rounded-2xl"
       style={{ backgroundColor: getPlaceholderColor(index) }}
     >
+      <Link
+        to="/images/$imageId"
+        params={{ imageId: image.id }}
+        className="absolute inset-0 z-10"
+        aria-label={`Ver detalhes de ${image.title}`}
+      />
       <img
         className={`block h-auto min-h-60 max-h-130 w-full object-cover transition-opacity duration-500 ease-out ${
           isLoaded ? "opacity-100" : "opacity-0"
@@ -29,7 +36,7 @@ export function ImageCard({ image, index }: ImageCardProps) {
 
       <div className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
         <button
-          className="absolute top-3 left-3 flex cursor-pointer items-center gap-0.5 rounded-full px-2 py-3 text-sm font-semibold text-white"
+          className="absolute top-3 left-3 z-20 flex cursor-pointer items-center gap-0.5 rounded-full px-2 py-3 text-sm font-semibold text-white"
           type="button"
         >
           Perfil
@@ -37,14 +44,14 @@ export function ImageCard({ image, index }: ImageCardProps) {
         </button>
 
         <button
-          className="absolute top-3 right-3 cursor-pointer rounded-full bg-red-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+          className="absolute top-3 right-3 z-20 cursor-pointer rounded-full bg-red-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700"
           type="button"
         >
           Salvar
         </button>
 
         <button
-          className="absolute right-3 bottom-3 flex size-10 cursor-pointer items-center justify-center rounded-full bg-white text-black transition-colors hover:bg-zinc-200"
+          className="absolute right-3 bottom-3 z-20 flex size-10 cursor-pointer items-center justify-center rounded-full bg-white text-black transition-colors hover:bg-zinc-200"
           type="button"
           aria-label="Compartilhar imagem"
         >

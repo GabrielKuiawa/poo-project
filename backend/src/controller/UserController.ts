@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../models/User";
-import { getAuthenticatedUser } from "../utils/authorization";
+import {
+  getAuthenticatedUser,
+  getAuthenticatedUserId,
+} from "../utils/authorization";
 import {
   validateEmail,
   validateId,
@@ -72,6 +75,24 @@ export class UserController {
       const user = await this.userService.getUserById(
         id,
         getAuthenticatedUser(req),
+      );
+
+      res.json(this.serializeUser(user));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async getCurrentUser(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const authenticatedUser = getAuthenticatedUser(req);
+      const user = await this.userService.getUserById(
+        getAuthenticatedUserId(req),
+        authenticatedUser,
       );
 
       res.json(this.serializeUser(user));

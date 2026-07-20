@@ -1,8 +1,6 @@
 import type { ImagePage } from "../types";
-
-const apiUrl = (
-  import.meta.env.VITE_API_URL ?? "http://localhost:3000"
-).replace(/\/$/, "");
+import { getAuthToken } from "@/features/auth/authStorage";
+import { apiUrl } from "@/lib/api";
 
 const minimumLoadingTime = 700;
 
@@ -33,12 +31,20 @@ export async function getImages(
   pageUrl: string,
   signal?: AbortSignal,
 ): Promise<ImagePage> {
+  const token = getAuthToken();
   const [response] = await Promise.all([
-    fetch(pageUrl, { signal }),
+    fetch(pageUrl, {
+      signal,
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    }),
     waitForMinimumLoadingTime(signal),
   ]);
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Sua sessão expirou. Entre novamente.");
+    }
+
     throw new Error(`Não foi possível carregar as imagens: ${response.status}`);
   }
 
