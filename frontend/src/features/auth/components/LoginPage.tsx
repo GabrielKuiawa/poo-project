@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Eye, EyeOff, Images, LoaderCircle } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,9 +29,9 @@ export function LoginPage() {
 
   return (
     <main className="relative min-h-dvh overflow-hidden bg-zinc-950 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(147,51,234,0.28),transparent_34%),radial-gradient(circle_at_85%_80%,rgba(219,39,119,0.2),transparent_30%)]" />
-      <div className="absolute top-[-8rem] right-[-5rem] size-80 rounded-full bg-fuchsia-500/15 blur-3xl" />
-      <div className="absolute bottom-[-10rem] left-[-7rem] size-96 rounded-full bg-violet-600/20 blur-3xl" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(230,0,35,0.3),transparent_34%),radial-gradient(circle_at_85%_80%,rgba(153,27,27,0.22),transparent_30%)]" />
+      <div className="absolute top-[-8rem] right-[-5rem] size-80 rounded-full bg-red-500/15 blur-3xl" />
+      <div className="absolute bottom-[-10rem] left-[-7rem] size-96 rounded-full bg-rose-700/20 blur-3xl" />
 
       <div className="relative mx-auto grid min-h-dvh max-w-7xl lg:grid-cols-[1.05fr_0.95fr]">
         <section className="hidden flex-col justify-between p-12 lg:flex xl:p-16">
@@ -39,14 +39,16 @@ export function LoginPage() {
             to="/"
             className="inline-flex w-fit items-center gap-3 text-xl font-bold tracking-tight"
           >
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-white text-zinc-950">
-              <Images size={22} />
-            </span>
+            <img
+              src={`${import.meta.env.BASE_URL}favicon.svg`}
+              alt=""
+              className="size-12 shrink-0"
+            />
             mood board
           </Link>
 
           <div className="max-w-xl pb-10">
-            <p className="mb-5 text-sm font-semibold tracking-[0.24em] text-fuchsia-300 uppercase">
+            <p className="mb-5 text-sm font-semibold tracking-[0.24em] text-red-300 uppercase">
               Seu espaço criativo
             </p>
             <h1 className="m-0 max-w-xl text-5xl leading-[1.05] font-bold tracking-[-0.04em] xl:text-6xl">
@@ -69,14 +71,16 @@ export function LoginPage() {
               to="/"
               className="mb-10 inline-flex items-center gap-2.5 text-lg font-bold lg:hidden"
             >
-              <span className="flex size-10 items-center justify-center rounded-xl bg-white text-zinc-950">
-                <Images size={20} />
-              </span>
+              <img
+                src={`${import.meta.env.BASE_URL}favicon.svg`}
+                alt=""
+                className="size-11 shrink-0"
+              />
               mood board
             </Link>
 
             <div className="mb-8">
-              <p className="mb-2 text-sm font-semibold text-fuchsia-300">
+              <p className="mb-2 text-sm font-semibold text-red-300">
                 Bem-vindo de volta
               </p>
               <h2 className="m-0 text-3xl font-bold tracking-tight">
@@ -107,7 +111,7 @@ export function LoginPage() {
                   aria-invalid={loginMutation.isError}
                   required
                   autoFocus
-                  className="h-12 border-white/15 bg-white/10 text-base text-white placeholder:text-zinc-500 focus-visible:border-fuchsia-300 focus-visible:ring-fuchsia-300/25"
+                  className="h-12 border-white/15 bg-white/10 text-base text-white placeholder:text-zinc-500 focus-visible:border-red-300 focus-visible:ring-red-300/25"
                 />
               </div>
 
@@ -134,12 +138,12 @@ export function LoginPage() {
                     aria-invalid={loginMutation.isError}
                     required
                     minLength={8}
-                    className="h-12 border-white/15 bg-white/10 pr-12 text-base text-white placeholder:text-zinc-500 focus-visible:border-fuchsia-300 focus-visible:ring-fuchsia-300/25"
+                    className="h-12 border-white/15 bg-white/10 pr-12 text-base text-white placeholder:text-zinc-500 focus-visible:border-red-300 focus-visible:ring-red-300/25"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((visible) => !visible)}
-                    className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-zinc-400 transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-300"
+                    className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-zinc-400 transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300"
                     aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                     aria-pressed={showPassword}
                   >
@@ -161,7 +165,7 @@ export function LoginPage() {
                 type="submit"
                 size="lg"
                 disabled={loginMutation.isPending}
-                className="mt-2 h-12 w-full bg-white text-base text-zinc-950 hover:bg-zinc-200"
+                className="mt-2 h-12 w-full bg-red-600 text-base text-white shadow-lg shadow-red-950/30 hover:bg-red-700"
               >
                 {loginMutation.isPending && (
                   <LoaderCircle className="animate-spin" aria-hidden="true" />

@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Images, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./components/ui/button";
 import {
@@ -84,9 +84,11 @@ function App() {
       <header className="sticky top-0 z-30 border-b border-black/5 bg-background/85 px-4 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
           <Link to="/" className="inline-flex items-center gap-2.5 font-bold">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-foreground text-background">
-              <Images size={18} />
-            </span>
+            <img
+              src={`${import.meta.env.BASE_URL}favicon.svg`}
+              alt=""
+              className="size-10 shrink-0"
+            />
             <span className="hidden sm:inline">mood board</span>
           </Link>
 
