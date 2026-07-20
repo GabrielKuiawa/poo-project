@@ -177,6 +177,15 @@ export function LoginPage() {
             <p className="mt-7 text-center text-xs leading-5 text-zinc-500">
               Ao entrar, você concorda em manter seus dados de acesso seguros.
             </p>
+            <p className="mt-4 text-center text-sm text-zinc-400">
+              Ainda não tem uma conta?{" "}
+              <Link
+                to="/signup"
+                className="font-semibold text-red-300 transition-colors hover:text-red-200 hover:underline"
+              >
+                Cadastre-se
+              </Link>
+            </p>
           </div>
         </section>
       </div>

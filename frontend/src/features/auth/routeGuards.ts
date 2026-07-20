@@ -32,6 +32,6 @@ export async function redirectAuthenticatedSession(): Promise<void> {
   } catch (error) {
     if (isRedirect(error)) throw error;
 
-    // A tela de login continua disponível caso a API esteja temporariamente offline.
+    // Keep the login screen available while the API is temporarily offline.
   }
 }

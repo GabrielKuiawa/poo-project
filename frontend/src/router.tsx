@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import App from "./App";
 import { LoginPage } from "./features/auth/components/LoginPage";
+import { RegisterPage } from "./features/auth/components/RegisterPage";
 import {
   redirectAuthenticatedSession,
   requireAuthenticatedSession,
@@ -42,9 +43,17 @@ const loginRoute = createRoute({
   component: LoginPage,
 });
 
+const registerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/signup",
+  beforeLoad: redirectAuthenticatedSession,
+  component: RegisterPage,
+});
+
 const routeTree = rootRoute.addChildren([
   authenticatedRoute.addChildren([indexRoute, imageDetailsRoute]),
   loginRoute,
+  registerRoute,
 ]);
 
 export const router = createRouter({ routeTree });
