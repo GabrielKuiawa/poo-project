@@ -9,6 +9,7 @@ A página atual apresenta a proposta do produto e os principais endpoints da API
 - React
 - TypeScript
 - Vite
+- Vitest e Testing Library
 - Oxlint
 - Nginx no ambiente Docker
 
@@ -46,8 +47,17 @@ Comandos disponíveis:
 | `npm run dev` | Inicia o servidor de desenvolvimento |
 | `npm run typecheck` | Verifica o TypeScript |
 | `npm run lint` | Executa o Oxlint |
+| `npm test` | Executa todos os testes uma vez |
+| `npm run test:watch` | Executa os testes em modo interativo |
+| `npm run test:coverage` | Gera o relatório de cobertura em `coverage/` |
 | `npm run build` | Gera o build em `dist/` |
 | `npm run preview` | Serve o build localmente para conferência |
+
+Os testes ficam centralizados em `src/tests/`, separados entre `unit/` e
+`integration/`. Por estarem dentro de `src`, eles usam a mesma configuração do
+TypeScript e os mesmos aliases da aplicação. A configuração compartilhada está
+em `vitest.config.ts`, e a cobertura mínima impede que código novo reduza
+silenciosamente a proteção existente.
 
 ## Docker
 

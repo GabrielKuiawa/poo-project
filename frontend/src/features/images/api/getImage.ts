@@ -1,9 +1,6 @@
 import type { Image } from "../types";
 import { getAuthToken } from "@/features/auth/authStorage";
-
-const apiUrl = (
-  import.meta.env.VITE_API_URL ?? "http://localhost:3000"
-).replace(/\/$/, "");
+import { apiUrl } from "@/lib/api";
 
 export async function getImage(
   imageId: string,
