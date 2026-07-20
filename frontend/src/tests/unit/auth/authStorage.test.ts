@@ -5,16 +5,7 @@ import {
   isAuthenticated,
   saveAuthToken,
 } from "@/features/auth/authStorage";
-
-function createToken(payload: Record<string, unknown>): string {
-  const encodedPayload = window
-    .btoa(JSON.stringify(payload))
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-
-  return `header.${encodedPayload}.signature`;
-}
+import { createAuthToken } from "@/tests/fixtures/auth";
 
 describe("authStorage", () => {
   beforeEach(() => {
@@ -23,7 +14,9 @@ describe("authStorage", () => {
   });
 
   it("stores and returns a non-expired token", () => {
-    const token = createToken({ exp: Math.floor(Date.now() / 1000) + 60 });
+    const token = createAuthToken({
+      exp: Math.floor(Date.now() / 1000) + 60,
+    });
 
     saveAuthToken(token);
 
@@ -32,7 +25,9 @@ describe("authStorage", () => {
   });
 
   it("removes an expired token", () => {
-    const token = createToken({ exp: Math.floor(Date.now() / 1000) - 1 });
+    const token = createAuthToken({
+      exp: Math.floor(Date.now() / 1000) - 1,
+    });
     saveAuthToken(token);
 
     expect(getAuthToken()).toBeNull();
@@ -48,7 +43,7 @@ describe("authStorage", () => {
   });
 
   it("clears the current token", () => {
-    saveAuthToken(createToken({ exp: Math.floor(Date.now() / 1000) + 60 }));
+    saveAuthToken(createAuthToken({ exp: Math.floor(Date.now() / 1000) + 60 }));
 
     clearAuthToken();
 

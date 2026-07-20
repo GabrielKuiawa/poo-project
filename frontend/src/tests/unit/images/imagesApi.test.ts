@@ -2,34 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { saveAuthToken } from "@/features/auth/authStorage";
 import { getImage } from "@/features/images/api/getImage";
 import { getImages } from "@/features/images/api/getImages";
-import type { Image, ImagePage } from "@/features/images/types";
 import { apiUrl } from "@/lib/api";
+import { createAuthToken } from "@/tests/fixtures/auth";
+import { createImage, createImagePage } from "@/tests/fixtures/images";
 
-const image: Image = {
-  id: "image-id",
-  title: "Reference",
-  pathImage: "/image.jpg",
-  description: "A reference image",
-  author: {
-    id: "user-id",
-    name: "User",
-    pathImageUser: "/avatar.jpg",
-  },
-  categories: [],
-};
-
-function createValidToken(): string {
-  const payload = window
-    .btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 60 }))
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-
-  return `header.${payload}.signature`;
-}
+const image = createImage();
 
 describe("images API", () => {
-  beforeEach(() => saveAuthToken(createValidToken()));
+  beforeEach(() => saveAuthToken(createAuthToken()));
 
   afterEach(() => {
     vi.useRealTimers();
@@ -56,17 +36,7 @@ describe("images API", () => {
 
   it("loads an authenticated image page after the minimum loading time", async () => {
     vi.useFakeTimers();
-    const page: ImagePage = {
-      data: [image],
-      meta: {
-        page: 1,
-        limit: 20,
-        total: 1,
-        totalPages: 1,
-        next: null,
-        previous: null,
-      },
-    };
+    const page = createImagePage({ data: [image] });
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(page), {
         status: 200,

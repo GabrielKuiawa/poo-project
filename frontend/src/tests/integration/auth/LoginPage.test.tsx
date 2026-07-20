@@ -1,8 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
   login: vi.fn(),
@@ -25,15 +25,7 @@ vi.mock("@/features/auth/authStorage", () => ({
 import { LoginPage } from "@/features/auth/components/LoginPage";
 
 function renderLoginPage() {
-  const queryClient = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
-  });
-
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <LoginPage />
-    </QueryClientProvider>,
-  );
+  return renderWithProviders(<LoginPage />);
 }
 
 describe("LoginPage", () => {
