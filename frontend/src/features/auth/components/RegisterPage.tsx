@@ -1,10 +1,10 @@
-import { Link } from "@tanstack/react-router";
-import { Check, Eye, EyeOff, LoaderCircle, Sparkles } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { AuthLayout } from "@/app/layouts/AuthLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/shared/LoadingButton";
+import { AuthFormError, AuthFormFooter, AuthFormHeader } from "./AuthForm";
+import { AuthInputField, AuthPasswordField } from "./AuthInputField";
 import { useRegisterMutation } from "../hooks/useRegisterMutation";
 
 const benefits = [
@@ -18,7 +18,6 @@ export function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [profileImageUrl, setProfileImageUrl] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const registerMutation = useRegisterMutation();
 
@@ -69,155 +68,102 @@ export function RegisterPage() {
         </p>
       }
     >
-      <div className="mb-7">
-        <p className="mb-2 text-sm font-semibold text-red-300">
-          Junte-se ao mood board
-        </p>
-        <h2 className="m-0 text-3xl font-bold tracking-tight">
-          Crie sua conta
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-400">
-          É rápido, gratuito e suas inspirações ficam sempre por perto.
-        </p>
-      </div>
+      <AuthFormHeader
+        eyebrow="Junte-se ao mood board"
+        title="Crie sua conta"
+        description="É rápido, gratuito e suas inspirações ficam sempre por perto."
+      />
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="name">
-            Nome
-          </label>
-          <Input
-            id="name"
-            name="name"
-            autoComplete="name"
-            placeholder="Como podemos chamar você?"
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value);
-              clearErrors();
-            }}
-            disabled={registerMutation.isPending}
-            required
-            maxLength={100}
-            autoFocus
-            className="h-12 border-white/15 bg-white/10 text-base text-white placeholder:text-zinc-500 focus-visible:border-red-300 focus-visible:ring-red-300/25"
-          />
-        </div>
+        <AuthInputField
+          id="name"
+          label="Nome"
+          name="name"
+          autoComplete="name"
+          placeholder="Como podemos chamar você?"
+          value={name}
+          onChange={(event) => {
+            setName(event.target.value);
+            clearErrors();
+          }}
+          disabled={registerMutation.isPending}
+          required
+          maxLength={100}
+          autoFocus
+        />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="email">
-            Email
-          </label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="voce@exemplo.com"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              clearErrors();
-            }}
-            disabled={registerMutation.isPending}
-            aria-invalid={Boolean(errorMessage)}
-            required
-            className="h-12 border-white/15 bg-white/10 text-base text-white placeholder:text-zinc-500 focus-visible:border-red-300 focus-visible:ring-red-300/25"
-          />
-        </div>
+        <AuthInputField
+          id="email"
+          label="Email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="voce@exemplo.com"
+          value={email}
+          onChange={(event) => {
+            setEmail(event.target.value);
+            clearErrors();
+          }}
+          disabled={registerMutation.isPending}
+          aria-invalid={Boolean(errorMessage)}
+          required
+        />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="profile-image-url">
-            URL da foto de perfil
-          </label>
-          <Input
-            id="profile-image-url"
-            name="pathImageUser"
-            type="url"
-            autoComplete="url"
-            placeholder="https://exemplo.com/sua-foto.jpg"
-            value={profileImageUrl}
-            onChange={(event) => {
-              setProfileImageUrl(event.target.value);
-              clearErrors();
-            }}
-            disabled={registerMutation.isPending}
-            aria-invalid={Boolean(errorMessage)}
-            required
-            maxLength={255}
-            className="h-12 border-white/15 bg-white/10 text-base text-white placeholder:text-zinc-500 focus-visible:border-red-300 focus-visible:ring-red-300/25"
-          />
-        </div>
+        <AuthInputField
+          id="profile-image-url"
+          label="URL da foto de perfil"
+          name="pathImageUser"
+          type="url"
+          autoComplete="url"
+          placeholder="https://exemplo.com/sua-foto.jpg"
+          value={profileImageUrl}
+          onChange={(event) => {
+            setProfileImageUrl(event.target.value);
+            clearErrors();
+          }}
+          disabled={registerMutation.isPending}
+          aria-invalid={Boolean(errorMessage)}
+          required
+          maxLength={255}
+        />
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between gap-3">
-            <label className="text-sm font-medium" htmlFor="password">
-              Senha
-            </label>
-            <span className="text-xs text-zinc-500">Mínimo 8 caracteres</span>
-          </div>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
-              placeholder="Crie uma senha segura"
-              value={password}
-              onChange={(event) => {
-                setPassword(event.target.value);
-                clearErrors();
-              }}
-              disabled={registerMutation.isPending}
-              aria-invalid={Boolean(errorMessage)}
-              required
-              minLength={8}
-              maxLength={72}
-              className="h-12 border-white/15 bg-white/10 pr-11 text-base text-white placeholder:text-zinc-500 focus-visible:border-red-300 focus-visible:ring-red-300/25"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((visible) => !visible)}
-              className="absolute top-1/2 right-3.5 -translate-y-1/2 cursor-pointer text-zinc-400 transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-300"
-              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              aria-pressed={showPassword}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-        </div>
+        <AuthPasswordField
+          id="password"
+          label="Senha"
+          hint="Mínimo 8 caracteres"
+          name="password"
+          autoComplete="new-password"
+          placeholder="Crie uma senha segura"
+          value={password}
+          onChange={(event) => {
+            setPassword(event.target.value);
+            clearErrors();
+          }}
+          disabled={registerMutation.isPending}
+          aria-invalid={Boolean(errorMessage)}
+          required
+          minLength={8}
+          maxLength={72}
+        />
 
-        {errorMessage && (
-          <p
-            className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200"
-            role="alert"
-          >
-            {errorMessage}
-          </p>
-        )}
+        {errorMessage && <AuthFormError>{errorMessage}</AuthFormError>}
 
-        <Button
+        <LoadingButton
           type="submit"
           size="lg"
-          disabled={registerMutation.isPending}
+          isLoading={registerMutation.isPending}
+          loadingLabel="Criando sua conta..."
           className="mt-2 h-12 w-full bg-red-600 text-base text-white shadow-lg shadow-red-950/30 hover:bg-red-700"
         >
-          {registerMutation.isPending && (
-            <LoaderCircle className="animate-spin" aria-hidden="true" />
-          )}
-          {registerMutation.isPending ? "Criando sua conta..." : "Criar conta"}
-        </Button>
+          Criar conta
+        </LoadingButton>
       </form>
 
-      <p className="mt-6 text-center text-sm text-zinc-400">
-        Já tem uma conta?{" "}
-        <Link
-          to="/login"
-          className="font-semibold text-red-300 transition-colors hover:text-red-200 hover:underline"
-        >
-          Entre agora
-        </Link>
-      </p>
+      <AuthFormFooter
+        prompt="Já tem uma conta?"
+        linkLabel="Entre agora"
+        to="/login"
+      />
     </AuthLayout>
   );
 }

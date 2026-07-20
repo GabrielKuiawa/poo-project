@@ -1,7 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { PageFeedback } from "@/components/shared/PageFeedback";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { getImage } from "../api/getImage";
+import { ImageAuthor } from "./ImageAuthor";
+import { ImageCategories } from "./ImageCategories";
 
 const route = getRouteApi("/authenticated/images/$imageId");
 
@@ -17,59 +22,39 @@ export function ImageDetailsPage() {
   });
 
   if (isPending) {
-    return <p className="p-6">Carregando imagem...</p>;
+    return <PageFeedback>Carregando imagem...</PageFeedback>;
   }
 
   if (error) {
-    return <p className="p-6">{error.message}</p>;
+    return <PageFeedback variant="error">{error.message}</PageFeedback>;
   }
 
   return (
     <main className="mx-auto max-w-5xl p-4 sm:p-8">
-      <Link
-        to="/"
-        className="mb-5 inline-flex items-center gap-2 font-semibold"
-      >
-        <ArrowLeft size={20} />
-        Voltar
-      </Link>
+      <Button asChild variant="ghost" className="mb-5 -ml-4">
+        <Link to="/">
+          <ArrowLeft aria-hidden="true" />
+          Voltar
+        </Link>
+      </Button>
 
-      <article className="grid overflow-hidden rounded-3xl bg-card shadow-sm md:grid-cols-2">
+      <Card role="article" className="grid md:grid-cols-2">
         <img
           src={image.pathImage}
           alt={image.description}
           className="h-full max-h-[80vh] w-full object-cover"
         />
 
-        <div className="flex flex-col gap-5 p-6 sm:p-8">
+        <CardContent className="flex flex-col gap-5 p-6 sm:p-8">
           <div>
             <h1 className="m-0 text-3xl font-bold">{image.title}</h1>
             <p className="mt-3 text-muted-foreground">{image.description}</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <img
-              src={image.author.pathImageUser}
-              alt=""
-              className="size-11 rounded-full object-cover"
-            />
-            <span className="font-semibold">{image.author.name}</span>
-          </div>
-
-          {image.categories.length > 0 && (
-            <ul className="flex list-none flex-wrap gap-2 p-0">
-              {image.categories.map((category) => (
-                <li
-                  key={category.id}
-                  className="rounded-full bg-secondary px-3 py-1 text-sm"
-                >
-                  {category.name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </article>
+          <ImageAuthor author={image.author} />
+          <ImageCategories categories={image.categories} />
+        </CardContent>
+      </Card>
     </main>
   );
 }

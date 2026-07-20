@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
+import { PageFeedback } from "./components/shared/PageFeedback";
 import { firstImagesPage, getImages } from "./features/images/api/getImages";
 import { ImageList } from "./features/images/components/ImageList";
 import { ImageListSkeleton } from "./features/images/components/ImageListSkeleton";
@@ -62,7 +63,7 @@ function App() {
   }
 
   if (isError) {
-    return <p>{error.message}</p>;
+    return <PageFeedback variant="error">{error.message}</PageFeedback>;
   }
 
   const images = data.pages.flatMap((page, pageIndex) =>

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Brand } from "@/components/shared/Brand";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 type AuthLayoutProps = {
@@ -36,15 +37,15 @@ export function AuthLayout({
         </section>
 
         <section className="flex items-center justify-center px-5 py-8 sm:px-10 lg:py-12">
-          <div
+          <Card
             className={cn(
-              "w-full rounded-4xl border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9",
+              "w-full rounded-4xl border border-white/10 bg-white/[0.07] p-6 text-white shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9",
               panelClassName,
             )}
           >
             <Brand className="mb-8 text-lg lg:hidden" logoClassName="size-11" />
             {children}
-          </div>
+          </Card>
         </section>
       </div>
     </main>
