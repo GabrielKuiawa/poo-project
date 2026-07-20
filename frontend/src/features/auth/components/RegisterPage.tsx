@@ -1,14 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Check, Eye, EyeOff, LoaderCircle, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { AuthLayout } from "@/app/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { login } from "../api/login";
-import { register } from "../api/register";
-import { saveAuthToken } from "../authStorage";
+import { useRegisterMutation } from "../hooks/useRegisterMutation";
 
 const benefits = [
   "Organize referências em um só lugar",
@@ -17,29 +14,13 @@ const benefits = [
 ];
 
 export function RegisterPage() {
-  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const registerMutation = useMutation({
-    mutationFn: async () => {
-      const normalizedEmail = email.trim();
-      await register({
-        name: name.trim(),
-        email: normalizedEmail,
-        password,
-        pathImageUser: profileImageUrl.trim(),
-      });
-      return login({ email: normalizedEmail, password });
-    },
-    onSuccess: async ({ token }) => {
-      saveAuthToken(token);
-      await navigate({ to: "/" });
-    },
-  });
+  const registerMutation = useRegisterMutation();
 
   const clearErrors = () => {
     registerMutation.reset();
@@ -47,7 +28,12 @@ export function RegisterPage() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    registerMutation.mutate();
+    registerMutation.mutate({
+      name,
+      email,
+      password,
+      pathImageUser: profileImageUrl,
+    });
   };
 
   const errorMessage = registerMutation.error?.message;

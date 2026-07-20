@@ -1,16 +1,11 @@
-import { Outlet, useNavigate } from "@tanstack/react-router";
+import { Outlet } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { Brand } from "@/components/shared/Brand";
 import { Button } from "@/components/ui/button";
-import { clearAuthToken } from "@/features/auth/authStorage";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export function AppLayout() {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    clearAuthToken();
-    void navigate({ to: "/login" });
-  };
+  const logout = useLogout();
 
   return (
     <>
@@ -18,7 +13,7 @@ export function AppLayout() {
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
           <Brand labelClassName="hidden sm:inline" />
 
-          <Button type="button" variant="ghost" onClick={handleLogout}>
+          <Button type="button" variant="ghost" onClick={logout}>
             <LogOut size={17} />
             Sair
           </Button>

@@ -1,27 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { AuthLayout } from "@/app/layouts/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { login } from "../api/login";
-import { saveAuthToken } from "../authStorage";
+import { useLoginMutation } from "../hooks/useLoginMutation";
 
 export function LoginPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const loginMutation = useMutation({
-    mutationFn: login,
-    onSuccess: async ({ token }) => {
-      saveAuthToken(token);
-      await navigate({ to: "/" });
-    },
-  });
+  const loginMutation = useLoginMutation();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
