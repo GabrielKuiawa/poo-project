@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { authService } from "@/features/auth/services/authService";
+import { saveAuthToken } from "@/lib/authTokenStorage";
 import { testApiUrl } from "@/tests/fixtures/api";
+import { createAuthToken } from "@/tests/fixtures/auth";
 
 describe("authService", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -138,6 +140,32 @@ describe("authService", () => {
       await expect(authService.register(registrationData)).rejects.toThrow(
         "Email já está em uso.",
       );
+    });
+  });
+
+  describe("getCurrentUser", () => {
+    it("returns the authenticated user", async () => {
+      const token = createAuthToken();
+      const currentUser = {
+        id: "user-id",
+        name: "Maria Silva",
+        email: "maria@example.com",
+        pathImageUser: "https://example.com/avatar.jpg",
+        role: "user",
+      };
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(currentUser), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+      saveAuthToken(token);
+
+      await expect(authService.getCurrentUser()).resolves.toEqual(currentUser);
+      expect(fetchMock).toHaveBeenCalledWith(`${testApiUrl}/api/user/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
     });
   });
 

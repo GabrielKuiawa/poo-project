@@ -79,10 +79,12 @@ src/
 │   │   ├── hooks/        # Casos de uso de login, cadastro e logout
 │   │   ├── pages/        # Páginas usadas diretamente pelo router
 │   │   └── services/     # Operações de autenticação e sessão
-│   └── images/
-│       ├── components/   # Cards, listas e elementos de apresentação
-│       ├── pages/        # Feed e detalhes de uma imagem
-│       └── services/     # Operações disponíveis sobre imagens
+│   ├── images/
+│   │   ├── components/   # Cards, listas e elementos de apresentação
+│   │   ├── pages/        # Feed e detalhes de uma imagem
+│   │   └── services/     # Operações disponíveis sobre imagens
+│   └── navigation/
+│       └── components/   # Header e sidebar da área autenticada
 ├── lib/                  # Infraestrutura compartilhada, HTTP e storage
 └── tests/                # Fixtures, mocks e testes unitários/integração
 ```
