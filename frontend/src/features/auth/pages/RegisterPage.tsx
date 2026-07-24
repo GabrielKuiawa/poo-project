@@ -1,4 +1,4 @@
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { LoadingButton } from "@/components/shared/LoadingButton";
@@ -46,18 +46,16 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
-      gridClassName="lg:grid-cols-[0.9fr_1.1fr]"
       panelClassName="max-w-lg"
       hero={
-        <div className="max-w-lg py-10">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-red-300/20 bg-red-400/10 px-3.5 py-2 text-xs font-semibold text-red-200">
-            <Sparkles size={15} aria-hidden="true" />
+        <div className="max-w-lg">
+          <p className="mb-5 text-sm font-semibold tracking-widest text-red-300 uppercase">
             Comece sua coleção
-          </div>
-          <h1 className="m-0 text-5xl leading-[1.04] font-bold tracking-[-0.04em] xl:text-6xl">
+          </p>
+          <h1 className="m-0 text-5xl leading-none font-bold tracking-tighter xl:text-6xl">
             Ideias incríveis merecem um lugar especial.
           </h1>
-          <ul className="mt-8 space-y-4 text-sm text-zinc-300">
+          <ul className="mt-8 space-y-4 text-sm text-white/70">
             {benefits.map((benefit) => (
               <li key={benefit} className="flex items-center gap-3">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-300">
@@ -70,7 +68,7 @@ export function RegisterPage() {
         </div>
       }
       footer={
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm">
           Seu próximo projeto pode começar com uma única referência.
         </p>
       }

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const authInputClassName =
-  "h-12 border-white/15 bg-white/10 text-base text-white placeholder:text-zinc-500 focus-visible:border-red-300 focus-visible:ring-red-300/25";
+  "h-12 border-zinc-300 bg-white text-base text-zinc-950 shadow-sm placeholder:text-zinc-400 focus-visible:border-blue-600 focus-visible:ring-blue-600/20";
 
 type AuthInputFieldProps = Omit<ComponentProps<typeof Input>, "id"> & {
   id: string;
@@ -54,7 +54,7 @@ export function AuthPasswordField({
           variant="ghost"
           size="icon"
           onClick={() => setIsVisible((visible) => !visible)}
-          className="absolute top-1/2 right-1.5 -translate-y-1/2 text-zinc-400 hover:bg-transparent hover:text-white"
+          className="absolute top-1/2 right-1.5 -translate-y-1/2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950"
           aria-label={isVisible ? "Ocultar senha" : "Mostrar senha"}
           aria-pressed={isVisible}
         >

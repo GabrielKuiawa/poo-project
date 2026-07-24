@@ -26,24 +26,23 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      gridClassName="lg:grid-cols-[1.05fr_0.95fr]"
       panelClassName="max-w-md"
       hero={
-        <div className="max-w-xl pb-10">
-          <p className="mb-5 text-sm font-semibold tracking-[0.24em] text-red-300 uppercase">
+        <div className="max-w-xl">
+          <p className="mb-5 text-sm font-semibold tracking-widest text-red-300 uppercase">
             Seu espaço criativo
           </p>
-          <h1 className="m-0 max-w-xl text-5xl leading-[1.05] font-bold tracking-[-0.04em] xl:text-6xl">
+          <h1 className="m-0 max-w-xl text-5xl leading-none font-bold tracking-tighter xl:text-6xl">
             Suas melhores ideias, sempre por perto.
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-zinc-300">
+          <p className="mt-6 max-w-lg text-lg leading-8 text-white/70">
             Entre para organizar referências, guardar inspirações e continuar
             criando de onde parou.
           </p>
         </div>
       }
       footer={
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm">
           Descubra, salve e transforme referências em projetos.
         </p>
       }
