@@ -122,6 +122,12 @@ As rotas dos recursos utilizam o prefixo `/api`.
 | `GET`    | `/api/user/images/:id` | Busca usuário e suas imagens  |
 | `GET`    | `/api/user/me`         | Retorna o usuário autenticado |
 
+O cadastro em `POST /api/user` recebe `multipart/form-data` com `name`,
+`email`, `password` e o avatar no campo `image`. Em `PUT /api/user/:id`, os
+campos de texto continuam obrigatórios, mas `image` é opcional; quando não for
+enviado, o avatar atual é mantido. O arquivo segue os mesmos formatos e o limite
+de 10 MB usados pelas imagens do board.
+
 ### Imagens
 
 | Método   | Endpoint         | Descrição           |

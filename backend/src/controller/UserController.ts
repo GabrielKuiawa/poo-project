@@ -12,6 +12,7 @@ import {
 } from "../utils/validation";
 import { UserService } from "../service/UserService";
 import { serializePaginationMeta } from "../utils/pagination";
+import { validateUploadedImage } from "../utils/imageUpload";
 
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -25,17 +26,12 @@ export class UserController {
       const name = validateTextField(req.body.name, "Nome", 100);
       const email = validateEmail(req.body.email);
       const password = validateTextField(req.body.password, "Senha", 72, 8);
-      const pathImageUser = validateTextField(
-        req.body.pathImageUser,
-        "Imagem do usuário",
-        255,
-      );
 
-      const user = await this.userService.saveUser(
+      const user = await this.userService.createUserWithUpload(
         name,
         email,
         password,
-        pathImageUser,
+        validateUploadedImage(req.file),
       );
 
       res.status(201).json({
@@ -142,19 +138,14 @@ export class UserController {
       const name = validateTextField(req.body.name, "Nome", 100);
       const email = validateEmail(req.body.email);
       const password = validateTextField(req.body.password, "Senha", 72, 8);
-      const pathImageUser = validateTextField(
-        req.body.pathImageUser,
-        "Imagem do usuário",
-        255,
-      );
 
-      const updatedUser = await this.userService.updateUser(
+      const updatedUser = await this.userService.updateUserWithUpload(
         id,
         name,
         email,
         password,
-        pathImageUser,
         getAuthenticatedUser(req),
+        req.file ? validateUploadedImage(req.file) : undefined,
       );
       res.json({
         message: "Usuário atualizado com sucesso",

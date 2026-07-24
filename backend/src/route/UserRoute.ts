@@ -9,6 +9,8 @@ import {
   createLoginRateLimiter,
   createRegistrationRateLimiter,
 } from "../middlewares/rateLimit";
+import { SpacesStorageService } from "../service/SpacesStorageService";
+import { parseImageUpload } from "../middlewares/imageUpload";
 
 export default class UserRoute extends BaseRoute {
   private userController: UserController;
@@ -16,7 +18,10 @@ export default class UserRoute extends BaseRoute {
   constructor() {
     super();
     const userRepository = new UserRepository();
-    const userService = new UserService(userRepository);
+    const userService = new UserService(
+      userRepository,
+      new SpacesStorageService(),
+    );
     this.userController = new UserController(userService);
     this.initRoutes();
   }
@@ -31,6 +36,7 @@ export default class UserRoute extends BaseRoute {
     this.router.post(
       "/",
       createRegistrationRateLimiter(),
+      parseImageUpload,
       (req: Request, res: Response, next: NextFunction) =>
         this.userController.saveUser(req, res, next),
     );
@@ -62,6 +68,7 @@ export default class UserRoute extends BaseRoute {
     this.router.put(
       "/:id",
       authMiddleware,
+      parseImageUpload,
       (req: Request, res: Response, next: NextFunction) =>
         this.userController.updateUser(req, res, next),
     );

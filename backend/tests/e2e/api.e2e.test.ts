@@ -45,18 +45,20 @@ describe("API E2E", () => {
     const registration = await api
       .post("/api/user")
       .set("X-Request-Id", "e2e-registration")
-      .send({
-        name: "Gabriel",
-        email: "gabriel@example.com",
-        password: "password123",
-        pathImageUser: "/users/gabriel.png",
-        role: UserRole.ADMIN,
+      .field("name", "Gabriel")
+      .field("email", "gabriel@example.com")
+      .field("password", "password123")
+      .attach("image", TEST_PNG, {
+        filename: "gabriel.png",
+        contentType: "image/png",
       });
 
     expect(registration.status).toBe(201);
     expect(registration.body.data).toMatchObject({
       name: "Gabriel",
       email: "gabriel@example.com",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
       role: UserRole.USER,
     });
     expect(registration.body.data).not.toHaveProperty("password");
@@ -77,6 +79,8 @@ describe("API E2E", () => {
     expect(currentUser.body).toMatchObject({
       id: registration.body.data.id,
       email: "gabriel@example.com",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
       role: UserRole.USER,
     });
 
@@ -113,7 +117,7 @@ describe("API E2E", () => {
     expect(createdImage.status).toBe(201);
     expect(createdImage.body.data).toMatchObject({
       title: "Modern architecture",
-      pathImage: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/images/${registration.body.data.id}/test-1.png`,
+      pathImage: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/images/${registration.body.data.id}/test-2.png`,
       description: "Modern house",
       categories: [
         {
@@ -140,7 +144,8 @@ describe("API E2E", () => {
     expect(authenticatedFeed.body.data[0].author).toEqual({
       id: registration.body.data.id,
       name: "Gabriel",
-      pathImageUser: "/users/gabriel.png",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
     });
 
     for (const imageNumber of [2, 3]) {
@@ -282,6 +287,30 @@ describe("API E2E", () => {
     );
     expect(persistedCategory.body.name).toBe("Design");
     expect(owner.getId()).not.toBe(other.getId());
+  });
+
+  it("updates a user avatar through FormData", async () => {
+    const user = await seedUser("avatar@example.com", UserRole.USER);
+    const token = await login("avatar@example.com");
+
+    const updatedUser = await api
+      .put(`/api/user/${user.getId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .field("name", "Avatar Updated")
+      .field("email", "avatar@example.com")
+      .field("password", "new-password")
+      .attach("image", TEST_PNG, {
+        filename: "new-avatar.png",
+        contentType: "image/png",
+      });
+
+    expect(updatedUser.status).toBe(200);
+    expect(updatedUser.body.data).toMatchObject({
+      id: user.getId(),
+      name: "Avatar Updated",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
+    });
   });
 
   it("returns consistent HTTP errors for invalid input and missing resources", async () => {

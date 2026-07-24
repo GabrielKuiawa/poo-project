@@ -14,6 +14,7 @@ import { User } from "../../../src/models/User";
 import UserRepository from "../../../src/repository/UserRepository";
 import { UserService } from "../../../src/service/UserService";
 import { AuthenticatedUser } from "../../../src/types/AuthenticatedUser";
+import { ImageFile, ObjectStorage } from "../../../src/types/ObjectStorage";
 
 type UserRepositoryMock = jest.Mocked<
   Pick<
@@ -48,6 +49,7 @@ function createUser(
 
 describe("UserService", () => {
   let userRepository: UserRepositoryMock;
+  let objectStorage: jest.Mocked<ObjectStorage>;
   let userService: UserService;
 
   const owner: AuthenticatedUser = {
@@ -75,7 +77,15 @@ describe("UserService", () => {
       delete: jest.fn(),
     };
 
-    userService = new UserService(userRepository as unknown as UserRepository);
+    objectStorage = {
+      upload: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    userService = new UserService(
+      userRepository as unknown as UserRepository,
+      objectStorage,
+    );
   });
 
   describe("saveUser", () => {
@@ -112,6 +122,75 @@ describe("UserService", () => {
       ).rejects.toBeInstanceOf(ConflictException);
 
       expect(userRepository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("createUserWithUpload", () => {
+    const file: ImageFile = {
+      buffer: Buffer.from("avatar"),
+      contentType: "image/png",
+      extension: "png",
+    };
+
+    it("uploads the avatar and saves its public URL", async () => {
+      userRepository.findOneByEmail.mockResolvedValue(null);
+      objectStorage.upload.mockResolvedValue({
+        key: "users/avatar.png",
+        url: "https://cdn.example.com/users/avatar.png",
+      });
+      userRepository.save.mockImplementation(async (user) => user as User);
+
+      const result = await userService.createUserWithUpload(
+        "New User",
+        "new@example.com",
+        "password123",
+        file,
+      );
+
+      expect(objectStorage.upload).toHaveBeenCalledWith(file, "users");
+      expect(result.getPathImageUser()).toBe(
+        "https://cdn.example.com/users/avatar.png",
+      );
+      expect(result.getAdmin()).toBe(UserRole.USER);
+      await expect(
+        bcrypt.compare("password123", result.getPassword()),
+      ).resolves.toBe(true);
+    });
+
+    it("does not upload when the email is already in use", async () => {
+      userRepository.findOneByEmail.mockResolvedValue(createUser());
+
+      await expect(
+        userService.createUserWithUpload(
+          "New User",
+          "user@example.com",
+          "password123",
+          file,
+        ),
+      ).rejects.toBeInstanceOf(ConflictException);
+
+      expect(objectStorage.upload).not.toHaveBeenCalled();
+    });
+
+    it("removes the avatar when saving the user fails", async () => {
+      const databaseError = new Error("database unavailable");
+      userRepository.findOneByEmail.mockResolvedValue(null);
+      objectStorage.upload.mockResolvedValue({
+        key: "users/avatar.png",
+        url: "https://cdn.example.com/users/avatar.png",
+      });
+      userRepository.save.mockRejectedValue(databaseError);
+
+      await expect(
+        userService.createUserWithUpload(
+          "New User",
+          "new@example.com",
+          "password123",
+          file,
+        ),
+      ).rejects.toBe(databaseError);
+
+      expect(objectStorage.delete).toHaveBeenCalledWith("users/avatar.png");
     });
   });
 
@@ -209,6 +288,85 @@ describe("UserService", () => {
       ).rejects.toBeInstanceOf(ConflictException);
 
       expect(userRepository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateUserWithUpload", () => {
+    const file: ImageFile = {
+      buffer: Buffer.from("avatar"),
+      contentType: "image/webp",
+      extension: "webp",
+    };
+
+    it("keeps the current avatar when no file is sent", async () => {
+      const user = createUser();
+      userRepository.findOne.mockResolvedValue(user);
+      userRepository.findOneByEmail.mockResolvedValue(user);
+      userRepository.save.mockImplementation(async (value) => value as User);
+
+      const result = await userService.updateUserWithUpload(
+        USER_ID,
+        "Updated User",
+        "user@example.com",
+        "new-password",
+        owner,
+      );
+
+      expect(result.getPathImageUser()).toBe("/users/user.png");
+      expect(objectStorage.upload).not.toHaveBeenCalled();
+    });
+
+    it("uploads and saves a new avatar", async () => {
+      const user = createUser();
+      userRepository.findOne.mockResolvedValue(user);
+      userRepository.findOneByEmail.mockResolvedValue(user);
+      objectStorage.upload.mockResolvedValue({
+        key: "users/new-avatar.webp",
+        url: "https://cdn.example.com/users/new-avatar.webp",
+      });
+      userRepository.save.mockImplementation(async (value) => value as User);
+
+      const result = await userService.updateUserWithUpload(
+        USER_ID,
+        "Updated User",
+        "user@example.com",
+        "new-password",
+        owner,
+        file,
+      );
+
+      expect(result.getPathImageUser()).toBe(
+        "https://cdn.example.com/users/new-avatar.webp",
+      );
+      expect(objectStorage.upload).toHaveBeenCalledWith(file, "users");
+      expect(objectStorage.delete).not.toHaveBeenCalled();
+    });
+
+    it("removes the new avatar when updating the database fails", async () => {
+      const databaseError = new Error("database unavailable");
+      const user = createUser();
+      userRepository.findOne.mockResolvedValue(user);
+      userRepository.findOneByEmail.mockResolvedValue(user);
+      objectStorage.upload.mockResolvedValue({
+        key: "users/new-avatar.webp",
+        url: "https://cdn.example.com/users/new-avatar.webp",
+      });
+      userRepository.save.mockRejectedValue(databaseError);
+
+      await expect(
+        userService.updateUserWithUpload(
+          USER_ID,
+          "Updated User",
+          "user@example.com",
+          "new-password",
+          owner,
+          file,
+        ),
+      ).rejects.toBe(databaseError);
+
+      expect(objectStorage.delete).toHaveBeenCalledWith(
+        "users/new-avatar.webp",
+      );
     });
   });
 
