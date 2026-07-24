@@ -13,6 +13,7 @@ import {
 } from "@/features/auth/routeGuards";
 import { ImageDetailsPage } from "@/features/images/pages/ImageDetailsPage";
 import { ImageFeedPage } from "@/features/images/pages/ImageFeedPage";
+import { CreatePinPage } from "@/features/images/pages/CreatePinPage";
 import { LandingPage } from "@/features/landing/pages/LandingPage";
 
 const rootRoute = createRootRoute({
@@ -39,6 +40,12 @@ const feedRoute = createRoute({
   component: ImageFeedPage,
 });
 
+const createPinRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/create",
+  component: CreatePinPage,
+});
+
 export const imageDetailsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/images/$imageId",
@@ -61,7 +68,11 @@ const registerRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  authenticatedRoute.addChildren([feedRoute, imageDetailsRoute]),
+  authenticatedRoute.addChildren([
+    feedRoute,
+    createPinRoute,
+    imageDetailsRoute,
+  ]),
   loginRoute,
   registerRoute,
 ]);

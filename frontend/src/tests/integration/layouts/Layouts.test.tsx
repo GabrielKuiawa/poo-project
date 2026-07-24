@@ -63,6 +63,10 @@ describe("AppLayout", () => {
       "href",
       "/feed",
     );
+    expect(screen.getByRole("link", { name: "Criar Pin" })).toHaveAttribute(
+      "href",
+      "/create",
+    );
     expect(screen.getByText("Conteúdo da rota")).toBeVisible();
   });
 

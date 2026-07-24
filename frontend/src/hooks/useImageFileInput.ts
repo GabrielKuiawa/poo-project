@@ -53,11 +53,10 @@ export function useImageFileInput({
     };
   }, [file]);
 
-  const onChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
+  const selectFile = useCallback(
+    (selectedFile: File | null) => {
       onSelectionChange?.();
 
-      const selectedFile = event.currentTarget.files?.[0] ?? null;
       const validationError = selectedFile
         ? getImageValidationError(selectedFile)
         : null;
@@ -65,11 +64,20 @@ export function useImageFileInput({
       setFile(validationError ? null : selectedFile);
       setError(validationError);
 
-      if (validationError) {
+      return validationError === null;
+    },
+    [onSelectionChange],
+  );
+
+  const onChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = event.currentTarget.files?.[0] ?? null;
+
+      if (!selectFile(selectedFile)) {
         event.currentTarget.value = "";
       }
     },
-    [onSelectionChange],
+    [selectFile],
   );
 
   const getRequiredFile = useCallback(() => {
@@ -95,5 +103,6 @@ export function useImageFileInput({
     onChange,
     previewUrl,
     reset,
+    selectFile,
   };
 }

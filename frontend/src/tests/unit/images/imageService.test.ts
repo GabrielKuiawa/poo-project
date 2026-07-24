@@ -55,6 +55,39 @@ describe("imageService", () => {
     );
   });
 
+  it("creates a Pin with image data and categories", async () => {
+    const file = new File(["pin"], "pin.webp", { type: "image/webp" });
+    const responseBody = {
+      message: "Imagem criada com sucesso",
+      data: image,
+    };
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(responseBody), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      imageService.create({
+        title: "Sala aconchegante",
+        description: "Referência de decoração",
+        image: file,
+        categoryIds: ["category-1", "category-2"],
+      }),
+    ).resolves.toEqual(responseBody);
+
+    const [url, request] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = request.body as FormData;
+    expect(url).toBe(`${testApiUrl}/api/image`);
+    expect(request.method).toBe("POST");
+    expect(body.get("title")).toBe("Sala aconchegante");
+    expect(body.get("description")).toBe("Referência de decoração");
+    expect(body.get("image")).toBe(file);
+    expect(body.getAll("categoryIds")).toEqual(["category-1", "category-2"]);
+  });
+
   it("builds a feed URL with text and exact suggestion filters", () => {
     expect(
       createInitialImagesPage({

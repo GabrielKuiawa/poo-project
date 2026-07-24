@@ -1,4 +1,9 @@
-import type { Image, ImagePage } from "../types";
+import type {
+  CreateImageData,
+  CreateImageResponse,
+  Image,
+  ImagePage,
+} from "../types";
 import { apiRequest } from "@/lib/api";
 import type { ActiveSearch } from "@/features/search/types";
 
@@ -24,6 +29,28 @@ export function createInitialImagesPage(search: ActiveSearch | null): string {
 }
 
 export const imageService = {
+  create({
+    title,
+    description,
+    image,
+    categoryIds,
+  }: CreateImageData): Promise<CreateImageResponse> {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("image", image);
+    for (const categoryId of categoryIds) {
+      formData.append("categoryIds", categoryId);
+    }
+
+    return apiRequest<CreateImageResponse>(imagesPath, {
+      method: "POST",
+      body: formData,
+      authenticated: true,
+      errorMessage: "Não foi possível criar o Pin. Tente novamente.",
+    });
+  },
+
   getById(imageId: string, signal?: AbortSignal): Promise<Image> {
     return apiRequest<Image>(`${imagesPath}/${imageId}`, {
       signal,

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Home } from "lucide-react";
+import { Home, SquarePlus } from "lucide-react";
 import { Brand } from "@/components/shared/Brand";
 
 export function AppSidebar() {
@@ -16,15 +16,43 @@ export function AppSidebar() {
         />
       </div>
 
-      <nav aria-label="Navegação principal" className="mt-1">
+      <nav
+        aria-label="Navegação principal"
+        className="mt-1 flex flex-col items-center gap-3"
+      >
         <Link
           to="/feed"
-          aria-current="page"
           aria-label="Início"
-          className="flex size-11 items-center justify-center rounded-xl bg-foreground text-background outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+          activeProps={{
+            className: "bg-foreground text-background",
+          }}
+          inactiveProps={{
+            className: "bg-background text-foreground hover:bg-accent",
+          }}
+          className="flex size-12 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
           title="Início"
         >
           <Home aria-hidden="true" className="size-5.5" strokeWidth={2.2} />
+        </Link>
+
+        <Link
+          to="/create"
+          aria-label="Criar Pin"
+          activeProps={{
+            className: "bg-foreground text-background",
+          }}
+          inactiveProps={{
+            className: "bg-background text-foreground hover:bg-accent",
+          }}
+          className="group relative flex size-12 items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <SquarePlus aria-hidden="true" className="size-6" strokeWidth={2.2} />
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute left-[calc(100%+0.7rem)] z-50 rounded-lg bg-foreground px-3 py-2 text-xs font-semibold whitespace-nowrap text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+          >
+            Criar
+          </span>
         </Link>
       </nav>
     </aside>

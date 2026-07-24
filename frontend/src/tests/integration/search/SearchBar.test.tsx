@@ -8,6 +8,11 @@ import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
   getSuggestions: vi.fn(),
+  navigate: vi.fn(),
+}));
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => mocks.navigate,
 }));
 
 vi.mock("@/features/search/services/searchService", () => ({
@@ -34,6 +39,7 @@ function renderSearchBar() {
 describe("SearchBar", () => {
   beforeEach(() => {
     mocks.getSuggestions.mockReset().mockResolvedValue({ data: [] });
+    mocks.navigate.mockReset().mockResolvedValue(undefined);
   });
 
   it("preloads suggestions before the field receives focus", async () => {
@@ -86,6 +92,7 @@ describe("SearchBar", () => {
         id: "category-id",
       }),
     );
+    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/feed" });
   });
 
   it("supports keyboard navigation and selection", async () => {
@@ -111,5 +118,21 @@ describe("SearchBar", () => {
       '"type":"user"',
     );
     expect(input).toHaveValue("Joy Cho");
+    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/feed" });
+  });
+
+  it("opens the feed when submitting a text search", async () => {
+    const user = userEvent.setup();
+    renderSearchBar();
+
+    await user.type(
+      screen.getByRole("combobox", { name: "Pesquisar" }),
+      "decoração{Enter}",
+    );
+
+    expect(screen.getByLabelText("Pesquisa ativa")).toHaveTextContent(
+      '"query":"decoração"',
+    );
+    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/feed" });
   });
 });
