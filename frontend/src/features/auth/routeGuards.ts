@@ -22,7 +22,7 @@ export async function redirectAuthenticatedSession(): Promise<void> {
 
   try {
     if (await authService.validateSession(token)) {
-      throw redirect({ to: "/" });
+      throw redirect({ to: "/feed" });
     }
 
     clearAuthToken();

@@ -56,7 +56,7 @@ describe("AppLayout", () => {
     );
     expect(screen.getByRole("link", { name: "Início" })).toHaveAttribute(
       "href",
-      "/",
+      "/feed",
     );
     expect(screen.getByText("Conteúdo da rota")).toBeVisible();
   });
