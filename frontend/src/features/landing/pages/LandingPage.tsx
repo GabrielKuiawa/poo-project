@@ -36,6 +36,14 @@ const artwork = {
   },
 } as const;
 
+const responsiveImageWidths = [320, 640, 900, 1200] as const;
+
+function createResponsiveSrcSet(src: string): string {
+  return responsiveImageWidths
+    .map((width) => `${src.replace(/w=\d+/, `w=${width}`)} ${width}w`)
+    .join(", ");
+}
+
 const steps = [
   {
     number: "01",
@@ -62,12 +70,13 @@ const steps = [
 
 export function LandingPage() {
   return (
-    <main className="min-h-dvh overflow-hidden bg-[#f8f8f4] text-[#141414]">
+    <main className="min-h-dvh overflow-hidden bg-slate-50 text-zinc-950">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-20 max-w-[1480px] items-center px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto flex h-16 max-w-370 items-center px-4 sm:h-20 sm:px-8 lg:px-12">
           <Brand
-            className="text-lg sm:text-xl"
-            logoClassName="size-9 sm:size-10"
+            className="gap-2 text-lg sm:gap-2.5 sm:text-xl"
+            labelClassName="sr-only sm:not-sr-only"
+            logoClassName="size-8 sm:size-10"
           />
 
           <nav
@@ -101,42 +110,43 @@ export function LandingPage() {
             <Button
               asChild
               variant="ghost"
-              className="hidden bg-transparent px-5 hover:bg-black/5 sm:inline-flex"
+              className="h-10 bg-transparent px-3 text-xs hover:bg-black/5 sm:h-11 sm:px-5 sm:text-sm"
             >
               <Link to="/login">Entrar</Link>
             </Button>
             <Button
               asChild
-              className="h-11 bg-red-600 px-5 text-white shadow-none hover:bg-red-700 sm:px-6"
+              className="h-10 bg-red-600 px-4 text-xs text-white shadow-none hover:bg-red-700 sm:h-11 sm:px-6 sm:text-sm"
             >
               <Link to="/signup">
-                Criar conta
-                <ArrowRight aria-hidden="true" />
+                <span className="sm:hidden">Criar</span>
+                <span className="hidden sm:inline">Criar conta</span>
+                <ArrowRight aria-hidden="true" className="hidden sm:block" />
               </Link>
             </Button>
           </nav>
         </div>
       </header>
 
-      <section className="relative border-b border-black/10 pt-20">
-        <div className="mx-auto grid min-h-[calc(100dvh-5rem)] max-w-[1480px] lg:grid-cols-[1.04fr_0.96fr]">
-          <div className="flex flex-col justify-center px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
-            <p className="mb-6 flex items-center gap-3 text-xs font-extrabold tracking-[0.2em] uppercase">
+      <section className="relative flex flex-col border-b border-black/10 pt-16 sm:pt-20 md:min-h-dvh">
+        <div className="mx-auto grid w-full max-w-370 flex-1 md:grid-cols-2">
+          <div className="relative flex flex-col justify-center px-4 py-12 sm:px-8 sm:py-16 md:py-14 lg:px-12 lg:py-20 xl:py-24">
+            <p className="mb-5 flex items-center gap-3 text-xs font-extrabold tracking-widest uppercase sm:mb-6">
               <span className="h-px w-9 bg-red-600" />
               seu repertório visual
             </p>
-            <h1 className="m-0 max-w-3xl font-display text-[clamp(3.7rem,7.5vw,7.5rem)] leading-[0.88] font-extrabold tracking-[-0.075em] text-balance">
+            <h1 className="m-0 max-w-3xl font-display text-5xl leading-none font-extrabold tracking-tighter text-balance sm:text-7xl md:text-6xl lg:text-7xl xl:text-8xl">
               Guarde o que faz você <span className="text-red-600">parar.</span>
             </h1>
-            <p className="mt-8 max-w-xl text-lg leading-8 text-zinc-600 sm:text-xl">
+            <p className="mt-6 max-w-xl text-base leading-7 text-zinc-600 sm:mt-8 sm:text-lg sm:leading-8 xl:text-xl">
               Um lugar para encontrar imagens que dizem alguma coisa — antes
               mesmo de você saber explicar o quê.
             </p>
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-2 sm:mt-10 sm:flex-row sm:gap-3">
               <Button
                 asChild
                 size="lg"
-                className="h-14 bg-[#173bc9] px-8 text-base text-white shadow-none hover:bg-[#102c9d]"
+                className="h-13 w-full bg-blue-700 px-6 text-sm text-white shadow-none hover:bg-blue-800 sm:h-14 sm:w-auto sm:px-8 sm:text-base"
               >
                 <Link to="/signup">
                   Comece seu board
@@ -145,7 +155,7 @@ export function LandingPage() {
               </Button>
               <a
                 href="#arte"
-                className="inline-flex h-14 items-center justify-center gap-2 px-5 text-sm font-bold underline decoration-2 underline-offset-8 transition-colors hover:text-red-600"
+                className="inline-flex h-12 items-center justify-center gap-2 px-5 text-sm font-bold underline decoration-2 underline-offset-8 transition-colors hover:text-red-600 sm:h-14"
               >
                 Ver inspirações
                 <ArrowDownRight aria-hidden="true" className="size-4" />
@@ -153,12 +163,12 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="relative min-h-[34rem] overflow-hidden bg-[#173bc9] p-5 sm:p-8 lg:min-h-0 lg:p-12">
-            <div className="absolute top-0 right-0 h-28 w-28 bg-[#ffd236] sm:h-40 sm:w-40" />
-            <div className="absolute bottom-0 left-0 h-24 w-1/3 bg-red-600" />
-            <div className="relative h-full min-h-[31rem] border-[10px] border-[#141414] bg-white sm:min-h-[37rem]">
+          <div className="relative hidden overflow-hidden bg-blue-700 p-6 md:block lg:min-h-0 lg:p-10 xl:p-12">
+            <div className="absolute top-0 right-0 h-20 w-20 bg-white/90 sm:h-36 sm:w-36" />
+            <div className="absolute bottom-0 left-0 h-16 w-1/3 bg-red-600 sm:h-24" />
+            <div className="relative h-full min-h-136 border-8 border-zinc-950 bg-white lg:min-h-148 lg:border-10">
               <img
-                src={`${import.meta.env.BASE_URL}art-hero.webp`}
+                src={`${import.meta.env.BASE_URL}art-hero-v2.webp`}
                 alt="Colagem original com pinceladas azuis, círculo vermelho e recortes de papel"
                 width="1122"
                 height="1402"
@@ -173,97 +183,103 @@ export function LandingPage() {
       <section
         id="arte"
         aria-labelledby="arte-title"
-        className="scroll-mt-20 bg-[#111318] px-5 py-20 text-white sm:px-8 sm:py-28 lg:px-12"
+        className="scroll-mt-16 bg-zinc-950 px-4 py-16 text-white sm:scroll-mt-20 sm:px-8 sm:py-28 lg:px-12"
       >
-        <div className="mx-auto max-w-[1380px]">
+        <div className="mx-auto max-w-345">
           <div className="grid gap-7 border-t border-white/25 pt-7 lg:grid-cols-2 lg:gap-16">
             <div>
-              <p className="mb-4 text-xs font-extrabold tracking-[0.2em] text-[#ff6a4d] uppercase">
+              <p className="mb-4 text-xs font-extrabold tracking-widest text-red-400 uppercase">
                 arte para olhar sem pressa
               </p>
               <h2
                 id="arte-title"
-                className="max-w-3xl font-display text-4xl leading-[0.98] font-bold tracking-[-0.055em] sm:text-6xl"
+                className="max-w-3xl font-display text-4xl leading-none font-bold tracking-tighter sm:text-6xl"
               >
                 Uma imagem pode mudar o rumo de uma ideia.
               </h2>
             </div>
-            <p className="max-w-xl self-end text-lg leading-8 text-white/65 lg:justify-self-end">
+            <p className="max-w-xl self-end text-base leading-7 text-white/65 sm:text-lg sm:leading-8 lg:justify-self-end">
               Cor, gesto, textura, silêncio. Às vezes o que você procura ainda
               não tem nome — mas já tem uma imagem.
             </p>
           </div>
 
-          <div className="mt-14 grid gap-4 lg:grid-cols-[1.15fr_0.85fr] lg:gap-5">
-            <figure className="group m-0 overflow-hidden rounded-tl-[5rem] bg-zinc-800">
+          <div className="mt-10 grid gap-3 sm:mt-14 sm:gap-4 lg:grid-cols-2 lg:gap-5">
+            <figure className="group m-0 overflow-hidden rounded-tl-4xl bg-zinc-800">
               <img
                 src={artwork.abstractBlue.src}
+                srcSet={createResponsiveSrcSet(artwork.abstractBlue.src)}
                 alt={artwork.abstractBlue.alt}
                 width="1200"
                 height="1500"
                 sizes="(min-width: 1024px) 57vw, 100vw"
-                className="aspect-[4/5] h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
+                className="aspect-4/5 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-105"
                 loading="lazy"
               />
             </figure>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-5">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-1 lg:gap-5">
               <figure className="group m-0 overflow-hidden bg-zinc-800">
                 <img
                   src={artwork.gallery.src}
+                  srcSet={createResponsiveSrcSet(artwork.gallery.src)}
                   alt={artwork.gallery.alt}
                   width="1000"
                   height="720"
-                  sizes="(min-width: 1024px) 41vw, (min-width: 640px) 50vw, 100vw"
-                  className="aspect-[4/3] h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
+                  sizes="(min-width: 1024px) 41vw, calc(50vw - 22px)"
+                  className="aspect-3/4 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-105 sm:aspect-4/3 lg:aspect-auto"
                   loading="lazy"
                 />
               </figure>
-              <figure className="group m-0 overflow-hidden rounded-br-[5rem] bg-zinc-800">
+              <figure className="group m-0 overflow-hidden rounded-br-4xl bg-zinc-800">
                 <img
                   src={artwork.painter.src}
+                  srcSet={createResponsiveSrcSet(artwork.painter.src)}
                   alt={artwork.painter.alt}
                   width="1000"
                   height="720"
-                  sizes="(min-width: 1024px) 41vw, (min-width: 640px) 50vw, 100vw"
-                  className="aspect-[4/3] h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
+                  sizes="(min-width: 1024px) 41vw, calc(50vw - 22px)"
+                  className="aspect-3/4 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-105 sm:aspect-4/3 lg:aspect-auto"
                   loading="lazy"
                 />
               </figure>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-[0.8fr_1.2fr_0.8fr] lg:gap-5">
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:mt-4 sm:gap-4 lg:mt-5 lg:grid-cols-3 lg:gap-5">
             <figure className="group order-1 m-0 overflow-hidden bg-zinc-800">
               <img
                 src={artwork.portrait.src}
+                srcSet={createResponsiveSrcSet(artwork.portrait.src)}
                 alt={artwork.portrait.alt}
                 width="900"
                 height="1100"
                 sizes="(min-width: 1024px) 28vw, 50vw"
-                className="aspect-[3/4] h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
+                className="aspect-3/4 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-105"
                 loading="lazy"
               />
             </figure>
-            <figure className="group order-3 col-span-2 m-0 overflow-hidden rounded-tr-[5rem] bg-zinc-800 lg:order-2 lg:col-span-1">
+            <figure className="group order-3 col-span-2 m-0 overflow-hidden rounded-tr-4xl bg-zinc-800 lg:order-2 lg:col-span-1">
               <img
                 src={artwork.museum.src}
+                srcSet={createResponsiveSrcSet(artwork.museum.src)}
                 alt={artwork.museum.alt}
                 width="1200"
                 height="900"
                 sizes="(min-width: 1024px) 42vw, 100vw"
-                className="aspect-[4/3] h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-[1.02] lg:aspect-auto"
+                className="aspect-4/3 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-105 lg:aspect-auto"
                 loading="lazy"
               />
             </figure>
-            <figure className="group order-2 m-0 overflow-hidden rounded-bl-[5rem] bg-zinc-800 lg:order-3">
+            <figure className="group order-2 m-0 overflow-hidden rounded-bl-4xl bg-zinc-800 lg:order-3">
               <img
                 src={artwork.studio.src}
+                srcSet={createResponsiveSrcSet(artwork.studio.src)}
                 alt={artwork.studio.alt}
                 width="900"
                 height="1100"
                 sizes="(min-width: 1024px) 28vw, 50vw"
-                className="aspect-[3/4] h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-[1.02]"
+                className="aspect-3/4 h-full w-full object-cover transition-transform duration-700 motion-reduce:transition-none group-hover:scale-105"
                 loading="lazy"
               />
             </figure>
@@ -274,14 +290,14 @@ export function LandingPage() {
       <section
         id="manifesto"
         aria-label="Manifesto"
-        className="relative scroll-mt-20 overflow-hidden bg-[#173bc9] px-5 py-24 text-white sm:px-8 sm:py-32 lg:px-12"
+        className="relative scroll-mt-16 overflow-hidden bg-blue-700 px-4 py-18 text-white sm:scroll-mt-20 sm:px-8 sm:py-32 lg:px-12"
       >
-        <div className="absolute -top-24 -right-24 size-72 rounded-full bg-red-600 sm:size-96" />
-        <div className="absolute bottom-10 left-7 h-5 w-28 -rotate-6 bg-[#ffd236] sm:left-16 sm:w-44" />
+        <div className="absolute -top-20 -right-24 size-56 rounded-full bg-red-600 sm:-top-24 sm:size-96" />
+        <div className="absolute bottom-8 left-5 h-1.5 w-24 -rotate-6 bg-white/75 sm:bottom-10 sm:left-16 sm:h-2 sm:w-44" />
         <blockquote className="relative mx-auto max-w-6xl">
-          <p className="font-display text-[clamp(3rem,7vw,6.8rem)] leading-[0.95] font-bold tracking-[-0.06em] text-balance">
+          <p className="font-display text-4xl leading-none font-bold tracking-tighter text-balance text-white/70 sm:text-6xl lg:text-8xl">
             “Antes de virar projeto, toda ideia foi uma imagem que{" "}
-            <span className="text-[#ffd236]">ficou.</span>”
+            <span className="text-white">ficou.</span>”
           </p>
         </blockquote>
       </section>
@@ -289,52 +305,54 @@ export function LandingPage() {
       <section
         id="processo"
         aria-labelledby="processo-title"
-        className="scroll-mt-20 bg-white px-5 py-20 sm:px-8 sm:py-28 lg:px-12"
+        className="scroll-mt-16 bg-white px-4 py-16 sm:scroll-mt-20 sm:px-8 sm:py-28 lg:px-12"
       >
-        <div className="mx-auto max-w-[1380px]">
-          <div className="grid gap-7 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        <div className="mx-auto max-w-345">
+          <div className="grid gap-7 lg:grid-cols-2 lg:gap-20">
             <div>
-              <p className="mb-4 text-xs font-extrabold tracking-[0.2em] text-red-600 uppercase">
+              <p className="mb-4 text-xs font-extrabold tracking-widest text-red-600 uppercase">
                 do olhar ao board
               </p>
               <h2
                 id="processo-title"
-                className="font-display text-4xl leading-none font-bold tracking-[-0.055em] sm:text-6xl"
+                className="font-display text-4xl leading-none font-bold tracking-tighter sm:text-6xl"
               >
                 Ideias gostam de companhia.
               </h2>
             </div>
-            <p className="max-w-2xl self-end text-lg leading-8 text-zinc-600">
+            <p className="max-w-2xl self-end text-base leading-7 text-zinc-600 sm:text-lg sm:leading-8">
               Quando duas referências se encontram, uma terceira coisa aparece.
               O mood board é o espaço para essas conexões acontecerem.
             </p>
           </div>
 
-          <ol className="mt-16 grid border-y border-black/20 lg:grid-cols-3">
+          <ol className="mt-12 grid border-y border-black/20 sm:mt-16 lg:grid-cols-3">
             {steps.map((step, index) => {
               const Icon = step.icon;
 
               return (
                 <li
                   key={step.number}
-                  className={`relative py-10 lg:px-9 lg:py-12 ${
+                  className={`relative flex gap-4 py-8 lg:block lg:px-9 lg:py-12 ${
                     index > 0
                       ? "border-t border-black/20 lg:border-t-0 lg:border-l"
                       : ""
                   }`}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex w-12 shrink-0 flex-col items-start gap-5 lg:w-auto lg:flex-row lg:items-center lg:justify-between">
                     <span className="font-mono text-sm font-bold text-red-600">
                       {step.number}
                     </span>
                     <Icon aria-hidden="true" className="size-6" />
                   </div>
-                  <h3 className="mt-14 font-display text-3xl font-bold tracking-[-0.04em]">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 max-w-sm leading-7 text-zinc-600">
-                    {step.description}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-display text-2xl font-bold tracking-tight lg:mt-14 lg:text-3xl">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-600 sm:text-base sm:leading-7 lg:mt-3">
+                      {step.description}
+                    </p>
+                  </div>
                 </li>
               );
             })}
@@ -342,20 +360,20 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-[#ffd236] px-5 py-20 sm:px-8 sm:py-28 lg:px-12">
-        <div className="mx-auto grid max-w-[1380px] items-end gap-10 lg:grid-cols-[1fr_auto]">
+      <section className="bg-zinc-950 px-4 py-16 text-white sm:px-8 sm:py-28 lg:px-12">
+        <div className="mx-auto flex max-w-345 flex-col items-stretch gap-10 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-5 text-xs font-extrabold tracking-[0.2em] uppercase">
+            <p className="mb-5 text-xs font-extrabold tracking-widest text-white/55 uppercase">
               seu próximo ponto de partida
             </p>
-            <h2 className="max-w-4xl font-display text-5xl leading-[0.93] font-extrabold tracking-[-0.065em] text-balance sm:text-7xl">
+            <h2 className="max-w-4xl font-display text-5xl leading-none font-extrabold tracking-tighter text-balance sm:text-7xl">
               O que vai ficar com você hoje?
             </h2>
           </div>
           <Button
             asChild
             size="lg"
-            className="h-16 w-full bg-[#141414] px-9 text-base text-white shadow-none hover:bg-red-600 lg:w-auto"
+            className="h-14 w-full bg-red-600 px-7 text-sm text-white shadow-none hover:bg-red-700 sm:h-16 sm:px-9 sm:text-base lg:w-auto"
           >
             <Link to="/signup">
               Criar meu mood board
@@ -364,9 +382,9 @@ export function LandingPage() {
           </Button>
         </div>
 
-        <footer className="mx-auto mt-20 flex max-w-[1380px] flex-col items-start justify-between gap-5 border-t border-black/25 pt-7 text-sm sm:flex-row sm:items-center">
-          <Brand logoClassName="size-8" />
-          <p className="text-black/65">
+        <footer className="mx-auto mt-16 flex max-w-345 flex-col items-center justify-between gap-5 border-t border-white/20 pt-7 text-center text-sm sm:mt-20 sm:flex-row sm:text-left">
+          <Brand labelClassName="text-white" logoClassName="size-8" />
+          <p className="text-white/55">
             Descubra. Guarde. Encontre novas relações.
           </p>
         </footer>
