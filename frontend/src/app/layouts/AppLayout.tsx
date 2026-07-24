@@ -11,7 +11,7 @@ export function AppLayout() {
   return (
     <SearchProvider>
       <div className="min-h-screen bg-background">
-        <AppSidebar onLogout={logout} />
+        <AppSidebar />
         <AppHeader userMenu={<UserMenu onLogout={logout} />} />
 
         <div className="min-h-screen pt-16 pl-17">

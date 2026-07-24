@@ -2,6 +2,7 @@ import ForbiddenException from "../exception/ForbiddenException";
 import NotFoundException from "../exception/NotFoundException";
 import Category from "../models/Category";
 import Image from "../models/Image";
+import { User } from "../models/User";
 import CategoryRepository from "../repository/CategoryRepository";
 import ImageRepository from "../repository/ImageRepository";
 import UserRepository from "../repository/UserRepository";
@@ -13,20 +14,27 @@ import {
   PaginationParams,
 } from "../types/Pagination";
 import { ImageSearchFilters } from "../types/Search";
+import { ImageFile, ObjectStorage } from "../types/ObjectStorage";
+import { logger } from "../utils/Logger";
+
+const IMAGE_FOLDER = "images";
 
 export class ImageService {
   private imageRepository: ImageRepository;
   private userRepository: UserRepository;
   private categoryRepository: CategoryRepository;
+  private objectStorage?: ObjectStorage;
 
   constructor(
     imageRepository: ImageRepository,
     userRepository: UserRepository,
     categoryRepository: CategoryRepository,
+    objectStorage?: ObjectStorage,
   ) {
     this.imageRepository = imageRepository;
     this.userRepository = userRepository;
     this.categoryRepository = categoryRepository;
+    this.objectStorage = objectStorage;
   }
 
   public async saveImage(
@@ -40,17 +48,50 @@ export class ImageService {
     if (!user) throw new NotFoundException("Usuário não encontrado");
 
     const categories = await this.getOwnedCategories(categoryIds, userId);
+    return this.persistImage(title, pathImage, description, user, categories);
+  }
 
-    const image = new Image();
-    image.setTitle(title);
-    image.setPathImage(pathImage);
-    image.setDescription(description);
-    image.user = user;
-    categories.forEach((category) => {
-      image.addCategory(category);
-    });
+  public async createImageWithUpload(
+    title: string,
+    description: string,
+    userId: string,
+    categoryIds: string[],
+    file: ImageFile,
+  ): Promise<Image> {
+    const user = await this.userRepository.findOne(userId);
+    if (!user) throw new NotFoundException("Usuário não encontrado");
 
-    return this.imageRepository.save(image);
+    const categories = await this.getOwnedCategories(categoryIds, userId);
+    const objectStorage = this.getObjectStorage();
+
+    const storedObject = await objectStorage.upload(
+      file,
+      `${IMAGE_FOLDER}/${userId}`,
+    );
+
+    try {
+      return await this.persistImage(
+        title,
+        storedObject.url,
+        description,
+        user,
+        categories,
+      );
+    } catch (error) {
+      try {
+        await objectStorage.delete(storedObject.key);
+      } catch (cleanupError) {
+        logger.error("Failed to remove image after database error", {
+          objectKey: storedObject.key,
+          errorMessage:
+            cleanupError instanceof Error
+              ? cleanupError.message
+              : String(cleanupError),
+        });
+      }
+
+      throw error;
+    }
   }
 
   public async getImages(
@@ -114,6 +155,7 @@ export class ImageService {
     }
 
     assertOwnerOrAdmin(authenticatedUser, image.getUser().getId());
+    await this.getObjectStorage().deleteByUrl(image.getPathImage());
     await this.imageRepository.delete(id);
   }
 
@@ -136,5 +178,32 @@ export class ImageService {
     }
 
     return categories;
+  }
+
+  private async persistImage(
+    title: string,
+    pathImage: string,
+    description: string,
+    user: User,
+    categories: Category[],
+  ): Promise<Image> {
+    const image = new Image();
+    image.setTitle(title);
+    image.setPathImage(pathImage);
+    image.setDescription(description);
+    image.user = user;
+    categories.forEach((category) => {
+      image.addCategory(category);
+    });
+
+    return this.imageRepository.save(image);
+  }
+
+  private getObjectStorage(): ObjectStorage {
+    if (!this.objectStorage) {
+      throw new Error("O serviço de armazenamento não foi configurado.");
+    }
+
+    return this.objectStorage;
   }
 }

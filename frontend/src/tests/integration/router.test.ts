@@ -11,6 +11,7 @@ describe("application router", () => {
       expect.arrayContaining([
         "/",
         "/feed",
+        "/create",
         "/login",
         "/signup",
         "/images/$imageId",

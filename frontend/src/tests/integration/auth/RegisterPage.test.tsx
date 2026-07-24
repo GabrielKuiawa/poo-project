@@ -51,13 +51,15 @@ describe("RegisterPage", () => {
   it("creates the account, signs in, and opens the gallery", async () => {
     const user = userEvent.setup();
     renderRegisterPage();
+    const avatar = new File(["avatar"], "avatar.png", {
+      type: "image/png",
+    });
 
     await user.type(screen.getByLabelText("Nome"), "  Maria Silva  ");
     await user.type(screen.getByLabelText("Email"), "  maria@example.com  ");
-    await user.type(
-      screen.getByLabelText("URL da foto de perfil"),
-      "  https://example.com/avatar.jpg  ",
-    );
+    const avatarInput = screen.getByLabelText("Foto de perfil");
+    await user.upload(avatarInput, avatar);
+    expect((avatarInput as HTMLInputElement).files?.[0]).toBe(avatar);
     await user.type(screen.getByLabelText("Senha"), "password123");
     await user.click(screen.getByRole("button", { name: "Criar conta" }));
 
@@ -66,7 +68,7 @@ describe("RegisterPage", () => {
         name: "Maria Silva",
         email: "maria@example.com",
         password: "password123",
-        pathImageUser: "https://example.com/avatar.jpg",
+        image: avatar,
       });
     });
     expect(mocks.login).toHaveBeenCalledWith({
@@ -81,13 +83,15 @@ describe("RegisterPage", () => {
     const user = userEvent.setup();
     mocks.register.mockRejectedValue(new Error("Email já está em uso."));
     renderRegisterPage();
+    const avatar = new File(["avatar"], "avatar.webp", {
+      type: "image/webp",
+    });
 
     await user.type(screen.getByLabelText("Nome"), "Maria Silva");
     await user.type(screen.getByLabelText("Email"), "maria@example.com");
-    await user.type(
-      screen.getByLabelText("URL da foto de perfil"),
-      "https://example.com/avatar.jpg",
-    );
+    const avatarInput = screen.getByLabelText("Foto de perfil");
+    await user.upload(avatarInput, avatar);
+    expect((avatarInput as HTMLInputElement).files?.[0]).toBe(avatar);
     await user.type(screen.getByLabelText("Senha"), "password123");
     await user.click(screen.getByRole("button", { name: "Criar conta" }));
 
@@ -96,5 +100,20 @@ describe("RegisterPage", () => {
     );
     expect(mocks.login).not.toHaveBeenCalled();
     expect(mocks.navigate).not.toHaveBeenCalled();
+  });
+
+  it("requires a profile image before creating the account", async () => {
+    const user = userEvent.setup();
+    renderRegisterPage();
+
+    await user.type(screen.getByLabelText("Nome"), "Maria Silva");
+    await user.type(screen.getByLabelText("Email"), "maria@example.com");
+    await user.type(screen.getByLabelText("Senha"), "password123");
+    await user.click(screen.getByRole("button", { name: "Criar conta" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Escolha uma foto de perfil.",
+    );
+    expect(mocks.register).not.toHaveBeenCalled();
   });
 });

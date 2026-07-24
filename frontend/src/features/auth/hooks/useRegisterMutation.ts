@@ -13,7 +13,6 @@ export function useRegisterMutation() {
         ...registrationData,
         name: registrationData.name.trim(),
         email: registrationData.email.trim(),
-        pathImageUser: registrationData.pathImageUser.trim(),
       };
 
       await authService.register(normalizedData);

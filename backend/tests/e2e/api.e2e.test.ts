@@ -4,36 +4,61 @@ import App from "../../src/App";
 import { AppDataSource } from "../../src/data-source";
 import { UserRole } from "../../src/enum/UserRole";
 import { User } from "../../src/models/User";
+import { SpacesStorageService } from "../../src/service/SpacesStorageService";
 import { clearTestDatabase, closeTestDatabase } from "../helpers/database";
+
+const TEST_PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 describe("API E2E", () => {
   let api: ReturnType<typeof request>;
+  let uploadNumber = 0;
 
   beforeAll(async () => {
+    jest
+      .spyOn(SpacesStorageService.prototype, "upload")
+      .mockImplementation(async (file, folder) => {
+        const key = `test/${folder}/test-${++uploadNumber}.${file.extension}`;
+        return {
+          key,
+          url: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/${key}`,
+        };
+      });
+    jest
+      .spyOn(SpacesStorageService.prototype, "delete")
+      .mockResolvedValue(undefined);
+
     const application = new App();
     await application.initialize();
     api = request(application.getApp());
   });
 
-  beforeEach(clearTestDatabase);
-  afterAll(closeTestDatabase);
+  beforeEach(async () => {
+    uploadNumber = 0;
+    await clearTestDatabase();
+  });
+  afterAll(async () => {
+    await closeTestDatabase();
+    jest.restoreAllMocks();
+  });
 
   it("runs the registration, login, category, and image flow over HTTP", async () => {
     const registration = await api
       .post("/api/user")
       .set("X-Request-Id", "e2e-registration")
-      .send({
-        name: "Gabriel",
-        email: "gabriel@example.com",
-        password: "password123",
-        pathImageUser: "/users/gabriel.png",
-        role: UserRole.ADMIN,
+      .field("name", "Gabriel")
+      .field("email", "gabriel@example.com")
+      .field("password", "password123")
+      .attach("image", TEST_PNG, {
+        filename: "gabriel.png",
+        contentType: "image/png",
       });
 
     expect(registration.status).toBe(201);
     expect(registration.body.data).toMatchObject({
       name: "Gabriel",
       email: "gabriel@example.com",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
       role: UserRole.USER,
     });
     expect(registration.body.data).not.toHaveProperty("password");
@@ -54,6 +79,8 @@ describe("API E2E", () => {
     expect(currentUser.body).toMatchObject({
       id: registration.body.data.id,
       email: "gabriel@example.com",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
       role: UserRole.USER,
     });
 
@@ -80,16 +107,17 @@ describe("API E2E", () => {
     const createdImage = await api
       .post("/api/image")
       .set("Authorization", authorization)
-      .send({
-        title: "Modern architecture",
-        pathImage: "/images/house.png",
-        description: "Modern house",
-        categoryIds: [createdCategory.body.data.id],
+      .field("title", "Modern architecture")
+      .field("description", "Modern house")
+      .field("categoryIds", createdCategory.body.data.id)
+      .attach("image", TEST_PNG, {
+        filename: "house.png",
+        contentType: "image/png",
       });
     expect(createdImage.status).toBe(201);
     expect(createdImage.body.data).toMatchObject({
       title: "Modern architecture",
-      pathImage: "/images/house.png",
+      pathImage: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/images/${registration.body.data.id}/test-2.png`,
       description: "Modern house",
       categories: [
         {
@@ -116,18 +144,20 @@ describe("API E2E", () => {
     expect(authenticatedFeed.body.data[0].author).toEqual({
       id: registration.body.data.id,
       name: "Gabriel",
-      pathImageUser: "/users/gabriel.png",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
     });
 
     for (const imageNumber of [2, 3]) {
       await api
         .post("/api/image")
         .set("Authorization", authorization)
-        .send({
-          title: `Architecture ${imageNumber}`,
-          pathImage: `/images/house-${imageNumber}.png`,
-          description: `Modern house ${imageNumber}`,
-          categoryIds: [createdCategory.body.data.id],
+        .field("title", `Architecture ${imageNumber}`)
+        .field("description", `Modern house ${imageNumber}`)
+        .field("categoryIds", createdCategory.body.data.id)
+        .attach("image", TEST_PNG, {
+          filename: `house-${imageNumber}.png`,
+          contentType: "image/png",
         })
         .expect(201);
     }
@@ -202,6 +232,18 @@ describe("API E2E", () => {
       .set("Authorization", authorization);
     expect(imageAfterCategoryDeletion.status).toBe(200);
     expect(imageAfterCategoryDeletion.body.categories).toEqual([]);
+
+    await api
+      .delete(`/api/image/${createdImage.body.data.id}`)
+      .set("Authorization", authorization)
+      .expect(204);
+    expect(SpacesStorageService.prototype.delete).toHaveBeenCalledWith(
+      `test/images/${registration.body.data.id}/test-2.png`,
+    );
+    await api
+      .get(`/api/image/${createdImage.body.data.id}`)
+      .set("Authorization", authorization)
+      .expect(404);
   });
 
   it("enforces authentication, ownership, and user roles", async () => {
@@ -257,6 +299,38 @@ describe("API E2E", () => {
     );
     expect(persistedCategory.body.name).toBe("Design");
     expect(owner.getId()).not.toBe(other.getId());
+  });
+
+  it("updates a user avatar through FormData", async () => {
+    const user = await seedUser("avatar@example.com", UserRole.USER);
+    const token = await login("avatar@example.com");
+
+    const updatedUser = await api
+      .put(`/api/user/${user.getId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .field("name", "Avatar Updated")
+      .field("email", "avatar@example.com")
+      .field("password", "new-password")
+      .attach("image", TEST_PNG, {
+        filename: "new-avatar.png",
+        contentType: "image/png",
+      });
+
+    expect(updatedUser.status).toBe(200);
+    expect(updatedUser.body.data).toMatchObject({
+      id: user.getId(),
+      name: "Avatar Updated",
+      pathImageUser:
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
+    });
+
+    await api
+      .delete(`/api/user/${user.getId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204);
+    expect(SpacesStorageService.prototype.delete).toHaveBeenCalledWith(
+      "test/users/test-1.png",
+    );
   });
 
   it("returns consistent HTTP errors for invalid input and missing resources", async () => {

@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   ImageIcon,
   Layers3,
@@ -25,6 +26,7 @@ const suggestionIcons = {
 } satisfies Record<SearchSuggestionType, typeof Search>;
 
 export function SearchBar() {
+  const navigate = useNavigate();
   const { activeSearch, applySearch, clearSearch } = useSearchContext();
   const [inputValue, setInputValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -69,6 +71,7 @@ export function SearchBar() {
       id: suggestion.id,
     });
     setIsOpen(false);
+    void navigate({ to: "/feed" });
   };
 
   const submitTextSearch = () => {
@@ -81,6 +84,7 @@ export function SearchBar() {
 
     applySearch({ query, label: query });
     setIsOpen(false);
+    void navigate({ to: "/feed" });
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {

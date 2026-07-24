@@ -20,6 +20,18 @@ function requirePort(name: string): number {
   return value;
 }
 
+function requireStoragePrefix(name: string): string {
+  const value = requireEnvironmentVariable(name);
+
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(value)) {
+    throw new Error(
+      `A variável de ambiente ${name} deve usar apenas letras minúsculas, números e hífens.`,
+    );
+  }
+
+  return value;
+}
+
 function readBooleanEnvironmentVariable(
   name: string,
   defaultValue: boolean,
@@ -56,6 +68,10 @@ function readEnvironmentVariableList(
 }
 
 const databaseUrl = process.env.DATABASE_URL?.trim();
+const spacesPublicUrl = requireEnvironmentVariable("SPACES_PUBLIC_URL").replace(
+  /\/+$/,
+  "",
+);
 
 export const config = {
   port: requirePort("PORT"),
@@ -78,4 +94,13 @@ export const config = {
       Boolean(databaseUrl) || readBooleanEnvironmentVariable("DB_SSL", false),
   },
   jwtSecret: requireEnvironmentVariable("JWT_SECRET"),
+  spaces: {
+    prefix: requireStoragePrefix("SPACES_PREFIX"),
+    region: requireEnvironmentVariable("SPACES_REGION"),
+    endpoint: requireEnvironmentVariable("SPACES_ENDPOINT"),
+    bucket: requireEnvironmentVariable("SPACES_BUCKET"),
+    accessKeyId: requireEnvironmentVariable("SPACES_ACCESS_KEY_ID"),
+    secretAccessKey: requireEnvironmentVariable("SPACES_SECRET_ACCESS_KEY"),
+    publicUrl: spacesPublicUrl,
+  },
 };

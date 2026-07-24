@@ -6,6 +6,8 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 import UserRepository from "../repository/UserRepository";
 import CategoryRepository from "../repository/CategoryRepository";
 import { ImageService } from "../service/ImageService";
+import { SpacesStorageService } from "../service/SpacesStorageService";
+import { parseImageUpload } from "../middlewares/imageUpload";
 
 export default class ImageRoute extends BaseRoute {
   private imageController: ImageController;
@@ -20,6 +22,7 @@ export default class ImageRoute extends BaseRoute {
       imageRepository,
       userRepository,
       categoryRepository,
+      new SpacesStorageService(),
     );
 
     this.imageController = new ImageController(imageService);
@@ -37,6 +40,7 @@ export default class ImageRoute extends BaseRoute {
     this.router.post(
       "/",
       authMiddleware,
+      parseImageUpload,
       (req: Request, res: Response, next: NextFunction) =>
         this.imageController.saveImage(req, res, next),
     );

@@ -1,7 +1,11 @@
-import { Check } from "lucide-react";
+import { Check, ImagePlus } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { LoadingButton } from "@/components/shared/LoadingButton";
+import { FormField } from "@/components/shared/FormField";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { useImageFileInput } from "@/hooks/useImageFileInput";
 import {
   AuthFormError,
   AuthFormFooter,
@@ -24,9 +28,12 @@ export function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [profileImageUrl, setProfileImageUrl] = useState("");
 
   const registerMutation = useRegisterMutation();
+  const profileImageInput = useImageFileInput({
+    onSelectionChange: registerMutation.reset,
+    requiredMessage: "Escolha uma foto de perfil.",
+  });
 
   const clearErrors = () => {
     registerMutation.reset();
@@ -34,15 +41,23 @@ export function RegisterPage() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const profileImage = profileImageInput.getRequiredFile();
+
+    if (!profileImage) {
+      return;
+    }
+
     registerMutation.mutate({
       name,
       email,
       password,
-      pathImageUser: profileImageUrl,
+      image: profileImage,
     });
   };
 
-  const errorMessage = registerMutation.error?.message;
+  const errorMessage =
+    profileImageInput.error ?? registerMutation.error?.message ?? null;
 
   return (
     <AuthLayout
@@ -114,23 +129,36 @@ export function RegisterPage() {
           required
         />
 
-        <AuthInputField
-          id="profile-image-url"
-          label="URL da foto de perfil"
-          name="pathImageUser"
-          type="url"
-          autoComplete="url"
-          placeholder="https://exemplo.com/sua-foto.jpg"
-          value={profileImageUrl}
-          onChange={(event) => {
-            setProfileImageUrl(event.target.value);
-            clearErrors();
-          }}
-          disabled={registerMutation.isPending}
-          aria-invalid={Boolean(errorMessage)}
-          required
-          maxLength={255}
-        />
+        <FormField
+          htmlFor="profile-image"
+          label="Foto de perfil"
+          hint="JPEG, PNG ou WebP · até 10 MB"
+        >
+          <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+            <Avatar className="size-14 border-2 border-white shadow-sm">
+              {profileImageInput.previewUrl && (
+                <AvatarImage
+                  src={profileImageInput.previewUrl}
+                  alt="Prévia da foto de perfil"
+                />
+              )}
+              <AvatarFallback className="bg-blue-100 text-blue-700">
+                <ImagePlus size={20} aria-hidden="true" />
+              </AvatarFallback>
+            </Avatar>
+            <Input
+              id="profile-image"
+              name="image"
+              type="file"
+              accept={profileImageInput.accept}
+              onChange={profileImageInput.onChange}
+              disabled={registerMutation.isPending}
+              aria-invalid={Boolean(profileImageInput.error)}
+              aria-required="true"
+              className="h-auto rounded-lg bg-white px-3 py-2 text-sm file:mr-3 file:border-0 file:bg-transparent file:text-sm file:font-semibold file:text-blue-700"
+            />
+          </div>
+        </FormField>
 
         <AuthPasswordField
           id="password"

@@ -29,3 +29,15 @@ export type ImagePage = {
     previous: string | null;
   };
 };
+
+export type CreateImageData = {
+  title: string;
+  description: string;
+  image: File;
+  categoryIds: string[];
+};
+
+export type CreateImageResponse = {
+  message: string;
+  data: Image;
+};

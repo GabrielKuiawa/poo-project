@@ -9,7 +9,7 @@ export type RegistrationData = {
   name: string;
   email: string;
   password: string;
-  pathImageUser: string;
+  image: File;
 };
 
 export type CurrentUser = {
@@ -20,12 +20,24 @@ export type CurrentUser = {
   role: string;
 };
 
+export type UpdateProfileData = {
+  id: string;
+  name: string;
+  password?: string;
+  image?: File;
+};
+
 type LoginResponse = {
   message: string;
   token: string;
 };
 
 type RegistrationResponse = {
+  message: string;
+  data: CurrentUser;
+};
+
+type UpdateProfileResponse = {
   message: string;
   data: CurrentUser;
 };
@@ -48,9 +60,15 @@ export const authService = {
   },
 
   register(registrationData: RegistrationData): Promise<RegistrationResponse> {
+    const formData = new FormData();
+    formData.append("name", registrationData.name);
+    formData.append("email", registrationData.email);
+    formData.append("password", registrationData.password);
+    formData.append("image", registrationData.image);
+
     return apiRequest<RegistrationResponse>("/api/user", {
       method: "POST",
-      json: registrationData,
+      body: formData,
       errorMessage:
         "Não foi possível criar sua conta. Tente novamente em instantes.",
     });
@@ -62,6 +80,30 @@ export const authService = {
       authenticated: true,
       errorMessage: "Não foi possível carregar seu perfil.",
       useServerErrorMessage: false,
+    });
+  },
+
+  updateProfile({
+    id,
+    name,
+    password,
+    image,
+  }: UpdateProfileData): Promise<UpdateProfileResponse> {
+    const formData = new FormData();
+    formData.append("name", name);
+    if (password) {
+      formData.append("password", password);
+    }
+    if (image) {
+      formData.append("image", image);
+    }
+
+    return apiRequest<UpdateProfileResponse>(`/api/user/${id}`, {
+      method: "PUT",
+      body: formData,
+      authenticated: true,
+      errorMessage:
+        "Não foi possível atualizar seu perfil. Tente novamente em instantes.",
     });
   },
 

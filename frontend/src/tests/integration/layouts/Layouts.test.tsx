@@ -63,6 +63,10 @@ describe("AppLayout", () => {
       "href",
       "/feed",
     );
+    expect(screen.getByRole("link", { name: "Criar Pin" })).toHaveAttribute(
+      "href",
+      "/create",
+    );
     expect(screen.getByText("Conteúdo da rota")).toBeVisible();
   });
 
@@ -70,6 +74,9 @@ describe("AppLayout", () => {
     const user = userEvent.setup();
     renderWithProviders(<AppLayout />);
 
+    await user.click(
+      screen.getByRole("button", { name: "Abrir menu do usuário" }),
+    );
     await user.click(screen.getByRole("button", { name: "Sair" }));
 
     expect(mocks.clearAuthToken).toHaveBeenCalledOnce();

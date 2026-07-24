@@ -1,35 +1,46 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
   getCurrentUser: vi.fn(),
+  updateProfile: vi.fn(),
 }));
 
 vi.mock("@/features/auth/services/authService", () => ({
-  authService: { getCurrentUser: mocks.getCurrentUser },
+  authService: {
+    getCurrentUser: mocks.getCurrentUser,
+    updateProfile: mocks.updateProfile,
+  },
 }));
 
 import { UserMenu } from "@/features/auth/components/UserMenu";
 
 describe("UserMenu", () => {
   beforeEach(() => {
-    mocks.getCurrentUser.mockReset().mockResolvedValue({
+    const currentUser = {
       id: "user-id",
       name: "Maria Silva",
       email: "maria@example.com",
       pathImageUser: "https://example.com/avatar.jpg",
       role: "user",
+    };
+    mocks.getCurrentUser.mockReset().mockResolvedValue(currentUser);
+    mocks.updateProfile.mockReset().mockResolvedValue({
+      message: "Usuário atualizado com sucesso",
+      data: currentUser,
     });
   });
 
-  it("loads the current user when opened and exposes logout", async () => {
+  it("loads the current user on render and exposes logout", async () => {
     const user = userEvent.setup();
     const onLogout = vi.fn();
     renderWithProviders(<UserMenu onLogout={onLogout} />);
 
-    expect(mocks.getCurrentUser).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mocks.getCurrentUser).toHaveBeenCalledOnce();
+    });
 
     await user.click(
       screen.getByRole("button", { name: "Abrir menu do usuário" }),
@@ -40,10 +51,56 @@ describe("UserMenu", () => {
     ).toBeVisible();
     expect(await screen.findByText("Maria Silva")).toBeVisible();
     expect(screen.getByText("maria@example.com")).toBeVisible();
-    expect(mocks.getCurrentUser).toHaveBeenCalledOnce();
 
     await user.click(screen.getByRole("button", { name: "Sair" }));
     expect(onLogout).toHaveBeenCalledOnce();
+  });
+
+  it("edits the profile inside the account menu", async () => {
+    const user = userEvent.setup();
+    mocks.updateProfile.mockResolvedValue({
+      message: "Usuário atualizado com sucesso",
+      data: {
+        id: "user-id",
+        name: "Maria Souza",
+        email: "maria@example.com",
+        pathImageUser: "https://example.com/avatar.jpg",
+        role: "user",
+      },
+    });
+    renderWithProviders(<UserMenu onLogout={vi.fn()} />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Abrir menu do usuário" }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Editar perfil" }),
+    );
+
+    const nameInput = screen.getByRole("textbox", { name: "Nome" });
+    await user.clear(nameInput);
+    await user.type(nameInput, "Maria Souza");
+    const passwordInput = screen.getByLabelText("Nova senha");
+    await user.type(passwordInput, "novaSenha123");
+    expect(passwordInput).toHaveAttribute("type", "password");
+    await user.click(screen.getByRole("button", { name: "Mostrar senha" }));
+    expect(passwordInput).toHaveAttribute("type", "text");
+    await user.click(screen.getByRole("button", { name: "Ocultar senha" }));
+    expect(passwordInput).toHaveAttribute("type", "password");
+    await user.click(screen.getByRole("button", { name: "Salvar" }));
+
+    await waitFor(() => {
+      expect(mocks.updateProfile).toHaveBeenCalledWith({
+        id: "user-id",
+        name: "Maria Souza",
+        password: "novaSenha123",
+        image: undefined,
+      });
+    });
+    expect(await screen.findByText("Maria Souza")).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Salvar" }),
+    ).not.toBeInTheDocument();
   });
 
   it("closes when Escape is pressed", async () => {

@@ -9,6 +9,7 @@ import ImageRepository from "../../../src/repository/ImageRepository";
 import UserRepository from "../../../src/repository/UserRepository";
 import { ImageService } from "../../../src/service/ImageService";
 import { AuthenticatedUser } from "../../../src/types/AuthenticatedUser";
+import { ImageFile, ObjectStorage } from "../../../src/types/ObjectStorage";
 
 type ImageRepositoryMock = jest.Mocked<
   Pick<
@@ -67,6 +68,7 @@ describe("ImageService", () => {
   let imageRepository: ImageRepositoryMock;
   let userRepository: UserRepositoryMock;
   let categoryRepository: CategoryRepositoryMock;
+  let objectStorage: jest.Mocked<ObjectStorage>;
   let imageService: ImageService;
 
   const owner: AuthenticatedUser = {
@@ -101,10 +103,17 @@ describe("ImageService", () => {
       findByIds: jest.fn(),
     };
 
+    objectStorage = {
+      upload: jest.fn(),
+      delete: jest.fn(),
+      deleteByUrl: jest.fn(),
+    };
+
     imageService = new ImageService(
       imageRepository as unknown as ImageRepository,
       userRepository as unknown as UserRepository,
       categoryRepository as unknown as CategoryRepository,
+      objectStorage,
     );
   });
 
@@ -167,6 +176,84 @@ describe("ImageService", () => {
 
       expect(result.getCategories()).toEqual([]);
       expect(imageRepository.save).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("createImageWithUpload", () => {
+    const file: ImageFile = {
+      buffer: Buffer.from("image"),
+      contentType: "image/png",
+      extension: "png",
+    };
+
+    it("uploads the file and saves its public URL", async () => {
+      const user = createUser(OWNER_ID);
+      const category = createCategory(CATEGORY_ID, "Technology", user);
+      userRepository.findOne.mockResolvedValue(user);
+      categoryRepository.findByIds.mockResolvedValue([category]);
+      objectStorage.upload.mockResolvedValue({
+        key: `images/${OWNER_ID}/image.png`,
+        url: "https://cdn.example.com/image.png",
+      });
+      imageRepository.save.mockImplementation(async (image) => image as Image);
+
+      const result = await imageService.createImageWithUpload(
+        "New image",
+        "New description",
+        OWNER_ID,
+        [CATEGORY_ID],
+        file,
+      );
+
+      expect(objectStorage.upload).toHaveBeenCalledWith(
+        file,
+        `images/${OWNER_ID}`,
+      );
+      expect(result.getPathImage()).toBe("https://cdn.example.com/image.png");
+      expect(result.getCategories()).toEqual([category]);
+      expect(objectStorage.delete).not.toHaveBeenCalled();
+    });
+
+    it("does not upload when image relationships are invalid", async () => {
+      userRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        imageService.createImageWithUpload(
+          "New image",
+          "New description",
+          OWNER_ID,
+          [],
+          file,
+        ),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(objectStorage.upload).not.toHaveBeenCalled();
+    });
+
+    it("removes the uploaded object when saving to the database fails", async () => {
+      const databaseError = new Error("database unavailable");
+      const user = createUser(OWNER_ID);
+      userRepository.findOne.mockResolvedValue(user);
+      categoryRepository.findByIds.mockResolvedValue([]);
+      objectStorage.upload.mockResolvedValue({
+        key: `images/${OWNER_ID}/image.png`,
+        url: "https://cdn.example.com/image.png",
+      });
+      imageRepository.save.mockRejectedValue(databaseError);
+
+      await expect(
+        imageService.createImageWithUpload(
+          "New image",
+          "New description",
+          OWNER_ID,
+          [],
+          file,
+        ),
+      ).rejects.toBe(databaseError);
+
+      expect(objectStorage.delete).toHaveBeenCalledWith(
+        `images/${OWNER_ID}/image.png`,
+      );
     });
   });
 
@@ -325,6 +412,7 @@ describe("ImageService", () => {
 
       await imageService.deleteImage(IMAGE_ID, owner);
 
+      expect(objectStorage.deleteByUrl).toHaveBeenCalledWith("/images/old.png");
       expect(imageRepository.delete).toHaveBeenCalledWith(IMAGE_ID);
       expect(imageRepository.delete).toHaveBeenCalledTimes(1);
     });
@@ -336,7 +424,22 @@ describe("ImageService", () => {
 
       await imageService.deleteImage(IMAGE_ID, admin);
 
+      expect(objectStorage.deleteByUrl).toHaveBeenCalledWith("/images/old.png");
       expect(imageRepository.delete).toHaveBeenCalledWith(IMAGE_ID);
+    });
+
+    it("does not delete the database record when storage deletion fails", async () => {
+      const image = createImage(createUser(OWNER_ID));
+      imageRepository.findOneWithRelations.mockResolvedValue(image);
+      objectStorage.deleteByUrl.mockRejectedValue(
+        new Error("storage unavailable"),
+      );
+
+      await expect(imageService.deleteImage(IMAGE_ID, owner)).rejects.toThrow(
+        "storage unavailable",
+      );
+
+      expect(imageRepository.delete).not.toHaveBeenCalled();
     });
 
     it("should throw when the image does not exist", async () => {
@@ -346,6 +449,7 @@ describe("ImageService", () => {
         imageService.deleteImage(IMAGE_ID, owner),
       ).rejects.toBeInstanceOf(NotFoundException);
 
+      expect(objectStorage.deleteByUrl).not.toHaveBeenCalled();
       expect(imageRepository.delete).not.toHaveBeenCalled();
     });
 
@@ -357,6 +461,7 @@ describe("ImageService", () => {
         imageService.deleteImage(IMAGE_ID, otherUser),
       ).rejects.toBeInstanceOf(ForbiddenException);
 
+      expect(objectStorage.deleteByUrl).not.toHaveBeenCalled();
       expect(imageRepository.delete).not.toHaveBeenCalled();
     });
   });

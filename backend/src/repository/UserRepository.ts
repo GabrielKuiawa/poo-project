@@ -12,6 +12,13 @@ export default class UserRepository extends BaseRepository<User> {
     return this.repository.findOneBy({ email } as any);
   }
 
+  public async findOneWithImages(id: string): Promise<User | null> {
+    return this.repository.findOne({
+      where: { id } as any,
+      relations: { images: true },
+    });
+  }
+
   public async findImagesByUserIdPaginated(
     id: string,
     pagination: PaginationParams,
