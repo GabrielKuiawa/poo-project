@@ -74,7 +74,7 @@ describe("RegisterPage", () => {
       password: "password123",
     });
     expect(mocks.saveAuthToken).toHaveBeenCalledWith("jwt-token");
-    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/" });
+    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/feed" });
   });
 
   it("shows a registration error returned by the API", async () => {

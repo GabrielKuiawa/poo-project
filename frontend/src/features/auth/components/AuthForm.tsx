@@ -16,9 +16,9 @@ export function AuthFormHeader({
 }: AuthFormHeaderProps) {
   return (
     <div className="mb-8">
-      <p className="mb-2 text-sm font-semibold text-red-300">{eyebrow}</p>
+      <p className="mb-2 text-sm font-semibold text-red-600">{eyebrow}</p>
       <h2 className="m-0 text-3xl font-bold tracking-tight">{title}</h2>
-      <p className="mt-3 text-sm leading-6 text-zinc-400">{description}</p>
+      <p className="mt-3 text-sm leading-6 text-zinc-600">{description}</p>
     </div>
   );
 }
@@ -29,7 +29,7 @@ type AuthFormErrorProps = {
 
 export function AuthFormError({ children }: AuthFormErrorProps) {
   return (
-    <Alert className="border-red-400/20 bg-red-400/10 text-red-200">
+    <Alert className="border-red-200 bg-red-50 text-red-700">
       <AlertDescription>{children}</AlertDescription>
     </Alert>
   );
@@ -49,11 +49,11 @@ export function AuthFormFooter({
   className = "mt-6",
 }: AuthFormFooterProps) {
   return (
-    <p className={cn("text-center text-sm text-zinc-400", className)}>
+    <p className={cn("text-center text-sm text-zinc-600", className)}>
       {prompt}{" "}
       <Link
         to={to}
-        className="font-semibold text-red-300 transition-colors hover:text-red-200 hover:underline"
+        className="font-semibold text-red-600 transition-colors hover:text-red-700 hover:underline"
       >
         {linkLabel}
       </Link>

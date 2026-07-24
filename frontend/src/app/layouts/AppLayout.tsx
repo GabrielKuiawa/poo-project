@@ -3,18 +3,21 @@ import { UserMenu } from "@/features/auth/components/UserMenu";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { AppHeader } from "@/features/navigation/components/AppHeader";
 import { AppSidebar } from "@/features/navigation/components/AppSidebar";
+import { SearchProvider } from "@/features/search/context/SearchProvider";
 
 export function AppLayout() {
   const logout = useLogout();
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppSidebar onLogout={logout} />
-      <AppHeader userMenu={<UserMenu onLogout={logout} />} />
+    <SearchProvider>
+      <div className="min-h-screen bg-background">
+        <AppSidebar onLogout={logout} />
+        <AppHeader userMenu={<UserMenu onLogout={logout} />} />
 
-      <div className="min-h-screen pt-16 pl-17">
-        <Outlet />
+        <div className="min-h-screen pt-16 pl-17">
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </SearchProvider>
   );
 }

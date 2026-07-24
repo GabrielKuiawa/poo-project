@@ -7,7 +7,6 @@ type AuthLayoutProps = {
   children: ReactNode;
   hero: ReactNode;
   footer: ReactNode;
-  gridClassName?: string;
   panelClassName?: string;
 };
 
@@ -15,37 +14,63 @@ export function AuthLayout({
   children,
   hero,
   footer,
-  gridClassName,
   panelClassName,
 }: AuthLayoutProps) {
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-zinc-950 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(230,0,35,0.3),transparent_34%),radial-gradient(circle_at_85%_80%,rgba(153,27,27,0.22),transparent_30%)]" />
-      <div className="absolute -top-32 -right-20 size-80 rounded-full bg-red-500/15 blur-3xl" />
-      <div className="absolute -bottom-40 -left-28 size-96 rounded-full bg-rose-700/20 blur-3xl" />
+    <main className="min-h-dvh bg-slate-50 text-zinc-950">
+      <div className="grid min-h-dvh lg:grid-cols-2">
+        <section className="relative hidden overflow-hidden bg-blue-700 p-10 text-white lg:flex lg:flex-col xl:p-14">
+          <img
+            src={`${import.meta.env.BASE_URL}art-hero-v2.webp`}
+            alt=""
+            width="1122"
+            height="1402"
+            className="absolute inset-0 size-full object-cover"
+          />
+          <div className="absolute inset-0 bg-blue-950/60" />
+          <div className="absolute top-0 right-0 size-32 bg-red-600/90" />
 
-      <div
-        className={cn(
-          "relative mx-auto grid min-h-dvh max-w-7xl lg:grid-cols-2",
-          gridClassName,
-        )}
-      >
-        <section className="hidden flex-col justify-between p-12 lg:flex xl:p-16">
-          <Brand className="gap-3 text-xl" logoClassName="size-12" />
-          {hero}
-          {footer}
+          <div className="relative flex h-full flex-col">
+            <Brand
+              className="gap-3 text-xl"
+              labelClassName="text-white"
+              logoClassName="size-12"
+            />
+
+            <div className="mt-auto max-w-xl border-l-4 border-red-600 bg-zinc-950/80 p-8 backdrop-blur-md xl:p-10">
+              {hero}
+            </div>
+
+            <div className="mt-8 text-white/60">{footer}</div>
+          </div>
         </section>
 
-        <section className="flex items-center justify-center px-5 py-8 sm:px-10 lg:py-12">
-          <Card
-            className={cn(
-              "w-full rounded-4xl border border-white/10 bg-white/[0.07] p-6 text-white shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9",
-              panelClassName,
-            )}
-          >
-            <Brand className="mb-8 text-lg lg:hidden" logoClassName="size-11" />
-            {children}
-          </Card>
+        <section className="flex min-h-dvh flex-col bg-white">
+          <div className="relative h-40 shrink-0 overflow-hidden bg-blue-700 lg:hidden">
+            <img
+              src={`${import.meta.env.BASE_URL}art-hero-v2.webp`}
+              alt=""
+              width="1122"
+              height="1402"
+              className="size-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-blue-950/25" />
+            <Brand
+              className="absolute top-5 left-4 rounded-full bg-white px-3 py-2 text-sm shadow-md sm:left-8"
+              logoClassName="size-8"
+            />
+          </div>
+
+          <div className="flex flex-1 items-center justify-center px-4 py-8 sm:px-10 sm:py-12 lg:px-12">
+            <Card
+              className={cn(
+                "w-full overflow-visible rounded-none border-0 bg-transparent p-0 text-zinc-950 shadow-none",
+                panelClassName,
+              )}
+            >
+              {children}
+            </Card>
+          </div>
         </section>
       </div>
     </main>

@@ -13,7 +13,11 @@ import { AuthenticatedUser } from "../../../src/types/AuthenticatedUser";
 type ImageRepositoryMock = jest.Mocked<
   Pick<
     ImageRepository,
-    "findAllWithRelationsPaginated" | "findOneWithRelations" | "save" | "delete"
+    | "findAllWithRelationsPaginated"
+    | "searchWithRelationsPaginated"
+    | "findOneWithRelations"
+    | "save"
+    | "delete"
   >
 >;
 
@@ -83,6 +87,7 @@ describe("ImageService", () => {
   beforeEach(() => {
     imageRepository = {
       findAllWithRelationsPaginated: jest.fn(),
+      searchWithRelationsPaginated: jest.fn(),
       findOneWithRelations: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
@@ -180,6 +185,26 @@ describe("ImageService", () => {
       expect(
         imageRepository.findAllWithRelationsPaginated,
       ).toHaveBeenCalledWith(PAGINATION);
+    });
+
+    it("should search images by title, category, or user", async () => {
+      const images = [createImage(createUser(OWNER_ID))];
+      const filters = { query: "architecture" };
+      imageRepository.searchWithRelationsPaginated.mockResolvedValue([
+        images,
+        1,
+      ]);
+
+      const result = await imageService.getImages(PAGINATION, filters);
+
+      expect(result.data).toBe(images);
+      expect(imageRepository.searchWithRelationsPaginated).toHaveBeenCalledWith(
+        PAGINATION,
+        filters,
+      );
+      expect(
+        imageRepository.findAllWithRelationsPaginated,
+      ).not.toHaveBeenCalled();
     });
   });
 

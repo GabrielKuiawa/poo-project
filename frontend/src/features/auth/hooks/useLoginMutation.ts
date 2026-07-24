@@ -10,7 +10,7 @@ export function useLoginMutation() {
     mutationFn: authService.login,
     onSuccess: async ({ token }) => {
       saveAuthToken(token);
-      await navigate({ to: "/" });
+      await navigate({ to: "/feed" });
     },
   });
 }

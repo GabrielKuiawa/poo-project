@@ -13,6 +13,7 @@ import {
 } from "@/features/auth/routeGuards";
 import { ImageDetailsPage } from "@/features/images/pages/ImageDetailsPage";
 import { ImageFeedPage } from "@/features/images/pages/ImageFeedPage";
+import { LandingPage } from "@/features/landing/pages/LandingPage";
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -26,8 +27,15 @@ const authenticatedRoute = createRoute({
 });
 
 const indexRoute = createRoute({
-  getParentRoute: () => authenticatedRoute,
+  getParentRoute: () => rootRoute,
   path: "/",
+  beforeLoad: redirectAuthenticatedSession,
+  component: LandingPage,
+});
+
+const feedRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/feed",
   component: ImageFeedPage,
 });
 
@@ -52,7 +60,8 @@ const registerRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
-  authenticatedRoute.addChildren([indexRoute, imageDetailsRoute]),
+  indexRoute,
+  authenticatedRoute.addChildren([feedRoute, imageDetailsRoute]),
   loginRoute,
   registerRoute,
 ]);

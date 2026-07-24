@@ -132,6 +132,39 @@ describe("API E2E", () => {
         .expect(201);
     }
 
+    const suggestions = await api
+      .get("/api/search/suggestions?q=arch&limit=9")
+      .set("Authorization", authorization);
+    expect(suggestions.status).toBe(200);
+    expect(suggestions.body.data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "image",
+          id: createdImage.body.data.id,
+          label: "Modern architecture",
+        }),
+        expect.objectContaining({
+          type: "category",
+          id: createdCategory.body.data.id,
+          label: "Architecture",
+        }),
+      ]),
+    );
+
+    const categoryResults = await api
+      .get(
+        `/api/image?page=1&limit=10&type=category&id=${createdCategory.body.data.id}`,
+      )
+      .set("Authorization", authorization);
+    expect(categoryResults.status).toBe(200);
+    expect(categoryResults.body.data).toHaveLength(3);
+
+    const creatorResults = await api
+      .get("/api/image?page=1&limit=10&q=gabriel")
+      .set("Authorization", authorization);
+    expect(creatorResults.status).toBe(200);
+    expect(creatorResults.body.data).toHaveLength(3);
+
     const deployedOrigin = "https://api.mood-board.gabizin.me";
     const firstFeedPage = await api
       .get("/api/image?page=1&limit=2")

@@ -23,7 +23,7 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
 
       <nav aria-label="Navegação principal" className="mt-1">
         <Link
-          to="/"
+          to="/feed"
           aria-current="page"
           aria-label="Início"
           className="flex size-11 items-center justify-center rounded-xl bg-foreground text-background outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"

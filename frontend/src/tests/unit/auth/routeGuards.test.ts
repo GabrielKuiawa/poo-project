@@ -70,6 +70,6 @@ describe("authentication route guards", () => {
     mocks.getAuthToken.mockReturnValue("valid-token");
     mocks.validateSession.mockResolvedValue(true);
 
-    await expectRedirect(redirectAuthenticatedSession, "/");
+    await expectRedirect(redirectAuthenticatedSession, "/feed");
   });
 });

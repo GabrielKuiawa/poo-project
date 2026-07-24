@@ -35,6 +35,7 @@ describe("root route", () => {
         categories: "/api/category",
         users: "/api/user",
         login: "/api/user/login",
+        search: "/api/search/suggestions",
       },
     });
   });

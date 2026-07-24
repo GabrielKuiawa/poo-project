@@ -59,7 +59,7 @@ describe("LoginPage", () => {
       );
     });
     expect(mocks.saveAuthToken).toHaveBeenCalledWith("jwt-token");
-    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/" });
+    expect(mocks.navigate).toHaveBeenCalledWith({ to: "/feed" });
   });
 
   it("shows an authentication error returned by the API", async () => {

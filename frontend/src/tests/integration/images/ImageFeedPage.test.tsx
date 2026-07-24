@@ -1,15 +1,18 @@
 import { act, screen, waitFor } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { SearchProvider } from "@/features/search/context/SearchProvider";
 import { createImage, createImagePage } from "@/tests/fixtures/images";
 import { getLatestIntersectionObserver } from "@/tests/mocks/browserObservers";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 
 const mocks = vi.hoisted(() => ({
+  createInitialImagesPage: vi.fn(() => "/api/image?page=1&limit=20"),
   getPage: vi.fn(),
 }));
 
 vi.mock("@/features/images/services/imageService", () => ({
-  initialImagesPage: "/api/image?page=1&limit=20",
+  createInitialImagesPage: mocks.createInitialImagesPage,
   imageService: { getPage: mocks.getPage },
 }));
 
@@ -36,15 +39,20 @@ vi.mock("@/features/images/components/ImageListSkeleton", () => ({
 
 import { ImageFeedPage } from "@/features/images/pages/ImageFeedPage";
 
+function renderFeedPage(element: ReactElement = <ImageFeedPage />) {
+  return renderWithProviders(<SearchProvider>{element}</SearchProvider>);
+}
+
 describe("ImageFeedPage", () => {
   beforeEach(() => {
+    mocks.createInitialImagesPage.mockClear();
     mocks.getPage.mockReset();
   });
 
   it("shows the feed skeleton while the first page is loading", () => {
     mocks.getPage.mockReturnValue(new Promise(() => {}));
 
-    renderWithProviders(<ImageFeedPage />);
+    renderFeedPage();
 
     expect(screen.getByRole("status")).toHaveTextContent("Carregando feed");
   });
@@ -52,7 +60,7 @@ describe("ImageFeedPage", () => {
   it("shows the API error when the first page cannot be loaded", async () => {
     mocks.getPage.mockRejectedValue(new Error("Falha ao carregar o feed."));
 
-    renderWithProviders(<ImageFeedPage />);
+    renderFeedPage();
 
     expect(await screen.findByText("Falha ao carregar o feed.")).toBeVisible();
   });
@@ -60,7 +68,7 @@ describe("ImageFeedPage", () => {
   it("renders an empty feed", async () => {
     mocks.getPage.mockResolvedValue(createImagePage({ data: [] }));
 
-    renderWithProviders(<ImageFeedPage />);
+    renderFeedPage();
 
     expect(await screen.findByText("Lista vazia")).toBeVisible();
   });
@@ -76,7 +84,7 @@ describe("ImageFeedPage", () => {
       }),
     );
 
-    renderWithProviders(<ImageFeedPage />);
+    renderFeedPage();
 
     const list = await screen.findByLabelText("Lista de imagens");
     expect(list).toHaveTextContent("TerceiraPrimeiraSegunda");
@@ -104,7 +112,7 @@ describe("ImageFeedPage", () => {
         }),
       );
 
-    renderWithProviders(<ImageFeedPage />);
+    renderFeedPage();
 
     expect(await screen.findByText("Primeira")).toBeVisible();
     await waitFor(() => expect(mocks.getPage).toHaveBeenCalledOnce());

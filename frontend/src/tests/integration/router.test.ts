@@ -8,19 +8,27 @@ import { renderWithProviders } from "@/tests/utils/renderWithProviders";
 describe("application router", () => {
   it("registers the public and authenticated routes", () => {
     expect(Object.keys(router.routesByPath)).toEqual(
-      expect.arrayContaining(["/", "/login", "/signup", "/images/$imageId"]),
+      expect.arrayContaining([
+        "/",
+        "/feed",
+        "/login",
+        "/signup",
+        "/images/$imageId",
+      ]),
     );
   });
 
-  it("renders a public route and redirects visitors away from the feed", async () => {
-    await router.navigate({ to: "/signup" });
+  it("renders the landing page at the public root and protects the feed", async () => {
+    await router.navigate({ to: "/" });
     renderWithProviders(createElement(RouterProvider, { router }));
 
     expect(
-      await screen.findByRole("heading", { name: "Crie sua conta" }),
+      await screen.findByRole("heading", {
+        name: "Guarde o que faz você parar.",
+      }),
     ).toBeVisible();
 
-    await act(() => router.navigate({ to: "/" }));
+    await act(() => router.navigate({ to: "/feed" }));
 
     expect(
       await screen.findByRole("heading", { name: "Entre na sua conta" }),

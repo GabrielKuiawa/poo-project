@@ -12,6 +12,7 @@ import {
   validateTextField,
 } from "../utils/validation";
 import { serializePaginationMeta } from "../utils/pagination";
+import { validateImageSearchFilters } from "../utils/search";
 
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
@@ -59,6 +60,7 @@ export class ImageController {
     try {
       const result = await this.imageService.getImages(
         validatePagination(req.query.page, req.query.limit),
+        validateImageSearchFilters(req.query.q, req.query.type, req.query.id),
       );
       res.json({
         data: result.data.map((image) => this.serializeImage(image)),
