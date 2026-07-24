@@ -4,6 +4,7 @@ type ApiRequestOptions = Omit<RequestInit, "body" | "headers"> & {
   token?: string | null;
   authenticated?: boolean;
   json?: unknown;
+  body?: BodyInit;
   headers?: Record<string, string>;
   errorMessage: string | ((status: number) => string);
   useServerErrorMessage?: boolean;
@@ -35,6 +36,7 @@ export async function apiRequest<ResponseBody>(
     token,
     authenticated = false,
     json,
+    body: requestBody,
     headers: customHeaders,
     errorMessage,
     useServerErrorMessage = true,
@@ -42,6 +44,10 @@ export async function apiRequest<ResponseBody>(
   }: ApiRequestOptions,
 ): Promise<ResponseBody> {
   const headers: Record<string, string> = { ...customHeaders };
+
+  if (json !== undefined && requestBody !== undefined) {
+    throw new Error("A requisição não pode enviar JSON e FormData juntos.");
+  }
 
   if (json !== undefined) {
     headers["Content-Type"] = "application/json";
@@ -56,6 +62,7 @@ export async function apiRequest<ResponseBody>(
     ...requestOptions,
     ...(Object.keys(headers).length > 0 && { headers }),
     ...(json !== undefined && { body: JSON.stringify(json) }),
+    ...(requestBody !== undefined && { body: requestBody }),
   });
 
   const body = (await response.json().catch(() => ({}))) as unknown;

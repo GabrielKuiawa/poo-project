@@ -9,7 +9,7 @@ export type RegistrationData = {
   name: string;
   email: string;
   password: string;
-  pathImageUser: string;
+  image: File;
 };
 
 export type CurrentUser = {
@@ -48,9 +48,15 @@ export const authService = {
   },
 
   register(registrationData: RegistrationData): Promise<RegistrationResponse> {
+    const formData = new FormData();
+    formData.append("name", registrationData.name);
+    formData.append("email", registrationData.email);
+    formData.append("password", registrationData.password);
+    formData.append("image", registrationData.image);
+
     return apiRequest<RegistrationResponse>("/api/user", {
       method: "POST",
-      json: registrationData,
+      body: formData,
       errorMessage:
         "Não foi possível criar sua conta. Tente novamente em instantes.",
     });

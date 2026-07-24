@@ -16,7 +16,7 @@ function getUserInitial(name?: string): string {
 export function UserMenu({ onLogout }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { data: user, isError, isPending } = useCurrentUserQuery(isOpen);
+  const { data: user, isError, isPending } = useCurrentUserQuery();
 
   useEffect(() => {
     if (!isOpen) return;

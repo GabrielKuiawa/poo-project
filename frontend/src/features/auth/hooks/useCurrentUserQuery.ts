@@ -3,11 +3,10 @@ import { authService } from "../services/authService";
 
 export const currentUserQueryKey = ["auth", "current-user"] as const;
 
-export function useCurrentUserQuery(enabled: boolean) {
+export function useCurrentUserQuery() {
   return useQuery({
     queryKey: currentUserQueryKey,
     queryFn: ({ signal }) => authService.getCurrentUser(signal),
-    enabled,
     gcTime: 0,
   });
 }

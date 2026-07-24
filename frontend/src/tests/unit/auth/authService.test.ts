@@ -86,11 +86,14 @@ describe("authService", () => {
   });
 
   describe("register", () => {
+    const avatar = new File(["avatar"], "avatar.png", {
+      type: "image/png",
+    });
     const registrationData = {
       name: "Maria Silva",
       email: "maria@example.com",
       password: "password123",
-      pathImageUser: "/favicon.svg",
+      image: avatar,
     };
 
     it("sends the new account data to the API", async () => {
@@ -120,10 +123,16 @@ describe("authService", () => {
         `${testApiUrl}/api/user`,
         expect.objectContaining({
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(registrationData),
+          body: expect.any(FormData),
         }),
       );
+      const request = fetchMock.mock.calls[0][1] as RequestInit;
+      const body = request.body as FormData;
+      expect(request.headers).toBeUndefined();
+      expect(body.get("name")).toBe("Maria Silva");
+      expect(body.get("email")).toBe("maria@example.com");
+      expect(body.get("password")).toBe("password123");
+      expect(body.get("image")).toBe(avatar);
     });
 
     it("surfaces a registration error returned by the API", async () => {

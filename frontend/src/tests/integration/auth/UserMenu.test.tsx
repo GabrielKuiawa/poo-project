@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
@@ -24,12 +24,14 @@ describe("UserMenu", () => {
     });
   });
 
-  it("loads the current user when opened and exposes logout", async () => {
+  it("loads the current user on render and exposes logout", async () => {
     const user = userEvent.setup();
     const onLogout = vi.fn();
     renderWithProviders(<UserMenu onLogout={onLogout} />);
 
-    expect(mocks.getCurrentUser).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mocks.getCurrentUser).toHaveBeenCalledOnce();
+    });
 
     await user.click(
       screen.getByRole("button", { name: "Abrir menu do usuário" }),
@@ -40,7 +42,6 @@ describe("UserMenu", () => {
     ).toBeVisible();
     expect(await screen.findByText("Maria Silva")).toBeVisible();
     expect(screen.getByText("maria@example.com")).toBeVisible();
-    expect(mocks.getCurrentUser).toHaveBeenCalledOnce();
 
     await user.click(screen.getByRole("button", { name: "Sair" }));
     expect(onLogout).toHaveBeenCalledOnce();
