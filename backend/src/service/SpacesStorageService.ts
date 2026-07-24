@@ -25,7 +25,7 @@ export class SpacesStorageService implements ObjectStorage {
   }
 
   public async upload(file: ImageFile, folder: string): Promise<StoredObject> {
-    const key = `${folder}/${randomUUID()}.${file.extension}`;
+    const key = `${config.spaces.prefix}/${folder}/${randomUUID()}.${file.extension}`;
 
     await this.client.send(
       new PutObjectCommand({

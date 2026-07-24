@@ -8,6 +8,7 @@ process.env.DB_DATABASE =
   process.env.DB_TEST_DATABASE ?? "image_management_test";
 process.env.JWT_SECRET =
   process.env.JWT_TEST_SECRET ?? "integration-test-jwt-secret";
+process.env.SPACES_PREFIX = "test";
 process.env.SPACES_REGION = "nyc3";
 process.env.SPACES_ENDPOINT = "https://nyc3.digitaloceanspaces.com";
 process.env.SPACES_BUCKET = "test-mood-board-media";

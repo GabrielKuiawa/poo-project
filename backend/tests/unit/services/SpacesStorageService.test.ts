@@ -26,7 +26,7 @@ describe("SpacesStorageService", () => {
 
     const result = await storage.upload(file, "images/user-id");
 
-    expect(result.key).toMatch(/^images\/user-id\/[0-9a-f-]{36}\.webp$/);
+    expect(result.key).toMatch(/^test\/images\/user-id\/[0-9a-f-]{36}\.webp$/);
     expect(result.url).toBe(
       `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/${result.key}`,
     );
@@ -45,13 +45,13 @@ describe("SpacesStorageService", () => {
   });
 
   it("deletes an object by key", async () => {
-    await storage.delete("images/user-id/image.png");
+    await storage.delete("test/images/user-id/image.png");
 
     const command = send.mock.calls[0][0];
     expect(command).toBeInstanceOf(DeleteObjectCommand);
     expect(command.input).toEqual({
       Bucket: "test-mood-board-media",
-      Key: "images/user-id/image.png",
+      Key: "test/images/user-id/image.png",
     });
   });
 });

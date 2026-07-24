@@ -64,6 +64,7 @@ cp .env.example .env
 | `DB_SSL`                   | Habilita SSL na conexão                               |
 | `MYSQL_ROOT_PASSWORD`      | Senha root usada pelo Compose local                   |
 | `JWT_SECRET`               | Segredo usado para assinar tokens                     |
+| `SPACES_PREFIX`            | Ambiente usado como prefixo: `dev`, `test` ou `prod`  |
 | `SPACES_REGION`            | Região do Space, por exemplo `nyc3`                   |
 | `SPACES_ENDPOINT`          | Endpoint regional da API do Spaces                    |
 | `SPACES_BUCKET`            | Nome do bucket                                        |
@@ -74,6 +75,10 @@ cp .env.example .env
 | `DB_TEST_DATABASE`         | Nome do banco de testes                               |
 
 `DATABASE_URL`, quando preenchida, substitui as variáveis `DB_*` de conexão. Dentro do Docker Compose, o host do banco é sobrescrito para `mysql`; fora dos containers, o padrão é `localhost`.
+
+Use `SPACES_PREFIX=dev` no ambiente local e `SPACES_PREFIX=prod` na App
+Platform. O prefixo é obrigatório e gera automaticamente as estruturas
+`dev/images`, `dev/users`, `prod/images` e `prod/users` no mesmo bucket.
 
 ## Desenvolvimento
 

@@ -17,7 +17,7 @@ describe("API E2E", () => {
     jest
       .spyOn(SpacesStorageService.prototype, "upload")
       .mockImplementation(async (file, folder) => {
-        const key = `${folder}/test-${++uploadNumber}.${file.extension}`;
+        const key = `test/${folder}/test-${++uploadNumber}.${file.extension}`;
         return {
           key,
           url: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/${key}`,
@@ -58,7 +58,7 @@ describe("API E2E", () => {
       name: "Gabriel",
       email: "gabriel@example.com",
       pathImageUser:
-        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
       role: UserRole.USER,
     });
     expect(registration.body.data).not.toHaveProperty("password");
@@ -80,7 +80,7 @@ describe("API E2E", () => {
       id: registration.body.data.id,
       email: "gabriel@example.com",
       pathImageUser:
-        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
       role: UserRole.USER,
     });
 
@@ -117,7 +117,7 @@ describe("API E2E", () => {
     expect(createdImage.status).toBe(201);
     expect(createdImage.body.data).toMatchObject({
       title: "Modern architecture",
-      pathImage: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/images/${registration.body.data.id}/test-2.png`,
+      pathImage: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/images/${registration.body.data.id}/test-2.png`,
       description: "Modern house",
       categories: [
         {
@@ -145,7 +145,7 @@ describe("API E2E", () => {
       id: registration.body.data.id,
       name: "Gabriel",
       pathImageUser:
-        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
     });
 
     for (const imageNumber of [2, 3]) {
@@ -309,7 +309,7 @@ describe("API E2E", () => {
       id: user.getId(),
       name: "Avatar Updated",
       pathImageUser:
-        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/users/test-1.png",
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
     });
   });
 

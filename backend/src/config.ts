@@ -20,6 +20,18 @@ function requirePort(name: string): number {
   return value;
 }
 
+function requireStoragePrefix(name: string): string {
+  const value = requireEnvironmentVariable(name);
+
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(value)) {
+    throw new Error(
+      `A variável de ambiente ${name} deve usar apenas letras minúsculas, números e hífens.`,
+    );
+  }
+
+  return value;
+}
+
 function readBooleanEnvironmentVariable(
   name: string,
   defaultValue: boolean,
@@ -83,6 +95,7 @@ export const config = {
   },
   jwtSecret: requireEnvironmentVariable("JWT_SECRET"),
   spaces: {
+    prefix: requireStoragePrefix("SPACES_PREFIX"),
     region: requireEnvironmentVariable("SPACES_REGION"),
     endpoint: requireEnvironmentVariable("SPACES_ENDPOINT"),
     bucket: requireEnvironmentVariable("SPACES_BUCKET"),
