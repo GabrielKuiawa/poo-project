@@ -23,4 +23,22 @@ export default class UserRepository extends BaseRepository<User> {
       order: { id: "ASC" } as any,
     });
   }
+
+  public async findSuggestions(
+    queryValue: string,
+    limit: number,
+  ): Promise<User[]> {
+    const query = this.repository
+      .createQueryBuilder("user")
+      .orderBy("user.name", "ASC")
+      .take(limit);
+
+    if (queryValue) {
+      query.where("LOWER(user.name) LIKE :term", {
+        term: `%${queryValue.toLocaleLowerCase()}%`,
+      });
+    }
+
+    return query.getMany();
+  }
 }

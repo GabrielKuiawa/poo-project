@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import CategoryRoute from "./CategoryRoute";
 import ImageRoute from "./ImageRoute";
 import UserRoute from "./UserRoute";
+import SearchRoute from "./SearchRoute";
 
 export default class Route {
   private router: Router = Router();
@@ -21,6 +22,7 @@ export default class Route {
           categories: "/api/category",
           users: "/api/user",
           login: "/api/user/login",
+          search: "/api/search/suggestions",
         },
       });
     });
@@ -28,9 +30,11 @@ export default class Route {
     const categoryRoute = new CategoryRoute();
     const imageRoute = new ImageRoute();
     const userRoute = new UserRoute();
+    const searchRoute = new SearchRoute();
     this.router.use("/api/category", categoryRoute.getRouter());
     this.router.use("/api/image", imageRoute.getRouter());
     this.router.use("/api/user", userRoute.getRouter());
+    this.router.use("/api/search", searchRoute.getRouter());
   }
 
   public getRouter(): Router {

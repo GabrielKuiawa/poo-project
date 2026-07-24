@@ -37,4 +37,22 @@ export default class CategoryRepository extends BaseRepository<Category> {
       relations: { user: true },
     });
   }
+
+  public async findSuggestions(
+    queryValue: string,
+    limit: number,
+  ): Promise<Category[]> {
+    const query = this.repository
+      .createQueryBuilder("category")
+      .orderBy("category.name", "ASC")
+      .take(limit);
+
+    if (queryValue) {
+      query.where("LOWER(category.name) LIKE :term", {
+        term: `%${queryValue.toLocaleLowerCase()}%`,
+      });
+    }
+
+    return query.getMany();
+  }
 }

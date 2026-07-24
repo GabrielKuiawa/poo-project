@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { saveAuthToken } from "@/lib/authTokenStorage";
-import { imageService } from "@/features/images/services/imageService";
+import {
+  createInitialImagesPage,
+  imageService,
+} from "@/features/images/services/imageService";
 import { testApiUrl } from "@/tests/fixtures/api";
 import { createAuthToken } from "@/tests/fixtures/auth";
 import { createImage, createImagePage } from "@/tests/fixtures/images";
@@ -49,6 +52,19 @@ describe("imageService", () => {
       expect.objectContaining({
         headers: { Authorization: expect.stringMatching(/^Bearer /) },
       }),
+    );
+  });
+
+  it("builds a feed URL with text and exact suggestion filters", () => {
+    expect(
+      createInitialImagesPage({
+        query: "Arte abstrata",
+        label: "Arte abstrata",
+        type: "category",
+        id: "category-id",
+      }),
+    ).toBe(
+      "/api/image?page=1&limit=20&q=Arte+abstrata&type=category&id=category-id",
     );
   });
 

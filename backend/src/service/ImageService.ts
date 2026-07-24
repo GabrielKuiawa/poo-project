@@ -12,6 +12,7 @@ import {
   PaginatedResult,
   PaginationParams,
 } from "../types/Pagination";
+import { ImageSearchFilters } from "../types/Search";
 
 export class ImageService {
   private imageRepository: ImageRepository;
@@ -54,9 +55,15 @@ export class ImageService {
 
   public async getImages(
     pagination: PaginationParams,
+    filters: ImageSearchFilters = {},
   ): Promise<PaginatedResult<Image>> {
     const [images, total] =
-      await this.imageRepository.findAllWithRelationsPaginated(pagination);
+      filters.query || filters.target
+        ? await this.imageRepository.searchWithRelationsPaginated(
+            pagination,
+            filters,
+          )
+        : await this.imageRepository.findAllWithRelationsPaginated(pagination);
 
     return createPaginatedResult(images, total, pagination);
   }

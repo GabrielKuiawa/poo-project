@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   clearAuthToken: vi.fn(),
+  getSuggestions: vi.fn().mockResolvedValue({ data: [] }),
   navigate: vi.fn(),
 }));
 
@@ -29,6 +30,10 @@ vi.mock("@/lib/authTokenStorage", () => ({
   clearAuthToken: mocks.clearAuthToken,
 }));
 
+vi.mock("@/features/search/services/searchService", () => ({
+  searchService: { getSuggestions: mocks.getSuggestions },
+}));
+
 import { AppLayout } from "@/app/layouts/AppLayout";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { renderWithProviders } from "@/tests/utils/renderWithProviders";
@@ -49,7 +54,7 @@ describe("AppLayout", () => {
     expect(
       screen.getByRole("navigation", { name: "Navegação principal" }),
     ).toBeVisible();
-    expect(screen.getByRole("searchbox", { name: "Pesquisar" })).toBeVisible();
+    expect(screen.getByRole("combobox", { name: "Pesquisar" })).toBeVisible();
     expect(screen.getByRole("link", { name: "mood board" })).toHaveAttribute(
       "href",
       "/",
