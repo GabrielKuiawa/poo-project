@@ -106,6 +106,7 @@ describe("ImageService", () => {
     objectStorage = {
       upload: jest.fn(),
       delete: jest.fn(),
+      deleteByUrl: jest.fn(),
     };
 
     imageService = new ImageService(
@@ -411,6 +412,7 @@ describe("ImageService", () => {
 
       await imageService.deleteImage(IMAGE_ID, owner);
 
+      expect(objectStorage.deleteByUrl).toHaveBeenCalledWith("/images/old.png");
       expect(imageRepository.delete).toHaveBeenCalledWith(IMAGE_ID);
       expect(imageRepository.delete).toHaveBeenCalledTimes(1);
     });
@@ -422,7 +424,22 @@ describe("ImageService", () => {
 
       await imageService.deleteImage(IMAGE_ID, admin);
 
+      expect(objectStorage.deleteByUrl).toHaveBeenCalledWith("/images/old.png");
       expect(imageRepository.delete).toHaveBeenCalledWith(IMAGE_ID);
+    });
+
+    it("does not delete the database record when storage deletion fails", async () => {
+      const image = createImage(createUser(OWNER_ID));
+      imageRepository.findOneWithRelations.mockResolvedValue(image);
+      objectStorage.deleteByUrl.mockRejectedValue(
+        new Error("storage unavailable"),
+      );
+
+      await expect(imageService.deleteImage(IMAGE_ID, owner)).rejects.toThrow(
+        "storage unavailable",
+      );
+
+      expect(imageRepository.delete).not.toHaveBeenCalled();
     });
 
     it("should throw when the image does not exist", async () => {
@@ -432,6 +449,7 @@ describe("ImageService", () => {
         imageService.deleteImage(IMAGE_ID, owner),
       ).rejects.toBeInstanceOf(NotFoundException);
 
+      expect(objectStorage.deleteByUrl).not.toHaveBeenCalled();
       expect(imageRepository.delete).not.toHaveBeenCalled();
     });
 
@@ -443,6 +461,7 @@ describe("ImageService", () => {
         imageService.deleteImage(IMAGE_ID, otherUser),
       ).rejects.toBeInstanceOf(ForbiddenException);
 
+      expect(objectStorage.deleteByUrl).not.toHaveBeenCalled();
       expect(imageRepository.delete).not.toHaveBeenCalled();
     });
   });

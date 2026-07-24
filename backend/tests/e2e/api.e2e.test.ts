@@ -232,6 +232,18 @@ describe("API E2E", () => {
       .set("Authorization", authorization);
     expect(imageAfterCategoryDeletion.status).toBe(200);
     expect(imageAfterCategoryDeletion.body.categories).toEqual([]);
+
+    await api
+      .delete(`/api/image/${createdImage.body.data.id}`)
+      .set("Authorization", authorization)
+      .expect(204);
+    expect(SpacesStorageService.prototype.delete).toHaveBeenCalledWith(
+      `test/images/${registration.body.data.id}/test-2.png`,
+    );
+    await api
+      .get(`/api/image/${createdImage.body.data.id}`)
+      .set("Authorization", authorization)
+      .expect(404);
   });
 
   it("enforces authentication, ownership, and user roles", async () => {
@@ -311,6 +323,14 @@ describe("API E2E", () => {
       pathImageUser:
         "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/users/test-1.png",
     });
+
+    await api
+      .delete(`/api/user/${user.getId()}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(204);
+    expect(SpacesStorageService.prototype.delete).toHaveBeenCalledWith(
+      "test/users/test-1.png",
+    );
   });
 
   it("returns consistent HTTP errors for invalid input and missing resources", async () => {

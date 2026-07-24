@@ -52,4 +52,18 @@ export class SpacesStorageService implements ObjectStorage {
       }),
     );
   }
+
+  public async deleteByUrl(url: string): Promise<boolean> {
+    const publicUrlPrefix = `${config.spaces.publicUrl}/`;
+
+    if (!url.startsWith(publicUrlPrefix)) {
+      return false;
+    }
+
+    const key = url.slice(publicUrlPrefix.length);
+    if (!key) return false;
+
+    await this.delete(key);
+    return true;
+  }
 }

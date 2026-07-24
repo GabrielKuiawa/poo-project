@@ -62,11 +62,9 @@ export class ImageService {
     if (!user) throw new NotFoundException("Usuário não encontrado");
 
     const categories = await this.getOwnedCategories(categoryIds, userId);
-    if (!this.objectStorage) {
-      throw new Error("O serviço de armazenamento não foi configurado.");
-    }
+    const objectStorage = this.getObjectStorage();
 
-    const storedObject = await this.objectStorage.upload(
+    const storedObject = await objectStorage.upload(
       file,
       `${IMAGE_FOLDER}/${userId}`,
     );
@@ -81,7 +79,7 @@ export class ImageService {
       );
     } catch (error) {
       try {
-        await this.objectStorage.delete(storedObject.key);
+        await objectStorage.delete(storedObject.key);
       } catch (cleanupError) {
         logger.error("Failed to remove image after database error", {
           objectKey: storedObject.key,
@@ -157,6 +155,7 @@ export class ImageService {
     }
 
     assertOwnerOrAdmin(authenticatedUser, image.getUser().getId());
+    await this.getObjectStorage().deleteByUrl(image.getPathImage());
     await this.imageRepository.delete(id);
   }
 
@@ -198,5 +197,13 @@ export class ImageService {
     });
 
     return this.imageRepository.save(image);
+  }
+
+  private getObjectStorage(): ObjectStorage {
+    if (!this.objectStorage) {
+      throw new Error("O serviço de armazenamento não foi configurado.");
+    }
+
+    return this.objectStorage;
   }
 }

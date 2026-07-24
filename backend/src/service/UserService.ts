@@ -182,10 +182,16 @@ export class UserService {
   ): Promise<void> {
     assertOwnerOrAdmin(authenticatedUser, id);
 
-    if (!(await this.userRepository.findOne(id))) {
-      throw new UserNotFoundException();
-    }
+    const user = await this.userRepository.findOneWithImages(id);
+    if (!user) throw new UserNotFoundException();
 
+    const urls = new Set([
+      user.getPathImageUser(),
+      ...(user.images ?? []).map((image) => image.getPathImage()),
+    ]);
+    await Promise.all(
+      [...urls].map((url) => this.getObjectStorage().deleteByUrl(url)),
+    );
     await this.userRepository.delete(id);
   }
 

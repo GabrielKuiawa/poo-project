@@ -54,4 +54,24 @@ describe("SpacesStorageService", () => {
       Key: "test/images/user-id/image.png",
     });
   });
+
+  it("deletes an object referenced by its public URL", async () => {
+    await expect(
+      storage.deleteByUrl(
+        "https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/test/images/user-id/image.png",
+      ),
+    ).resolves.toBe(true);
+
+    const command = send.mock.calls[0][0];
+    expect(command).toBeInstanceOf(DeleteObjectCommand);
+    expect(command.input.Key).toBe("test/images/user-id/image.png");
+  });
+
+  it("ignores URLs that are not managed by the configured Space", async () => {
+    await expect(
+      storage.deleteByUrl("https://images.example.com/image.png"),
+    ).resolves.toBe(false);
+
+    expect(send).not.toHaveBeenCalled();
+  });
 });

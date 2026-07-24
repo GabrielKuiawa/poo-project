@@ -133,6 +133,9 @@ campos de texto continuam obrigatórios, mas `image` é opcional; quando não fo
 enviado, o avatar atual é mantido. O arquivo segue os mesmos formatos e o limite
 de 10 MB usados pelas imagens do board.
 
+`DELETE /api/user/:id` remove do Spaces o avatar e todas as imagens gerenciadas
+pela aplicação antes de excluir o usuário e seus relacionamentos do MySQL.
+
 ### Imagens
 
 | Método   | Endpoint         | Descrição           |
@@ -155,6 +158,10 @@ Para publicar uma imagem, envie `POST /api/image` como
 
 O arquivo pode ter até 10 MB. A API envia a imagem ao Spaces e grava a URL
 pública retornada em `pathImage`.
+
+`DELETE /api/image/:id` remove primeiro o objeto do Spaces e depois exclui o
+registro do MySQL. URLs externas usadas pelo seed não são enviadas ao Spaces
+para exclusão.
 
 ### Categorias
 

@@ -10,6 +10,7 @@ import ConflictException from "../../../src/exception/ConflictException";
 import ForbiddenException from "../../../src/exception/ForbiddenException";
 import UnauthorizedException from "../../../src/exception/UnauthorizedException";
 import { UserNotFoundException } from "../../../src/exception/UserNotFoundException";
+import Image from "../../../src/models/Image";
 import { User } from "../../../src/models/User";
 import UserRepository from "../../../src/repository/UserRepository";
 import { UserService } from "../../../src/service/UserService";
@@ -20,6 +21,7 @@ type UserRepositoryMock = jest.Mocked<
   Pick<
     UserRepository,
     | "findOne"
+    | "findOneWithImages"
     | "findPaginated"
     | "findOneByEmail"
     | "findImagesByUserIdPaginated"
@@ -70,6 +72,7 @@ describe("UserService", () => {
   beforeEach(() => {
     userRepository = {
       findOne: jest.fn(),
+      findOneWithImages: jest.fn(),
       findPaginated: jest.fn(),
       findOneByEmail: jest.fn(),
       findImagesByUserIdPaginated: jest.fn(),
@@ -80,6 +83,7 @@ describe("UserService", () => {
     objectStorage = {
       upload: jest.fn(),
       delete: jest.fn(),
+      deleteByUrl: jest.fn(),
     };
 
     userService = new UserService(
@@ -371,12 +375,33 @@ describe("UserService", () => {
   });
 
   it("should delete an existing user as an administrator", async () => {
-    userRepository.findOne.mockResolvedValue(createUser());
+    const user = createUser();
+    const image = new Image();
+    image.setPathImage("https://cdn.example.com/image.png");
+    user.images = [image];
+    userRepository.findOneWithImages.mockResolvedValue(user);
     userRepository.delete.mockResolvedValue(undefined);
 
     await userService.deleteUser(USER_ID, admin);
 
+    expect(objectStorage.deleteByUrl).toHaveBeenCalledWith("/users/user.png");
+    expect(objectStorage.deleteByUrl).toHaveBeenCalledWith(
+      "https://cdn.example.com/image.png",
+    );
     expect(userRepository.delete).toHaveBeenCalledWith(USER_ID);
+  });
+
+  it("does not delete a user from the database when storage deletion fails", async () => {
+    userRepository.findOneWithImages.mockResolvedValue(createUser());
+    objectStorage.deleteByUrl.mockRejectedValue(
+      new Error("storage unavailable"),
+    );
+
+    await expect(userService.deleteUser(USER_ID, admin)).rejects.toThrow(
+      "storage unavailable",
+    );
+
+    expect(userRepository.delete).not.toHaveBeenCalled();
   });
 
   describe("login", () => {
