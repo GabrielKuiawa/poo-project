@@ -81,6 +81,12 @@ export function useImageFileInput({
     return null;
   }, [file, requiredMessage]);
 
+  const reset = useCallback(() => {
+    setFile(null);
+    setPreviewUrl("");
+    setError(null);
+  }, []);
+
   return {
     accept: IMAGE_FILE_ACCEPT,
     error,
@@ -88,5 +94,6 @@ export function useImageFileInput({
     getRequiredFile,
     onChange,
     previewUrl,
+    reset,
   };
 }

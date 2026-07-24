@@ -305,18 +305,21 @@ describe("UserService", () => {
     it("keeps the current avatar when no file is sent", async () => {
       const user = createUser();
       userRepository.findOne.mockResolvedValue(user);
-      userRepository.findOneByEmail.mockResolvedValue(user);
       userRepository.save.mockImplementation(async (value) => value as User);
+      const currentPassword = user.getPassword();
 
       const result = await userService.updateUserWithUpload(
         USER_ID,
         "Updated User",
-        "user@example.com",
-        "new-password",
+        undefined,
+        undefined,
         owner,
       );
 
+      expect(result.getName()).toBe("Updated User");
       expect(result.getPathImageUser()).toBe("/users/user.png");
+      expect(result.getPassword()).toBe(currentPassword);
+      expect(userRepository.findOneByEmail).not.toHaveBeenCalled();
       expect(objectStorage.upload).not.toHaveBeenCalled();
     });
 
@@ -343,6 +346,7 @@ describe("UserService", () => {
         "https://cdn.example.com/users/new-avatar.webp",
       );
       expect(objectStorage.upload).toHaveBeenCalledWith(file, "users");
+      expect(objectStorage.deleteByUrl).toHaveBeenCalledWith("/users/user.png");
       expect(objectStorage.delete).not.toHaveBeenCalled();
     });
 

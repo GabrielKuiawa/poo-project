@@ -1,13 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Home, LogOut } from "lucide-react";
+import { Home } from "lucide-react";
 import { Brand } from "@/components/shared/Brand";
-import { Button } from "@/components/ui/button";
 
-type AppSidebarProps = {
-  onLogout: () => void;
-};
-
-export function AppSidebar({ onLogout }: AppSidebarProps) {
+export function AppSidebar() {
   return (
     <aside
       aria-label="Barra lateral"
@@ -32,20 +27,6 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
           <Home aria-hidden="true" className="size-5.5" strokeWidth={2.2} />
         </Link>
       </nav>
-
-      <div className="mt-auto pb-3">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-11 rounded-xl"
-          aria-label="Sair"
-          title="Sair"
-          onClick={onLogout}
-        >
-          <LogOut aria-hidden="true" className="size-5.5" />
-        </Button>
-      </div>
     </aside>
   );
 }

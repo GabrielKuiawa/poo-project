@@ -13,6 +13,7 @@ import {
 import { UserService } from "../service/UserService";
 import { serializePaginationMeta } from "../utils/pagination";
 import { validateUploadedImage } from "../utils/imageUpload";
+import BadRequestException from "../exception/BadRequestException";
 
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -135,9 +136,30 @@ export class UserController {
     try {
       const id = validateId(req.params.id);
 
-      const name = validateTextField(req.body.name, "Nome", 100);
-      const email = validateEmail(req.body.email);
-      const password = validateTextField(req.body.password, "Senha", 72, 8);
+      const name =
+        req.body.name === undefined
+          ? undefined
+          : validateTextField(req.body.name, "Nome", 100);
+      const email =
+        req.body.email === undefined
+          ? undefined
+          : validateEmail(req.body.email);
+      const password =
+        req.body.password === undefined
+          ? undefined
+          : validateTextField(req.body.password, "Senha", 72, 8);
+      const image = req.file ? validateUploadedImage(req.file) : undefined;
+
+      if (
+        name === undefined &&
+        email === undefined &&
+        password === undefined &&
+        image === undefined
+      ) {
+        throw new BadRequestException(
+          "Envie pelo menos um campo para atualizar.",
+        );
+      }
 
       const updatedUser = await this.userService.updateUserWithUpload(
         id,
@@ -145,7 +167,7 @@ export class UserController {
         email,
         password,
         getAuthenticatedUser(req),
-        req.file ? validateUploadedImage(req.file) : undefined,
+        image,
       );
       res.json({
         message: "Usuário atualizado com sucesso",

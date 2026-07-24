@@ -150,14 +150,14 @@ export class UserService {
 
   public async updateUserWithUpload(
     id: string,
-    name: string,
-    email: string,
-    password: string,
+    name: string | undefined,
+    email: string | undefined,
+    password: string | undefined,
     authenticatedUser: AuthenticatedUser,
     file?: ImageFile,
   ): Promise<User> {
     const user = await this.getUserForUpdate(id, email, authenticatedUser);
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = password ? await bcrypt.hash(password, 10) : undefined;
 
     if (!file) {
       this.applyUserUpdates(user, name, email, passwordHash);
@@ -165,11 +165,14 @@ export class UserService {
     }
 
     const objectStorage = this.getObjectStorage();
+    const previousAvatarUrl = user.getPathImageUser();
     const storedObject = await objectStorage.upload(file, USER_IMAGE_FOLDER);
 
     try {
       this.applyUserUpdates(user, name, email, passwordHash, storedObject.url);
-      return await this.userRepository.save(user);
+      const updatedUser = await this.userRepository.save(user);
+      await this.removePreviousAvatarAfterSuccess(previousAvatarUrl);
+      return updatedUser;
     } catch (error) {
       await this.removeUploadedObjectAfterFailure(storedObject.key);
       throw error;
@@ -227,7 +230,7 @@ export class UserService {
 
   private async getUserForUpdate(
     id: string,
-    email: string,
+    email: string | undefined,
     authenticatedUser: AuthenticatedUser,
   ): Promise<User> {
     assertOwnerOrAdmin(authenticatedUser, id);
@@ -235,9 +238,11 @@ export class UserService {
     const user = await this.userRepository.findOne(id);
     if (!user) throw new UserNotFoundException();
 
-    const emailOwner = await this.userRepository.findOneByEmail(email);
-    if (emailOwner && emailOwner.getId() !== id) {
-      throw new ConflictException("Email já está em uso.");
+    if (email) {
+      const emailOwner = await this.userRepository.findOneByEmail(email);
+      if (emailOwner && emailOwner.getId() !== id) {
+        throw new ConflictException("Email já está em uso.");
+      }
     }
 
     return user;
@@ -245,15 +250,29 @@ export class UserService {
 
   private applyUserUpdates(
     user: User,
-    name: string,
-    email: string,
-    passwordHash: string,
+    name?: string,
+    email?: string,
+    passwordHash?: string,
     pathImageUser?: string,
   ): void {
-    user.setName(name);
-    user.setEmail(email);
-    user.setPassword(passwordHash);
+    if (name) user.setName(name);
+    if (email) user.setEmail(email);
+    if (passwordHash) user.setPassword(passwordHash);
     if (pathImageUser) user.setPathImageUser(pathImageUser);
+  }
+
+  private async removePreviousAvatarAfterSuccess(url: string): Promise<void> {
+    try {
+      await this.getObjectStorage().deleteByUrl(url);
+    } catch (cleanupError) {
+      logger.error("Failed to remove previous user image", {
+        imageUrl: url,
+        errorMessage:
+          cleanupError instanceof Error
+            ? cleanupError.message
+            : String(cleanupError),
+      });
+    }
   }
 
   private async removeUploadedObjectAfterFailure(key: string): Promise<void> {

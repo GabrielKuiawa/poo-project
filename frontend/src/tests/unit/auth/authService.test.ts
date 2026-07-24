@@ -178,6 +178,54 @@ describe("authService", () => {
     });
   });
 
+  describe("updateProfile", () => {
+    it("sends profile fields as authenticated FormData", async () => {
+      const token = createAuthToken();
+      const avatar = new File(["avatar"], "avatar.webp", {
+        type: "image/webp",
+      });
+      const responseBody = {
+        message: "Usuário atualizado com sucesso",
+        data: {
+          id: "user-id",
+          name: "Maria Souza",
+          email: "maria@example.com",
+          pathImageUser: "https://example.com/new-avatar.webp",
+          role: "user",
+        },
+      };
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(responseBody), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+      saveAuthToken(token);
+
+      await expect(
+        authService.updateProfile({
+          id: "user-id",
+          name: "Maria Souza",
+          password: "novaSenha123",
+          image: avatar,
+        }),
+      ).resolves.toEqual(responseBody);
+
+      const [url, request] = fetchMock.mock.calls[0] as [string, RequestInit];
+      const body = request.body as FormData;
+
+      expect(url).toBe(`${testApiUrl}/api/user/user-id`);
+      expect(request.method).toBe("PUT");
+      expect(request.headers).toEqual({
+        Authorization: `Bearer ${token}`,
+      });
+      expect(body.get("name")).toBe("Maria Souza");
+      expect(body.get("password")).toBe("novaSenha123");
+      expect(body.get("image")).toBe(avatar);
+    });
+  });
+
   describe("validateSession", () => {
     it("validates the token through the current-user endpoint", async () => {
       const fetchMock = vi

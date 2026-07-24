@@ -20,12 +20,24 @@ export type CurrentUser = {
   role: string;
 };
 
+export type UpdateProfileData = {
+  id: string;
+  name: string;
+  password?: string;
+  image?: File;
+};
+
 type LoginResponse = {
   message: string;
   token: string;
 };
 
 type RegistrationResponse = {
+  message: string;
+  data: CurrentUser;
+};
+
+type UpdateProfileResponse = {
   message: string;
   data: CurrentUser;
 };
@@ -68,6 +80,30 @@ export const authService = {
       authenticated: true,
       errorMessage: "Não foi possível carregar seu perfil.",
       useServerErrorMessage: false,
+    });
+  },
+
+  updateProfile({
+    id,
+    name,
+    password,
+    image,
+  }: UpdateProfileData): Promise<UpdateProfileResponse> {
+    const formData = new FormData();
+    formData.append("name", name);
+    if (password) {
+      formData.append("password", password);
+    }
+    if (image) {
+      formData.append("image", image);
+    }
+
+    return apiRequest<UpdateProfileResponse>(`/api/user/${id}`, {
+      method: "PUT",
+      body: formData,
+      authenticated: true,
+      errorMessage:
+        "Não foi possível atualizar seu perfil. Tente novamente em instantes.",
     });
   },
 
