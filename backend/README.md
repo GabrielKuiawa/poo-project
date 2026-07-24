@@ -7,6 +7,7 @@ API REST da plataforma Mood Board. O backend gerencia usuários, autenticação,
 - Node.js e TypeScript
 - Express
 - TypeORM e MySQL
+- DigitalOcean Spaces (API compatível com S3)
 - JWT e bcryptjs
 - Jest, ts-jest e Supertest
 - Docker
@@ -50,21 +51,27 @@ Crie o arquivo local:
 cp .env.example .env
 ```
 
-| Variável              | Uso                                                   |
-| --------------------- | ----------------------------------------------------- |
-| `PORT`                | Porta HTTP da API                                     |
-| `CORS_ORIGIN`         | Origens do frontend permitidas, separadas por vírgula |
-| `DATABASE_URL`        | URL do banco gerenciado em produção                   |
-| `DB_HOST`             | Host do MySQL local                                   |
-| `DB_PORT`             | Porta do MySQL                                        |
-| `DB_USERNAME`         | Usuário do banco                                      |
-| `DB_PASSWORD`         | Senha do banco                                        |
-| `DB_DATABASE`         | Nome do banco                                         |
-| `DB_SSL`              | Habilita SSL na conexão                               |
-| `MYSQL_ROOT_PASSWORD` | Senha root usada pelo Compose local                   |
-| `JWT_SECRET`          | Segredo usado para assinar tokens                     |
-| `DB_TEST_PORT`        | Porta do MySQL isolado dos testes                     |
-| `DB_TEST_DATABASE`    | Nome do banco de testes                               |
+| Variável                   | Uso                                                   |
+| -------------------------- | ----------------------------------------------------- |
+| `PORT`                     | Porta HTTP da API                                     |
+| `CORS_ORIGIN`              | Origens do frontend permitidas, separadas por vírgula |
+| `DATABASE_URL`             | URL do banco gerenciado em produção                   |
+| `DB_HOST`                  | Host do MySQL local                                   |
+| `DB_PORT`                  | Porta do MySQL                                        |
+| `DB_USERNAME`              | Usuário do banco                                      |
+| `DB_PASSWORD`              | Senha do banco                                        |
+| `DB_DATABASE`              | Nome do banco                                         |
+| `DB_SSL`                   | Habilita SSL na conexão                               |
+| `MYSQL_ROOT_PASSWORD`      | Senha root usada pelo Compose local                   |
+| `JWT_SECRET`               | Segredo usado para assinar tokens                     |
+| `SPACES_REGION`            | Região do Space, por exemplo `nyc3`                   |
+| `SPACES_ENDPOINT`          | Endpoint regional da API do Spaces                    |
+| `SPACES_BUCKET`            | Nome do bucket                                        |
+| `SPACES_ACCESS_KEY_ID`     | Identificador da chave de acesso                      |
+| `SPACES_SECRET_ACCESS_KEY` | Segredo da chave de acesso                            |
+| `SPACES_PUBLIC_URL`        | URL pública do CDN, sem barra no final                |
+| `DB_TEST_PORT`             | Porta do MySQL isolado dos testes                     |
+| `DB_TEST_DATABASE`         | Nome do banco de testes                               |
 
 `DATABASE_URL`, quando preenchida, substitui as variáveis `DB_*` de conexão. Dentro do Docker Compose, o host do banco é sobrescrito para `mysql`; fora dos containers, o padrão é `localhost`.
 
@@ -124,6 +131,19 @@ As rotas dos recursos utilizam o prefixo `/api`.
 | `GET`    | `/api/image/:id` | Busca uma imagem    |
 | `PUT`    | `/api/image/:id` | Atualiza uma imagem |
 | `DELETE` | `/api/image/:id` | Exclui uma imagem   |
+
+Para publicar uma imagem, envie `POST /api/image` como
+`multipart/form-data`, com os campos:
+
+| Campo         | Tipo                       | Obrigatório |
+| ------------- | -------------------------- | ----------- |
+| `image`       | Arquivo JPEG, PNG ou WebP  | Sim         |
+| `title`       | Texto                      | Sim         |
+| `description` | Texto                      | Sim         |
+| `categoryIds` | UUID repetível no FormData | Não         |
+
+O arquivo pode ter até 10 MB. A API envia a imagem ao Spaces e grava a URL
+pública retornada em `pathImage`.
 
 ### Categorias
 
@@ -187,7 +207,7 @@ Run command: npm run seed
 Trigger:     Before every deploy
 ```
 
-O job precisa receber `DATABASE_URL` e `SEED_USER_PASSWORD`. Como a configuração atual do backend valida todas as variáveis ao carregar o DataSource, compartilhe também `PORT`, `CORS_ORIGIN` e `JWT_SECRET` com o job. Marque `DATABASE_URL`, `SEED_USER_PASSWORD` e `JWT_SECRET` como secrets.
+O job precisa receber `DATABASE_URL` e `SEED_USER_PASSWORD`. Como a configuração atual do backend valida todas as variáveis ao carregar o DataSource, compartilhe também `PORT`, `CORS_ORIGIN`, `JWT_SECRET` e as variáveis `SPACES_*` com o job. Marque `DATABASE_URL`, `SEED_USER_PASSWORD`, `JWT_SECRET` e `SPACES_SECRET_ACCESS_KEY` como secrets.
 
 Depois que esse recurso for salvo no app `mood-board`, o workflow de CD existente preserva o job remoto e cada deploy executa migrations e seed antes de publicar a nova versão. Se o seed falhar, a publicação não deve prosseguir. A senha dos outros sete usuários é definida em `SEED_USER_PASSWORD` e não é registrada nos logs.
 

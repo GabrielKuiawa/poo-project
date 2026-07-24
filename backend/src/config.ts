@@ -56,6 +56,10 @@ function readEnvironmentVariableList(
 }
 
 const databaseUrl = process.env.DATABASE_URL?.trim();
+const spacesPublicUrl = requireEnvironmentVariable("SPACES_PUBLIC_URL").replace(
+  /\/+$/,
+  "",
+);
 
 export const config = {
   port: requirePort("PORT"),
@@ -78,4 +82,12 @@ export const config = {
       Boolean(databaseUrl) || readBooleanEnvironmentVariable("DB_SSL", false),
   },
   jwtSecret: requireEnvironmentVariable("JWT_SECRET"),
+  spaces: {
+    region: requireEnvironmentVariable("SPACES_REGION"),
+    endpoint: requireEnvironmentVariable("SPACES_ENDPOINT"),
+    bucket: requireEnvironmentVariable("SPACES_BUCKET"),
+    accessKeyId: requireEnvironmentVariable("SPACES_ACCESS_KEY_ID"),
+    secretAccessKey: requireEnvironmentVariable("SPACES_SECRET_ACCESS_KEY"),
+    publicUrl: spacesPublicUrl,
+  },
 };

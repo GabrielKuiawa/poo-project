@@ -13,6 +13,7 @@ import {
 } from "../utils/validation";
 import { serializePaginationMeta } from "../utils/pagination";
 import { validateImageSearchFilters } from "../utils/search";
+import { validateUploadedImage } from "../utils/imageUpload";
 
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
@@ -24,23 +25,24 @@ export class ImageController {
   ): Promise<void> {
     try {
       const title = validateTextField(req.body.title, "Título", 150);
-      const pathImage = validateTextField(
-        req.body.pathImage,
-        "Caminho da imagem",
-        255,
-      );
       const description = validateTextField(
         req.body.description,
         "Descrição",
         500,
       );
-      const categoryIds = validateIdArray(req.body.categoryIds, "categoryIds");
-      const image = await this.imageService.saveImage(
+      const categoryIdsValue =
+        req.body.categoryIds === undefined
+          ? []
+          : Array.isArray(req.body.categoryIds)
+            ? req.body.categoryIds
+            : [req.body.categoryIds];
+      const categoryIds = validateIdArray(categoryIdsValue, "categoryIds");
+      const image = await this.imageService.createImageWithUpload(
         title,
-        pathImage,
         description,
         getAuthenticatedUserId(req),
         categoryIds,
+        validateUploadedImage(req.file),
       );
 
       res.status(201).json({

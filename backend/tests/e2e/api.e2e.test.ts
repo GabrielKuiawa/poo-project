@@ -4,19 +4,42 @@ import App from "../../src/App";
 import { AppDataSource } from "../../src/data-source";
 import { UserRole } from "../../src/enum/UserRole";
 import { User } from "../../src/models/User";
+import { SpacesStorageService } from "../../src/service/SpacesStorageService";
 import { clearTestDatabase, closeTestDatabase } from "../helpers/database";
+
+const TEST_PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 describe("API E2E", () => {
   let api: ReturnType<typeof request>;
+  let uploadNumber = 0;
 
   beforeAll(async () => {
+    jest
+      .spyOn(SpacesStorageService.prototype, "upload")
+      .mockImplementation(async (file, folder) => {
+        const key = `${folder}/test-${++uploadNumber}.${file.extension}`;
+        return {
+          key,
+          url: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/${key}`,
+        };
+      });
+    jest
+      .spyOn(SpacesStorageService.prototype, "delete")
+      .mockResolvedValue(undefined);
+
     const application = new App();
     await application.initialize();
     api = request(application.getApp());
   });
 
-  beforeEach(clearTestDatabase);
-  afterAll(closeTestDatabase);
+  beforeEach(async () => {
+    uploadNumber = 0;
+    await clearTestDatabase();
+  });
+  afterAll(async () => {
+    await closeTestDatabase();
+    jest.restoreAllMocks();
+  });
 
   it("runs the registration, login, category, and image flow over HTTP", async () => {
     const registration = await api
@@ -80,16 +103,17 @@ describe("API E2E", () => {
     const createdImage = await api
       .post("/api/image")
       .set("Authorization", authorization)
-      .send({
-        title: "Modern architecture",
-        pathImage: "/images/house.png",
-        description: "Modern house",
-        categoryIds: [createdCategory.body.data.id],
+      .field("title", "Modern architecture")
+      .field("description", "Modern house")
+      .field("categoryIds", createdCategory.body.data.id)
+      .attach("image", TEST_PNG, {
+        filename: "house.png",
+        contentType: "image/png",
       });
     expect(createdImage.status).toBe(201);
     expect(createdImage.body.data).toMatchObject({
       title: "Modern architecture",
-      pathImage: "/images/house.png",
+      pathImage: `https://test-mood-board-media.nyc3.cdn.digitaloceanspaces.com/images/${registration.body.data.id}/test-1.png`,
       description: "Modern house",
       categories: [
         {
@@ -123,11 +147,12 @@ describe("API E2E", () => {
       await api
         .post("/api/image")
         .set("Authorization", authorization)
-        .send({
-          title: `Architecture ${imageNumber}`,
-          pathImage: `/images/house-${imageNumber}.png`,
-          description: `Modern house ${imageNumber}`,
-          categoryIds: [createdCategory.body.data.id],
+        .field("title", `Architecture ${imageNumber}`)
+        .field("description", `Modern house ${imageNumber}`)
+        .field("categoryIds", createdCategory.body.data.id)
+        .attach("image", TEST_PNG, {
+          filename: `house-${imageNumber}.png`,
+          contentType: "image/png",
         })
         .expect(201);
     }
